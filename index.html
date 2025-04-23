@@ -206,23 +206,33 @@
             margin-bottom: 0.5rem;
         }
         
+        /* Estilos originales de servicios (ahora obsoletos) */
         .services {
             padding: 6rem 0;
         }
         
+        /* Nuevos estilos para la sección de servicios */
+        .service-header {
+            background-color: var(--primary) !important;
+        }
+        
         .service-box {
-            padding: 2rem;
-            border-radius: 15px;
-            background-color: white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            margin-bottom: 30px;
             transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            background-color: white;
+            margin-bottom: 30px;
         }
         
         .service-box:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .service-content ul {
+            padding-left: 1.2rem;
         }
         
         .service-icon {
@@ -480,7 +490,7 @@
                 </div>
                 <div class="col-lg-6 profile-section">
                     <div class="text-center">
-                        <img src="https://via.placeholder.com/500x600/20b2aa/ffffff" alt="Profile" class="img-fluid profile-img">
+                        <img src="/api/placeholder/500/600" alt="Profile" class="img-fluid profile-img">
                     </div>
                 </div>
             </div>
@@ -495,7 +505,7 @@
                 <!-- Project 1 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="project-card">
-                        <div class="project-img" style="background-image: url('https://via.placeholder.com/600x400/20b2aa/ffffff')"></div>
+                        <div class="project-img" style="background-image: url('/api/placeholder/600/400')"></div>
                         <div class="project-content">
                             <h3 class="project-title">CraftWorld Network</h3>
                             <div class="project-tags">
@@ -511,7 +521,7 @@
                 <!-- Project 2 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="project-card">
-                        <div class="project-img" style="background-image: url('https://via.placeholder.com/600x400/0c1b1f/ffffff')"></div>
+                        <div class="project-img" style="background-image: url('/api/placeholder/600/400')"></div>
                         <div class="project-content">
                             <h3 class="project-title">BattleRoyale Plugin</h3>
                             <div class="project-tags">
@@ -527,7 +537,7 @@
                 <!-- Project 3 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="project-card">
-                        <div class="project-img" style="background-image: url('https://via.placeholder.com/600x400/5fe7db/ffffff')"></div>
+                        <div class="project-img" style="background-image: url('/api/placeholder/600/400')"></div>
                         <div class="project-content">
                             <h3 class="project-title">Survival Avanzado</h3>
                             <div class="project-tags">
@@ -543,41 +553,79 @@
         </div>
     </section>
 
-    <!-- Services -->
+    <!-- Services (FUSIONADO) -->
     <section class="services" id="services">
         <div class="container">
             <h2 class="section-title">Servicios</h2>
             <div class="row">
                 <!-- Service 1 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-box">
-                        <div class="service-icon">
-                            <i class="fas fa-server"></i>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="service-box p-0 overflow-hidden">
+                        <div class="service-header bg-primary p-4 d-flex align-items-center">
+                            <i class="fas fa-server text-white me-3" style="font-size: 1.5rem;"></i>
+                            <h3 class="text-white mb-0 fs-5">Configuración Básica de Servidor</h3>
                         </div>
-                        <h3>Configuración de Servidores</h3>
-                        <p>Instalación y optimización de servidores Minecraft para máximo rendimiento, incluso con cientos de plugins y jugadores conectados.</p>
+                        <div class="service-content p-4">
+                            <p>Configuración inicial del servidor con plugins esenciales y optimización básica.</p>
+                            
+                            <p class="fw-bold mt-4 mb-2">Incluye:</p>
+                            <ul>
+                                <li>Instalación de servidor (Paper/Spigot/Bukkit)</li>
+                                <li>Configuración básica de rendimiento</li>
+                                <li>Instalación de plugins esenciales</li>
+                                <li>Configuración de permisos básicos</li>
+                            </ul>
+                            
+                            <p class="mt-4 fw-bold text-danger">Desde 30€</p>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Service 2 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-box">
-                        <div class="service-icon">
-                            <i class="fas fa-code"></i>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="service-box p-0 overflow-hidden">
+                        <div class="service-header bg-primary p-4 d-flex align-items-center">
+                            <i class="fas fa-tachometer-alt text-white me-3" style="font-size: 1.5rem;"></i>
+                            <h3 class="text-white mb-0 fs-5">Optimización de Rendimiento</h3>
                         </div>
-                        <h3>Desarrollo de Plugins</h3>
-                        <p>Creación de plugins a medida que transforman tu servidor con características únicas y adaptadas a tus necesidades específicas.</p>
+                        <div class="service-content p-4">
+                            <p>Análisis completo y optimización para maximizar el TPS y minimizar el lag.</p>
+                            
+                            <p class="fw-bold mt-4 mb-2">Incluye:</p>
+                            <ul>
+                                <li>Análisis de rendimiento actual</li>
+                                <li>Optimización de chunks y entidades</li>
+                                <li>Configuración para reducir lag</li>
+                                <li>Ajustes de view-distance y mob-spawning</li>
+                                <li>Informe detallado de cambios realizados</li>
+                            </ul>
+                            
+                            <p class="mt-4 fw-bold text-danger">Desde 25€</p>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Service 3 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-box">
-                        <div class="service-icon">
-                            <i class="fas fa-tools"></i>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="service-box p-0 overflow-hidden">
+                        <div class="service-header bg-primary p-4 d-flex align-items-center">
+                            <i class="fas fa-puzzle-piece text-white me-3" style="font-size: 1.5rem;"></i>
+                            <h3 class="text-white mb-0 fs-5">Configuración de Plugins Premium</h3>
                         </div>
-                        <h3>Mantenimiento y Soporte</h3>
-                        <p>Solución de problemas, actualizaciones compatibles y mejoras continuas para mantener tu servidor funcionando a la perfección.</p>
+                        <div class="service-content p-4">
+                            <p>Instalación y configuración personalizada de plugins premium para tu servidor.</p>
+                            
+                            <p class="fw-bold mt-4 mb-2">Incluye:</p>
+                            <ul>
+                                <li>Instalación de plugins premium</li>
+                                <li>Configuración personalizada según tus necesidades</li>
+                                <li>Integración entre plugins</li>
+                                <li>Solución de conflictos</li>
+                                <li>Documentación de configuraciones</li>
+                            </ul>
+                            
+                            <p class="mt-4 fw-bold text-danger">Desde 40€</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -596,7 +644,7 @@
                             Los plugins que desarrolló para nuestro servidor cambiaron completamente la experiencia de juego. Nuestros jugadores están fascinados con las nuevas mecánicas y el rendimiento sigue siendo excelente incluso en horas pico.
                         </p>
                         <div class="testimonial-author">
-                            <img src="https://via.placeholder.com/60x60/20b2aa/ffffff" alt="Cliente" class="testimonial-avatar">
+                            <img src="/api/placeholder/60/60" alt="Cliente" class="testimonial-avatar">
                             <div class="testimonial-info">
                                 <h4>Alex_Gamer</h4>
                                 <p>Dueño, FusionMC Network</p>
@@ -619,7 +667,7 @@
                             La configuración y optimización de nuestro servidor superó todas nuestras expectativas. El servidor ahora puede manejar más de 200 jugadores sin lag y los tiempos de carga se redujeron drásticamente. Un trabajo impecable.
                         </p>
                         <div class="testimonial-author">
-                            <img src="https://via.placeholder.com/60x60/0c1b1f/ffffff" alt="Cliente" class="testimonial-avatar">
+                            <img src="/api/placeholder/60/60" alt="Cliente" class="testimonial-avatar">
                             <div class="testimonial-info">
                                 <h4>CraftMaster</h4>
                                 <p>Admin, BlockWorld</p>
@@ -642,7 +690,7 @@
                             El sistema de misiones que desarrolló transformó nuestro servidor survival en una experiencia única. La comunicación durante todo el proceso fue excelente y siempre estuvo dispuesto a implementar nuestras ideas.
                         </p>
                         <div class="testimonial-author">
-                            <img src="https://via.placeholder.com/60x60/5fe7db/ffffff" alt="Cliente" class="testimonial-avatar">
+                            <img src="/api/placeholder/60/60" alt="Cliente" class="testimonial-avatar">
                             <div class="testimonial-info">
                                 <h4>PixelBuilder</h4>
                                 <p>Fundador, PixelCraft</p>
@@ -665,7 +713,7 @@
                             Contratar sus servicios fue la mejor decisión para nuestro servidor. Su conocimiento técnico es impresionante y siempre encuentra soluciones creativas para cualquier problema. Ahora somos uno de los servidores más populares de nuestra región.
                         </p>
                         <div class="testimonial-author">
-                            <img src="https://via.placeholder.com/60x60/2a7f7a/ffffff" alt="Cliente" class="testimonial-avatar">
+                            <img src="/api/placeholder/60/60" alt="Cliente" class="testimonial-avatar">
                             <div class="testimonial-info">
                                 <h4>MineCrafter23</h4>
                                 <p>CEO, CubeMC</p>
