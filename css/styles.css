@@ -132,10 +132,11 @@ h1, h2, h3, h4, h5, h6 {
     z-index: 1;
 }
 
-/* Featured Work Section */
+/* Featured Projects/Opinions Section - Updated */
 .featured-work {
     padding: 6rem 0;
     background-color: #f8f9fa;
+    position: relative;
 }
 
 .section-title {
@@ -158,50 +159,90 @@ h1, h2, h3, h4, h5, h6 {
 .project-card {
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
     margin-bottom: 30px;
     transition: all 0.3s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
+    background-color: white;
 }
 
 .project-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
+/* Nuevo elemento decorativo detrás de la tarjeta */
+.opinion-decorative-bg {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: calc(100% + 16px);
+    height: calc(100% + 16px);
+    background-color: var(--primary-light);
+    border-radius: 18px;
+    z-index: -1;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.project-card:hover .opinion-decorative-bg {
+    top: -12px;
+    left: -12px;
+    width: calc(100% + 24px);
+    height: calc(100% + 24px);
+    opacity: 0.8;
+}
+
+/* Contenedor de imagen más grande */
 .project-img-container {
-    height: 120px;
+    height: 160px; /* Aumentado de 120px a 160px */
     background-color: var(--dark);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+}
+
+.project-img-container:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    z-index: 1;
 }
 
 .project-img-custom {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
 }
 
 .project-card:hover .project-img-custom {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 .project-content {
-    padding: 1.5rem;
+    padding: 1.8rem;
     background-color: white;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 2;
 }
 
 .project-title {
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
     font-size: 1.3rem;
+    color: var(--dark);
 }
 
 .project-tag {
@@ -210,9 +251,10 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary);
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
+    font-weight: 500;
 }
 
 /* Services Section */
@@ -372,12 +414,22 @@ footer {
         margin-top: 2rem;
     }
     .project-img-container {
-        height: 100px;
+        height: 140px;
     }
 }
 
 @media (max-width: 768px) {
     .project-img-container {
-        height: 110px;
+        height: 130px;
+    }
+    
+    .project-content {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .project-img-container {
+        height: 150px;
     }
 }
