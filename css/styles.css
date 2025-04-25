@@ -4,6 +4,7 @@
     --dark: #0c1b1f;
     --light: #f8fbfb;
     --gray: #828282;
+    --accent: #FFD700; /* Color acento para destacar opiniones */
 }
 
 body {
@@ -170,37 +171,69 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Imágenes más pequeñas para las opiniones de clientes */
 .smaller-img {
-    height: 80px !important;  /* Reducción del alto de 120px a 80px */
+    height: 100px !important;  /* Aumentado de 80px a 100px */
+    width: 100px;  /* Aumentado de 80px a 100px */
     margin: 0 auto;
-    width: 80px;
-    border-radius: 50%;       /* Para hacerlas circulares */
-    background-color: white;  /* Cambiamos el fondo a blanco en lugar de oscuro */
+    border-radius: 50%;
+    background-color: white;
+    position: relative;
+    top: -40px;  /* Posicionamiento hacia arriba para que sobresalga */
+    border: 5px solid white;  /* Borde blanco alrededor del círculo */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: -30px;  /* Compensación para el espacio en el contenido */
 }
 
 .smaller-img .project-img-custom {
-    padding: 10px;           /* Padding interno para que la imagen no ocupe todo el círculo */
-    object-fit: contain;     /* Mantiene la proporción sin recortar */
+    padding: 10px;
+    object-fit: contain;
 }
 
 /* Mejora el aspecto general de las tarjetas de proyectos */
 .opinion-section .project-card {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f0f0f0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border: none;
+    transition: all 0.3s ease;
+    margin-top: 30px;  /* Espacio adicional en la parte superior para la imagen */
+    border-radius: 15px;
+    overflow: visible;  /* Permite que la imagen sobresalga */
+    background: linear-gradient(to bottom, var(--primary-light) 0%, var(--primary-light) 30px, white 30px, white 100%);  /* Gradiente para el fondo de cabecera */
+}
+
+.opinion-section .project-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-light);
 }
 
 .opinion-section .project-content {
-    text-align: center;      /* Centramos el texto de las opiniones */
+    text-align: center;
+    padding-top: 20px;  /* Espacio adicional en la parte superior */
+}
+
+.opinion-section .project-title {
+    color: var(--dark);
+    margin-bottom: 0.5rem;
 }
 
 .opinion-section .project-tag {
-    margin: 0 auto;          /* Centra las etiquetas */
+    margin: 0 auto;
     display: inline-block;
+    background-color: rgba(32, 178, 170, 0.1);
+    color: var(--primary);
+    padding: 0.3rem 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+/* Añadimos un borde de acento para destacar más las tarjetas */
+.opinion-section .project-card {
+    border-bottom: 3px solid var(--primary);
 }
 
 /* Aumentamos ligeramente el margen entre las tarjetas */
 .opinion-section .col-lg-3 {
     padding: 0 15px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .project-card {
@@ -435,7 +468,8 @@ footer {
     }
     
     .smaller-img {
-        height: 70px !important;
-        width: 70px;
+        height: 90px !important;
+        width: 90px;
+        top: -35px;
     }
 }
