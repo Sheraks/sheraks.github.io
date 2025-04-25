@@ -172,7 +172,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .project-img-container {
-    height: 220px;
+    height: 120px;
     background-color: var(--dark);
     overflow: hidden;
     display: flex;
@@ -372,12 +372,12 @@ footer {
         margin-top: 2rem;
     }
     .project-img-container {
-        height: 180px;
+        height: 100px;
     }
 }
 
 @media (max-width: 768px) {
     .project-img-container {
-        height: 200px;
+        height: 110px;
     }
 }
