@@ -9,8 +9,8 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--light);
-    color: var(--dark);
+    background-color: var(--dark);
+    color: white;
     overflow-x: hidden;
 }
 
@@ -21,11 +21,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Navbar Styles */
 .navbar {
-    background-color: transparent;
-    position: absolute;
+    background-color: rgba(12, 27, 31, 0.9);
+    position: fixed;
     width: 100%;
     z-index: 100;
     padding-top: 1.5rem;
+    transition: all 0.3s ease;
 }
 
 .navbar-brand {
@@ -34,14 +35,14 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary);
 }
 
-.navbar-light .navbar-nav .nav-link {
-    color: var(--dark);
+.navbar-dark .navbar-nav .nav-link {
+    color: white;
     font-weight: 500;
     position: relative;
     padding: 0.5rem 1rem;
 }
 
-.navbar-light .navbar-nav .nav-link::after {
+.navbar-dark .navbar-nav .nav-link::after {
     content: "";
     position: absolute;
     bottom: 0;
@@ -52,13 +53,13 @@ h1, h2, h3, h4, h5, h6 {
     transition: width 0.3s ease;
 }
 
-.navbar-light .navbar-nav .nav-link:hover::after {
+.navbar-dark .navbar-nav .nav-link:hover::after {
     width: calc(100% - 2rem);
 }
 
 /* Hero Section */
 .hero {
-    background-color: #fff;
+    background-color: var(--dark);
     padding: 12rem 0 6rem 0;
     position: relative;
 }
@@ -78,10 +79,11 @@ h1, h2, h3, h4, h5, h6 {
 .hero-title {
     font-size: 3.5rem;
     margin-bottom: 1.5rem;
+    color: white;
 }
 
 .hero-subtitle {
-    color: var(--gray);
+    color: #bbb;
     font-size: 1.2rem;
     margin-bottom: 2rem;
     max-width: 80%;
@@ -102,15 +104,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-custom:hover {
-    background-color: var(--dark);
-    color: white;
+    background-color: var(--primary-light);
+    color: var(--dark);
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn-outline {
     background-color: transparent;
-    color: var(--dark);
+    color: white;
     border: 2px solid var(--primary);
     padding: 0.75rem 2rem;
     border-radius: 50px;
@@ -121,14 +123,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-outline:hover {
     background-color: var(--primary);
-    color: white;
+    color: var(--dark);
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .profile-img {
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 1;
 }
@@ -136,13 +138,14 @@ h1, h2, h3, h4, h5, h6 {
 /* Featured Work Section */
 .featured-work {
     padding: 6rem 0;
-    background-color: #f8f9fa;
+    background-color: var(--dark);
 }
 
 .section-title {
     text-align: center;
     margin-bottom: 3rem;
     position: relative;
+    color: white;
 }
 
 .section-title::after {
@@ -162,9 +165,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section-background {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     padding: 3rem 2rem;
     margin: 0 1rem;
 }
@@ -178,8 +181,8 @@ h1, h2, h3, h4, h5, h6 {
     background-color: white;
     position: relative;
     top: -40px;  /* Posicionamiento hacia arriba para que sobresalga */
-    border: 5px solid white;  /* Borde blanco alrededor del círculo */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: 5px solid rgba(255, 255, 255, 0.1);  /* Borde alrededor del círculo */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     margin-bottom: -30px;  /* Compensación para el espacio en el contenido */
 }
 
@@ -188,38 +191,46 @@ h1, h2, h3, h4, h5, h6 {
     object-fit: contain;
 }
 
+/* Estrellas de valoración */
+.rating {
+    color: var(--accent);
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
 /* Mejora el aspecto general de las tarjetas de proyectos */
 .opinion-section .project-card {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     border: none;
     transition: all 0.3s ease;
     margin-top: 30px;  /* Espacio adicional en la parte superior para la imagen */
     border-radius: 15px;
     overflow: visible;  /* Permite que la imagen sobresalga */
-    background: linear-gradient(to bottom, var(--primary-light) 0%, var(--primary-light) 30px, white 30px, white 100%);  /* Gradiente para el fondo de cabecera */
+    background: linear-gradient(to bottom, var(--primary-light) 0%, var(--primary-light) 30px, rgba(255, 255, 255, 0.1) 30px, rgba(255, 255, 255, 0.1) 100%);  /* Gradiente para el fondo de cabecera */
 }
 
 .opinion-section .project-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
     border-color: var(--primary-light);
 }
 
 .opinion-section .project-content {
     text-align: center;
     padding-top: 20px;  /* Espacio adicional en la parte superior */
+    color: #f0f0f0;
 }
 
 .opinion-section .project-title {
-    color: var(--dark);
+    color: white;
     margin-bottom: 0.5rem;
 }
 
 .opinion-section .project-tag {
     margin: 0 auto;
     display: inline-block;
-    background-color: rgba(32, 178, 170, 0.1);
-    color: var(--primary);
+    background-color: rgba(32, 178, 170, 0.2);
+    color: var(--primary-light);
     padding: 0.3rem 1rem;
     border-radius: 50px;
     font-weight: 500;
@@ -239,17 +250,18 @@ h1, h2, h3, h4, h5, h6 {
 .project-card {
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     margin-bottom: 30px;
     transition: all 0.3s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .project-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
 }
 
 .project-img-container {
@@ -274,7 +286,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .project-content {
     padding: 1.5rem;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.1);
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -283,12 +295,13 @@ h1, h2, h3, h4, h5, h6 {
 .project-title {
     margin-bottom: 1rem;
     font-size: 1.3rem;
+    color: white;
 }
 
 .project-tag {
     display: inline-block;
-    background-color: rgba(32, 178, 170, 0.1);
-    color: var(--primary);
+    background-color: rgba(32, 178, 170, 0.2);
+    color: var(--primary-light);
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -299,6 +312,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Services Section */
 .services {
     padding: 6rem 0;
+    background-color: var(--dark);
 }
 
 .service-header {
@@ -309,15 +323,19 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.3s ease;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     height: 100%;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.1);
     margin-bottom: 30px;
 }
 
 .service-box:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.service-content {
+    color: #f0f0f0;
 }
 
 .service-content ul {
@@ -329,8 +347,8 @@ h1, h2, h3, h4, h5, h6 {
     height: 80px;
     line-height: 80px;
     font-size: 2rem;
-    background-color: rgba(32, 178, 170, 0.1);
-    color: var(--primary);
+    background-color: rgba(32, 178, 170, 0.2);
+    color: var(--primary-light);
     border-radius: 50%;
     margin: 0 auto 1.5rem;
     transition: all 0.3s ease;
@@ -360,6 +378,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .contact-title {
     margin-bottom: 2rem;
+    color: white;
 }
 
 .contact-method {
@@ -398,6 +417,7 @@ h1, h2, h3, h4, h5, h6 {
 .contact-info h4 {
     margin-bottom: 0.2rem;
     font-size: 1.1rem;
+    color: white;
 }
 
 .contact-info p {
