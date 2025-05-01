@@ -86,9 +86,12 @@
                                     <i class="fas fa-star"></i>
                                 </div>
                                 <div class="opinion-container">
-                                    <p class="mt-3 opinion-text">Red de servidores con múltiples modalidades, economía global y sistemas de progresión personalizados. Sheraks ha sido clave en el desarrollo de nuestra plataforma, implementando sistemas complejos con gran eficiencia.</p>
-                                    <button class="btn-read-more">Leer más</button>
+                                    <p class="mt-3 opinion-text">Red de servidores con múltiples modalidades, economía global y sistemas de progresión personalizados.</p>
+                                    <div class="full-opinion" style="display: none;">
+                                        <p>Red de servidores con múltiples modalidades, economía global y sistemas de progresión personalizados. Sheraks me ayudó a configurar toda la estructura de la red y a optimizar el rendimiento para más de 300 jugadores concurrentes. El resultado superó mis expectativas y los problemas de lag desaparecieron.</p>
+                                    </div>
                                 </div>
+                                <button class="btn btn-sm btn-opinion mt-2">Leer más</button>
                             </div>
                         </div>
                     </div>
@@ -112,9 +115,12 @@
                                     <i class="fas fa-star-half-alt"></i>
                                 </div>
                                 <div class="opinion-container">
-                                    <p class="mt-3 opinion-text">Servidor temático de exploración espacial con sistemas de planetas y naves personalizadas. Trabajar con Sheraks fue una experiencia única, logró darle vida a conceptos que parecían imposibles de implementar en Minecraft.</p>
-                                    <button class="btn-read-more">Leer más</button>
+                                    <p class="mt-3 opinion-text">Servidor temático de exploración espacial con sistemas de planetas y naves personalizadas.</p>
+                                    <div class="full-opinion" style="display: none;">
+                                        <p>Servidor temático de exploración espacial con sistemas de planetas y naves personalizadas. La integración de plugins y la configuración de mundos personalizados que realizó Sheraks nos permitió crear una experiencia única para nuestros jugadores.</p>
+                                    </div>
                                 </div>
+                                <button class="btn btn-sm btn-opinion mt-2">Leer más</button>
                             </div>
                         </div>
                     </div>
@@ -138,9 +144,12 @@
                                     <i class="fas fa-star"></i>
                                 </div>
                                 <div class="opinion-container">
-                                    <p class="mt-3 opinion-text">Contraté a Sheraks para hacer varios ajustes e implementaciones en una de mis modalidades. Estoy muy satisfecho con su trabajo de configuración, fue rápido y efectivo. Además, me proporcionó documentación detallada para futuras actualizaciones.</p>
-                                    <button class="btn-read-more">Leer más</button>
+                                    <p class="mt-3 opinion-text">Contraté a Sheraks para hacer varios ajustes e implementaciones en una de mis modalidades.</p>
+                                    <div class="full-opinion" style="display: none;">
+                                        <p>Contraté a Sheraks para hacer varios ajustes e implementaciones en una de mis modalidades. Estoy muy satisfecho con su trabajo de configuración, fue rápido y efectivo. Consiguió arreglar problemas que teníamos desde hace meses con otros desarrolladores y mejoró significativamente el rendimiento general del servidor.</p>
+                                    </div>
                                 </div>
+                                <button class="btn btn-sm btn-opinion mt-2">Leer más</button>
                             </div>
                         </div>
                     </div>
@@ -164,9 +173,12 @@
                                     <i class="far fa-star"></i>
                                 </div>
                                 <div class="opinion-container">
-                                    <p class="mt-3 opinion-text">Red de minijuegos con más de 10 modalidades distintas y sistema de progresión unificado. La optimización realizada por Sheraks mejoró significativamente el rendimiento de nuestro servidor, permitiéndonos aumentar la capacidad de jugadores en un 40%.</p>
-                                    <button class="btn-read-more">Leer más</button>
+                                    <p class="mt-3 opinion-text">Red de minijuegos con más de 10 modalidades distintas y sistema de progresión unificado.</p>
+                                    <div class="full-opinion" style="display: none;">
+                                        <p>Red de minijuegos con más de 10 modalidades distintas y sistema de progresión unificado. La configuración personalizada que hizo Sheraks para nuestro servidor de MurderMystery y BedWars mejoró muchísimo la experiencia de juego. Lo único que faltó fue un poco más de documentación sobre los cambios realizados.</p>
+                                    </div>
                                 </div>
+                                <button class="btn btn-sm btn-opinion mt-2">Leer más</button>
                             </div>
                         </div>
                     </div>
@@ -304,29 +316,96 @@
         </div>
     </footer>
 
+    <!-- Modal para opiniones -->
+    <div id="opinionModal" class="opinion-modal">
+        <div class="opinion-modal-content">
+            <div class="opinion-modal-header">
+                <h4 class="opinion-modal-title" id="modalNetworkTitle">Opinión de Cliente</h4>
+                <span class="opinion-close">&times;</span>
+            </div>
+            <div class="opinion-modal-body">
+                <div class="mb-2">
+                    <span id="modalOwner" class="project-tag">Cliente</span>
+                    <div id="modalRating" class="rating mt-2">
+                        <!-- Estrellas se cargarán dinámicamente -->
+                    </div>
+                </div>
+                <p id="modalOpinion"></p>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JS for Read More functionality -->
+    <!-- Custom JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const readMoreButtons = document.querySelectorAll('.btn-read-more');
-            
-            readMoreButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const container = this.closest('.opinion-container');
-                    const opinionText = container.querySelector('.opinion-text');
-                    
-                    if (opinionText.classList.contains('expanded')) {
-                        opinionText.classList.remove('expanded');
-                        this.textContent = 'Leer más';
-                    } else {
-                        opinionText.classList.add('expanded');
-                        this.textContent = 'Leer menos';
-                    }
-                });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener todos los botones de "Leer más"
+        const opinionButtons = document.querySelectorAll('.btn-opinion');
+        const modal = document.getElementById('opinionModal');
+        const modalClose = document.querySelector('.opinion-close');
+        const modalTitle = document.getElementById('modalNetworkTitle');
+        const modalOwner = document.getElementById('modalOwner');
+        const modalRating = document.getElementById('modalRating');
+        const modalOpinion = document.getElementById('modalOpinion');
+        
+        // Añadir evento de clic a cada botón
+        opinionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const card = this.closest('.project-card');
+                const networkTitle = card.querySelector('.network-title').textContent;
+                const ownerTag = card.querySelector('.project-tag').textContent;
+                const ratingHTML = card.querySelector('.rating').innerHTML;
+                const fullOpinion = card.querySelector('.full-opinion p').textContent;
+                
+                // Cargar datos en el modal
+                modalTitle.textContent = networkTitle;
+                modalOwner.textContent = ownerTag;
+                modalRating.innerHTML = ratingHTML;
+                modalOpinion.textContent = fullOpinion;
+                
+                // Mostrar el modal
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevenir scroll en el fondo
             });
         });
+        
+        // Cerrar el modal al hacer clic en la X
+        modalClose.addEventListener('click', function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaurar scroll
+        });
+        
+        // Cerrar el modal al hacer clic fuera del contenido
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restaurar scroll
+            }
+        });
+        
+        // Opción alternativa: Expandir/colapsar texto en la misma tarjeta en lugar de usar modal
+        /* 
+        opinionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const card = this.closest('.project-card');
+                const opinionText = card.querySelector('.opinion-text');
+                const fullOpinion = card.querySelector('.full-opinion');
+                
+                if (fullOpinion.style.display === 'none') {
+                    opinionText.style.display = 'none';
+                    fullOpinion.style.display = 'block';
+                    this.textContent = 'Leer menos';
+                } else {
+                    opinionText.style.display = 'block';
+                    fullOpinion.style.display = 'none';
+                    this.textContent = 'Leer más';
+                }
+            });
+        });
+        */
+    });
     </script>
 </body>
 </html>
