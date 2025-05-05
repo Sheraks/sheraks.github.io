@@ -215,6 +215,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 15px;
     overflow: visible;  /* Permite que la imagen sobresalga */
     background: linear-gradient(to bottom, var(--primary-light) 0%, var(--primary-light) 30px, rgba(255, 255, 255, 0.1) 30px, rgba(255, 255, 255, 0.1) 100%);  /* Gradiente para el fondo de cabecera */
+    margin-bottom: 30px; /* Añadido para dar más espacio entre filas */
 }
 
 .opinion-section .project-card:hover {
@@ -269,10 +270,10 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: 3px solid var(--primary);
 }
 
-/* Aumentamos ligeramente el margen entre las tarjetas */
-.opinion-section .col-lg-3 {
-    padding: 0 15px;
-    margin-bottom: 30px;
+/* Ajustamos el margen para las tarjetas en vista de 2 columnas */
+.opinion-section .col-lg-6 {
+    padding: 0 20px;
+    margin-bottom: 40px;
 }
 
 .project-card {
