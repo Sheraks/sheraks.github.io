@@ -90,13 +90,6 @@ h1, h2, h3, h4, h5, h6 {
     color: white;
 }
 
-.hero-subtitle {
-    color: #bbb;
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    max-width: 80%;
-}
-
 .highlight {
     color: var(--primary);
 }
@@ -391,23 +384,6 @@ h1, h2, h3, h4, h5, h6 {
     padding-left: 1.2rem;
 }
 
-.service-icon {
-    width: 80px;
-    height: 80px;
-    line-height: 80px;
-    font-size: 2rem;
-    background-color: rgba(32, 178, 170, 0.2);
-    color: var(--primary-light);
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.service-box:hover .service-icon {
-    background-color: var(--primary);
-    color: white;
-}
-
 /* Contact Section */
 .contact {
     padding: 6rem 0;
@@ -420,7 +396,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 3rem;
-    max-width: 600px;
+    max-width: 768px;
     margin: 0 auto;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
@@ -430,14 +406,18 @@ h1, h2, h3, h4, h5, h6 {
     color: white;
 }
 
+/* Actualización de los métodos de contacto para hacerlos más pequeños y centrados */
 .contact-method {
     display: flex;
     align-items: center;
     margin-bottom: 1.5rem;
-    padding: 1rem;
+    padding: 0.75rem;
     border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .contact-method:hover {
@@ -446,8 +426,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .contact-icon {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -459,59 +439,39 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .contact-icon i {
-    font-size: 1.2rem;
+    font-size: 1rem;
 }
 
 .contact-info {
     text-align: left;
 }
 
-.contact-cta a.btn-custom {
-    text-decoration: none;
-}
-
 .contact-info h4 {
     margin-bottom: 0.2rem;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: white;
 }
 
 .contact-info p {
     margin: 0;
     color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
 }
 
 .contact-cta {
     margin-top: 2rem;
 }
 
-/* Footer */
+.contact-cta a.btn-custom {
+    text-decoration: none;
+}
+
+/* Footer (simplificado) */
 footer {
     background-color: #081214;
     padding: 2rem 0;
     color: white;
     text-align: center;
-}
-
-.social-links {
-    margin-bottom: 1rem;
-}
-
-.social-links a {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-    border-radius: 50%;
-    margin: 0 0.5rem;
-    transition: all 0.3s ease;
-}
-
-.social-links a:hover {
-    background-color: var(--primary);
-    transform: translateY(-3px);
 }
 
 /* Media Queries */
@@ -521,9 +481,6 @@ footer {
     }
     .hero-title {
         font-size: 2.5rem;
-    }
-    .hero-subtitle {
-        max-width: 100%;
     }
     .profile-section {
         margin-top: 2rem;
@@ -564,22 +521,19 @@ footer {
         padding: 2rem 1rem;
         margin: 0;
     }
+    
+    .contact-method {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 576px) {
     .opinion-text {
         display: block;
-        -webkit-line-clamp: initial;
-        -webkit-box-orient: initial;
         overflow: visible;
     }
-}
-
-/* Ocultar elementos de "Leer más" que ya no se utilizan */
-.read-more-btn {
-    display: none;
-}
-
-.opinion-full {
-    display: block !important;
+    
+    .contact-card {
+        padding: 2rem 1rem;
+    }
 }
