@@ -780,22 +780,23 @@ body{
     DeluxeMenus <span style="color:var(--fg-dim);font-weight:400">Builder</span>
   </a>
   <div class="nav-right">
-    <button class="btn btn-ghost btn-sm" onclick="resetAll()">
+    <button class="btn btn-ghost btn-sm" onclick="toggleLang()" id="lang-btn" title="Switch language" style="font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.05em">ES</button>
+    <button class="btn btn-ghost btn-sm" onclick="resetAll()" data-i18n="btnNew">
       <i class="fa-solid fa-plus"></i> Nuevo
     </button>
-    <button class="btn btn-ghost btn-sm" onclick="triggerImport()">
+    <button class="btn btn-ghost btn-sm" onclick="triggerImport()" data-i18n="btnImport">
       <i class="fa-solid fa-upload"></i> Importar .yml
     </button>
-    <button class="btn btn-ghost btn-sm" id="grad-btn" onclick="toggleGrad()" title="Generador de degradados RGB">
+    <button class="btn btn-ghost btn-sm" id="grad-btn" onclick="toggleGrad()" data-i18n="btnGrad" data-i18n-title="btnGradTitle">
       <i class="fa-solid fa-palette"></i> Degradado
     </button>
-    <button class="btn btn-ghost btn-sm" id="sc-btn" onclick="toggleSC()">
+    <button class="btn btn-ghost btn-sm" id="sc-btn" onclick="toggleSC()" data-i18n="btnSC">
       ᴀ Small Caps
     </button>
-    <button class="btn btn-ghost btn-sm" onclick="copyYAML()">
+    <button class="btn btn-ghost btn-sm" onclick="copyYAML()" data-i18n="btnCopy">
       <i class="fa-regular fa-copy"></i> Copiar
     </button>
-    <button class="btn btn-primary btn-sm" onclick="downloadYAML()">
+    <button class="btn btn-primary btn-sm" onclick="downloadYAML()" data-i18n="btnDownload">
       <i class="fa-solid fa-download"></i> Descargar .yml
     </button>
   </div>
@@ -806,22 +807,22 @@ body{
 
 <!-- ══ LEFT ══ -->
 <div class="pnl">
-  <div class="ph">Config. del GUI</div>
+  <div class="ph" data-i18n="phLeft">Config. del GUI</div>
 
   <div class="f">
-    <label>Título del menú</label>
+    <label data-i18n="lblMenuTitle">Título del menú</label>
     <input id="g-title" value="&aMi Menú" oninput="onGUI()">
-    <div class="hint">Soporta &amp;a &amp;c &amp;6 ... y PlaceholderAPI</div>
+    <div class="hint" data-i18n="hintTitle">Soporta &amp;a &amp;c &amp;6 ... y PlaceholderAPI</div>
   </div>
   <div class="f">
-    <label>Comando de apertura</label>
+    <label data-i18n="lblOpenCmd">Comando de apertura</label>
     <input id="g-cmd" value="mimenu" oninput="onGUI()">
-    <div class="hint">Sin "/" · Comas para múltiples</div>
+    <div class="hint" data-i18n="hintCmd">Sin "/" · Comas para múltiples</div>
   </div>
   <div class="f">
-    <label>Tipo de inventario</label>
+    <label data-i18n="lblInvType">Tipo de inventario</label>
     <select id="g-invtype" onchange="onInvType()">
-      <option value="CHEST" selected>CHEST (Cofre)</option>
+      <option value="CHEST" selected data-i18n-opt="optChest">CHEST (Cofre)</option>
       <option value="HOPPER">HOPPER</option>
       <option value="DISPENSER">DISPENSER</option>
       <option value="DROPPER">DROPPER</option>
@@ -836,7 +837,7 @@ body{
     </select>
   </div>
   <div class="f" id="size-f">
-    <label>Tamaño (slots)</label>
+    <label data-i18n="lblSize">Tamaño (slots)</label>
     <div class="spills">
       <div class="sp" data-s="9" onclick="setSize(9)">9</div>
       <div class="sp" data-s="18" onclick="setSize(18)">18</div>
@@ -847,49 +848,49 @@ body{
     </div>
   </div>
   <div class="f">
-    <label>Update interval (segundos)</label>
-    <input type="number" id="g-upd" oninput="onGUI()" placeholder="20 (opcional)">
+    <label data-i18n="lblUpdateInterval">Update interval (segundos)</label>
+    <input type="number" id="g-upd" oninput="onGUI()" placeholder="20 (opcional)" data-i18n-ph="phOptional">
   </div>
 
-  <div class="sdiv">Al abrir</div>
+  <div class="sdiv" data-i18n="sdivOnOpen">Al abrir</div>
   <div id="open-cmds" class="aclist"></div>
   <button class="btn btn-ghost btn-sm" onclick="addOpenCmd()">
-    <i class="fa-solid fa-plus"></i> Añadir acción
+    <i class="fa-solid fa-plus"></i> <span data-i18n="btnAddAction">Añadir acción</span>
   </button>
 
-  <div class="sdiv">Requisito apertura</div>
+  <div class="sdiv" data-i18n="sdivOpenReq">Requisito apertura</div>
   <div class="f">
-    <label>Permiso requerido</label>
-    <input id="g-perm" oninput="onGUI()" placeholder="mi.permiso (opcional)">
+    <label data-i18n="lblPermission">Permiso requerido</label>
+    <input id="g-perm" oninput="onGUI()" placeholder="mi.permiso (opcional)" data-i18n-ph="phPermission">
   </div>
   <div class="f">
     <label>Deny message</label>
     <input id="g-deny" oninput="onGUI()" placeholder="&cNo tienes permiso.">
   </div>
 
-  <div class="sdiv">Referencia de colores</div>
+  <div class="sdiv" data-i18n="sdivColors">Referencia de colores</div>
   <div class="help-box">
-    <b>&amp;a</b> verde &nbsp;<b>&amp;c</b> rojo &nbsp;<b>&amp;6</b> naranja &nbsp;<b>&amp;e</b> amarillo<br>
+    <span id="color-ref-text"><b>&amp;a</b> verde &nbsp;<b>&amp;c</b> rojo &nbsp;<b>&amp;6</b> naranja &nbsp;<b>&amp;e</b> amarillo<br>
     <b>&amp;b</b> cyan &nbsp;<b>&amp;f</b> blanco &nbsp;<b>&amp;7</b> gris &nbsp;<b>&amp;d</b> rosa<br>
-    <b>&amp;l</b> negrita &nbsp;<b>&amp;o</b> cursiva &nbsp;<b>&amp;n</b> subrayado
+    <b>&amp;l</b> negrita &nbsp;<b>&amp;o</b> cursiva &nbsp;<b>&amp;n</b> subrayado</span>
   </div>
 </div>
 
 <!-- ══ CENTER ══ -->
 <div id="center">
-  <div class="ph" style="max-width:530px;width:100%">Inventario Visual</div>
+  <div class="ph" style="max-width:530px;width:100%" data-i18n="phCenter">Inventario Visual</div>
 
   <div class="mc-wrap">
     <div class="mc-titlebar">
-      <span class="tl">Título</span>
+      <span class="tl" data-i18n="tlTitle">Título</span>
       <span class="mc-titletext" id="inv-title"></span>
     </div>
     <div class="mc-grid" id="inv-grid"></div>
   </div>
 
   <div class="inv-footer" style="margin-top:10px;max-width:530px;width:100%">
-    Clic en slot para editar &nbsp;·&nbsp; Seleccionado:
-    <span class="sel-badge" id="sel-disp">ninguno</span>
+    <span data-i18n="footerEdit">Clic en slot para editar</span> &nbsp;·&nbsp; <span data-i18n="footerSel">Seleccionado:</span>
+    <span class="sel-badge" id="sel-disp" data-i18n-none="selNone">ninguno</span>
   </div>
 
   <div class="stats-row">
@@ -903,7 +904,7 @@ body{
     </div>
     <div class="stat-box">
       <div class="sv" id="st-a" style="color:var(--green-a)">0<span class="unit"></span></div>
-      <div class="sl">Acciones</div>
+      <div class="sl" data-i18n="slActions">Acciones</div>
     </div>
     <div class="stat-box">
       <div class="sv" id="st-l" style="color:var(--warn)">0<span class="unit"></span></div>
@@ -912,13 +913,13 @@ body{
   </div>
 
   <div class="qbtns">
-    <button class="btn btn-ghost btn-sm" onclick="fillBorders()">
+    <button class="btn btn-ghost btn-sm" onclick="fillBorders()" data-i18n="btnFillBorders">
       <i class="fa-solid fa-border-all"></i> Rellenar bordes
     </button>
-    <button class="btn btn-ghost btn-sm" onclick="fillAll()">
+    <button class="btn btn-ghost btn-sm" onclick="fillAll()" data-i18n="btnFillAll">
       <i class="fa-solid fa-table-cells"></i> Llenar todo
     </button>
-    <button class="btn btn-danger btn-sm" onclick="clearAllSlots()">
+    <button class="btn btn-danger btn-sm" onclick="clearAllSlots()" data-i18n="btnClearAll">
       <i class="fa-solid fa-trash"></i> Limpiar todo
     </button>
   </div>
@@ -926,22 +927,22 @@ body{
 
 <!-- ══ RIGHT: ITEM EDITOR ══ -->
 <div class="pnl">
-  <div class="ph" id="ed-ph">Editor de Item</div>
+  <div class="ph" id="ed-ph" data-i18n="phRight">Editor de Item</div>
 
   <div id="ed-empty" class="empty-state">
     <div class="empty-icon">📦</div>
-    <p>Haz clic en un slot<br>del inventario para editarlo.<br><br>
+    <p id="empty-text">Haz clic en un slot<br>del inventario para editarlo.<br><br>
     <span style="font-size:12px">Los slots vacíos también<br>soportan comandos (AIR)</span></p>
   </div>
 
   <div id="ed-form" style="display:none">
     <div class="f">
-      <label>Nombre YAML (clave única)</label>
-      <input id="i-name" placeholder="mi_item" oninput="onItem()">
+      <label data-i18n="lblYamlKey">Nombre YAML (clave única)</label>
+      <input id="i-name" placeholder="mi_item" oninput="onItem()" data-i18n-ph="phItemKey">
     </div>
     <div class="row2">
       <div class="f">
-        <label>Material</label>
+        <label data-i18n="lblMaterial">Material</label>
         <div style="display:flex;gap:5px;align-items:center">
           <input id="i-mat" placeholder="STONE" oninput="onItem()" style="flex:1">
           <button class="btn btn-ghost btn-xs" onclick="openMatPicker()" title="Selector de materiales" style="flex-shrink:0;padding:7px 9px">
@@ -949,45 +950,45 @@ body{
           </button>
         </div>
       </div>
-      <div class="f"><label>Cantidad</label><input type="number" id="i-amt" value="1" min="1" max="64" oninput="onItem()"></div>
+      <div class="f"><label data-i18n="lblAmount">Cantidad</label><input type="number" id="i-amt" value="1" min="1" max="64" oninput="onItem()"></div>
     </div>
     <div class="f">
-      <label>Display name</label>
-      <input id="i-dn" placeholder="&aNombre" oninput="onItem()">
+      <label data-i18n="lblDisplayName">Display name</label>
+      <input id="i-dn" placeholder="&aNombre" oninput="onItem()" data-i18n-ph="phDisplayName">
     </div>
     <div class="row2">
-      <div class="f"><label>Prioridad</label><input type="number" id="i-pri" placeholder="0 = máx" oninput="onItem()"></div>
+      <div class="f"><label data-i18n="lblPriority">Prioridad</label><input type="number" id="i-pri" placeholder="0 = máx" oninput="onItem()" data-i18n-ph="phPriority"></div>
       <div class="f"><label>Model data</label><input type="number" id="i-mdl" placeholder="14" oninput="onItem()"></div>
     </div>
 
     <div class="f">
-      <label>Lore</label>
+      <label data-i18n="lblLore">Lore</label>
       <div id="lore-list"></div>
-      <button class="btn btn-ghost btn-xs" onclick="addLore()"><i class="fa-solid fa-plus"></i> Línea</button>
+      <button class="btn btn-ghost btn-xs" onclick="addLore()" data-i18n="btnAddLore"><i class="fa-solid fa-plus"></i> Línea</button>
     </div>
 
-    <div class="sdiv">Encantamientos</div>
+    <div class="sdiv" data-i18n="sdivEnchs">Encantamientos</div>
     <div id="ench-list"></div>
-    <button class="btn btn-ghost btn-xs" onclick="addEnch()"><i class="fa-solid fa-plus"></i> Encantamiento</button>
+    <button class="btn btn-ghost btn-xs" onclick="addEnch()" data-i18n="btnAddEnch"><i class="fa-solid fa-plus"></i> Encantamiento</button>
 
-    <div class="sdiv">Opciones</div>
-    <label class="ck"><input type="checkbox" id="i-upd" onchange="onItem()"><span class="ck-box"></span><span>Update dinámico</span></label>
-    <label class="ck"><input type="checkbox" id="i-ubr" onchange="onItem()"><span class="ck-box"></span><span>Irrompible</span></label>
+    <div class="sdiv" data-i18n="sdivOptions">Opciones</div>
+    <label class="ck"><input type="checkbox" id="i-upd" onchange="onItem()"><span class="ck-box"></span><span data-i18n="ckUpdate">Update dinámico</span></label>
+    <label class="ck"><input type="checkbox" id="i-ubr" onchange="onItem()"><span class="ck-box"></span><span data-i18n="ckUnbreak">Inrompible</span></label>
 
     <div class="sdiv">Item Flags</div>
     <div class="f">
-      <label>Flags activos</label>
+      <label data-i18n="lblActiveFlags">Flags activos</label>
       <div id="i-flags-wrap" style="display:flex;flex-direction:column;gap:4px;background:#0e1a18;border:1px solid var(--line-2);border-radius:var(--radius-sm);padding:8px 10px;max-height:200px;overflow-y:auto"></div>
     </div>
     <div class="f" style="margin-top:-6px">
-      <label>Añadir flag</label>
+      <label data-i18n="lblAddFlag">Añadir flag</label>
       <div style="display:flex;gap:6px">
         <select id="i-flag-sel" style="flex:1;background:#0e1a18;border:1px solid var(--line-2);border-radius:var(--radius-sm);color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 8px;outline:none;color-scheme:dark">
-          <option value="">— Seleccionar flag —</option>
-          <optgroup label="Universales (todas las versiones)">
+          <option value="" data-i18n-opt="optSelectFlag">— Seleccionar flag —</option>
+          <optgroup data-i18n-grp="grpUniversal" label="Universales (todas las versiones)">
             <option value="HIDE_ENCHANTS">HIDE_ENCHANTS — Encantamientos</option>
             <option value="HIDE_ATTRIBUTES">HIDE_ATTRIBUTES — Atributos (daño, velocidad...)</option>
-            <option value="HIDE_UNBREAKABLE">HIDE_UNBREAKABLE — Estado irrompible</option>
+            <option value="HIDE_UNBREAKABLE">HIDE_UNBREAKABLE — Estado inrompible</option>
             <option value="HIDE_DESTROYS">HIDE_DESTROYS — Bloques que puede romper</option>
             <option value="HIDE_PLACED_ON">HIDE_PLACED_ON — Bloques donde se puede colocar</option>
             <option value="HIDE_POTION_EFFECTS">HIDE_POTION_EFFECTS — Efectos de poción</option>
@@ -1023,7 +1024,7 @@ body{
       </div>
     </div>
 
-    <div class="sdiv">Comandos de clic</div>
+    <div class="sdiv" data-i18n="sdivClickCmds">Comandos de clic</div>
     <div class="ctabs" id="ctabs">
       <div class="ct on" data-k="left_click_commands" onclick="selTab(this)">Left</div>
       <div class="ct" data-k="right_click_commands" onclick="selTab(this)">Right</div>
@@ -1032,30 +1033,30 @@ body{
       <div class="ct" data-k="click_commands" onclick="selTab(this)">All</div>
     </div>
     <div id="cmd-list" class="aclist"></div>
-    <button class="btn btn-ghost btn-xs" onclick="addCmd()"><i class="fa-solid fa-plus"></i> Acción</button>
+    <button class="btn btn-ghost btn-xs" onclick="addCmd()" data-i18n="btnAddCmd"><i class="fa-solid fa-plus"></i> Acción</button>
 
-    <div class="sdiv">Requisito de clic</div>
+    <div class="sdiv" data-i18n="sdivClickReq">Requisito de clic</div>
     <div class="f">
-      <label>Tipo</label>
+      <label data-i18n="lblType">Tipo</label>
       <select id="i-rtype" onchange="onItem()">
-        <option value="">— Sin requisito —</option>
+        <option value="" data-i18n-opt="optNoReq">— Sin requisito —</option>
         <option value="has permission">has permission</option>
         <option value="has money">has money (Vault)</option>
         <option value="has exp">has exp</option>
         <option value="has item">has item</option>
         <option value="string equals">string equals</option>
-        <option value=">">mayor que (&gt;)</option>
-        <option value=">=">mayor o igual (&gt;=)</option>
-        <option value="==">igual (==)</option>
-        <option value="<">menor que (&lt;)</option>
+        <option value=">" data-i18n-opt="optGT">mayor que (&gt;)</option>
+        <option value=">=" data-i18n-opt="optGTE">mayor o igual (&gt;=)</option>
+        <option value="==" data-i18n-opt="optEQ">igual (==)</option>
+        <option value="<" data-i18n-opt="optLT">menor que (&lt;)</option>
         <option value="javascript">javascript</option>
       </select>
     </div>
-    <div class="f"><label>Valor</label><input id="i-rval" placeholder="ej: deluxemenus.usar" oninput="onItem()"></div>
+    <div class="f"><label data-i18n="lblValue">Valor</label><input id="i-rval" placeholder="ej: deluxemenus.usar" oninput="onItem()" data-i18n-ph="phReqVal"></div>
     <div class="f"><label>Deny message</label><input id="i-rdeny" placeholder="&cNo puedes." oninput="onItem()"></div>
 
     <div class="sep"></div>
-    <button class="btn btn-danger btn-xs" onclick="clearSlot()"><i class="fa-solid fa-trash"></i> Limpiar slot</button>
+    <button class="btn btn-danger btn-xs" onclick="clearSlot()" data-i18n="btnClearSlot"><i class="fa-solid fa-trash"></i> Limpiar slot</button>
   </div>
 </div>
 
@@ -1066,10 +1067,10 @@ body{
       <div class="yaml-ph">YAML Output</div>
       <span class="yaml-fname" id="yaml-fname">menu.yml</span>
     </div>
-    <pre id="yaml-out">-- Configura tu menú para ver el YAML aquí --</pre>
+    <pre id="yaml-out" data-i18n-placeholder="yamlPlaceholder">-- Configura tu menú para ver el YAML aquí --</pre>
   </div>
   <div class="yaml-side">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Materiales</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px" data-i18n="yamlMaterials">Materiales</div>
     <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-dim);line-height:2">
       <span style="color:var(--accent)">head-</span>nombre<br>
       <span style="color:var(--accent)">hdb-</span>ID<br>
@@ -1085,20 +1086,20 @@ body{
 <!-- ══ GRADIENT PANEL ══ -->
 <div id="grad-panel">
   <div class="gp-hdr">
-    <span class="gp-title">Generador de Degradado RGB</span>
+    <span class="gp-title" data-i18n="gpTitle">Generador de Degradado RGB</span>
     <button class="btn btn-ghost btn-xs" onclick="toggleGrad()">✕</button>
   </div>
   <div class="gp-body">
 
     <!-- Text input -->
     <div class="gp-field">
-      <label>Texto</label>
-      <input id="gp-text" value="Texto de ejemplo" oninput="genGrad()" placeholder="Escribe el texto...">
+      <label data-i18n="gpLblText">Texto</label>
+      <input id="gp-text" value="Texto de ejemplo" oninput="genGrad()" placeholder="Escribe el texto..." data-i18n-ph="gpPhText">
     </div>
 
     <!-- Preview -->
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Vista previa</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px" data-i18n="gpPreview">Vista previa</div>
       <div class="grad-preview-wrap">
         <div class="grad-preview-bar" id="gp-bar"></div>
         <div class="grad-preview-text" id="gp-preview">—</div>
@@ -1108,15 +1109,15 @@ body{
     <!-- Color stops -->
     <div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em">Colores del degradado</div>
-        <button class="btn btn-ghost btn-xs" onclick="addGradStop()"><i class="fa-solid fa-plus"></i> Color</button>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em" data-i18n="gpColors">Colores del degradado</div>
+        <button class="btn btn-ghost btn-xs" onclick="addGradStop()" data-i18n="gpBtnColor"><i class="fa-solid fa-plus"></i> Color</button>
       </div>
       <div class="gp-stops" id="gp-stops"></div>
     </div>
 
     <!-- Options -->
     <div class="gp-field">
-      <label>Formato de salida</label>
+      <label data-i18n="gpLblFormat">Formato de salida</label>
       <select id="gp-format" onchange="genGrad()">
         <option value="minimessage" selected>MiniMessage (&lt;#RRGGBB&gt;)</option>
         <option value="amphex">&amp;#RRGGBB (CMI, EssentialsX...)</option>
@@ -1126,31 +1127,31 @@ body{
     </div>
 
     <div class="gp-field">
-      <label>Formato extra</label>
+      <label data-i18n="gpLblExtra">Formato extra</label>
       <div style="display:flex;gap:6px;flex-wrap:wrap" id="gp-fmt-opts">
-        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-bold" onchange="genGrad()"><span class="ck-box"></span><span>&amp;l Negrita</span></label>
-        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-italic" onchange="genGrad()"><span class="ck-box"></span><span>&amp;o Cursiva</span></label>
-        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-strikethrough" onchange="genGrad()"><span class="ck-box"></span><span>&amp;m Tachado</span></label>
-        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-underline" onchange="genGrad()"><span class="ck-box"></span><span>&amp;n Subrayado</span></label>
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-bold" onchange="genGrad()"><span class="ck-box"></span><span data-i18n="ckBold">&amp;l Negrita</span></label>
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-italic" onchange="genGrad()"><span class="ck-box"></span><span data-i18n="ckItalic">&amp;o Cursiva</span></label>
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-strikethrough" onchange="genGrad()"><span class="ck-box"></span><span data-i18n="ckStrike">&amp;m Tachado</span></label>
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-underline" onchange="genGrad()"><span class="ck-box"></span><span data-i18n="ckUnderline">&amp;n Subrayado</span></label>
       </div>
     </div>
 
     <!-- Result -->
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Resultado</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px" data-i18n="gpResult">Resultado</div>
       <div class="gp-result" id="gp-result" onclick="selectGpResult()">—</div>
     </div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-ghost btn-sm" onclick="copyGrad()"><i class="fa-regular fa-copy"></i> Copiar</button>
-      <button class="btn btn-ghost btn-sm" onclick="insertGrad()" title="Insertar en el campo activo"><i class="fa-solid fa-arrow-turn-down"></i> Insertar</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyGrad()" data-i18n="gpBtnCopy"><i class="fa-regular fa-copy"></i> Copiar</button>
+      <button class="btn btn-ghost btn-sm" onclick="insertGrad()" data-i18n="gpBtnInsert" data-i18n-title="gpBtnInsertTitle"><i class="fa-solid fa-arrow-turn-down"></i> Insertar</button>
     </div>
 
     <div style="background:rgba(255,255,255,.02);border:1px solid var(--line-2);border-left:2px solid var(--accent-2);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-dim);line-height:1.9">
-      <span style="color:var(--accent-2)">Tip</span><br>
+      <span id="gp-tip-box"><span style="color:var(--accent-2)">Tip</span><br>
       Añade 3+ colores para degradados más complejos.<br>
       Usa <b style="color:var(--fg)">MiniMessage</b> para servidores 1.16+.<br>
-      Usa <b style="color:var(--fg)">Legacy</b> para plugins antiguos.
+      Usa <b style="color:var(--fg)">Legacy</b> para plugins antiguos.</span>
     </div>
   </div>
 </div>
@@ -1198,16 +1199,16 @@ body{
 <div id="mat-picker">
   <div class="mp-hdr">
     <div class="mp-hdr-row">
-      <span class="mp-title">Selector de Material</span>
+      <span class="mp-title" data-i18n="mpTitle">Selector de Material</span>
       <button class="btn btn-ghost btn-xs" onclick="closeMatPicker()">✕</button>
     </div>
-    <input class="mp-search" id="mp-search" placeholder="Buscar material..." oninput="renderMatPicker()">
+    <input class="mp-search" id="mp-search" placeholder="Buscar material..." oninput="renderMatPicker()" data-i18n-ph="mpSearch">
     <div class="mp-tabs" id="mp-tabs">
-      <div class="mp-tab on" data-cat="all" onclick="selMatTab(this)">Todos</div>
-      <div class="mp-tab" data-cat="heads" onclick="selMatTab(this)">👤 Cabezas</div>
-      <div class="mp-tab" data-cat="glass" onclick="selMatTab(this)">🔲 Cristal</div>
-      <div class="mp-tab" data-cat="ores" onclick="selMatTab(this)">💎 Minerales</div>
-      <div class="mp-tab" data-cat="tools" onclick="selMatTab(this)">⚔️ Herramientas</div>
+      <div class="mp-tab on" data-cat="all" onclick="selMatTab(this)" data-i18n="mpAll">Todos</div>
+      <div class="mp-tab" data-cat="heads" onclick="selMatTab(this)" data-i18n="mpHeads">👤 Cabezas</div>
+      <div class="mp-tab" data-cat="glass" onclick="selMatTab(this)" data-i18n="mpGlass">🔲 Cristal</div>
+      <div class="mp-tab" data-cat="ores" onclick="selMatTab(this)" data-i18n="mpOres">💎 Minerales</div>
+      <div class="mp-tab" data-cat="tools" onclick="selMatTab(this)" data-i18n="mpTools">⚔️ Herramientas</div>
       <div class="mp-tab" data-cat="misc" onclick="selMatTab(this)">📦 Misc</div>
     </div>
   </div>
@@ -1218,42 +1219,42 @@ body{
 <div id="sc-panel">
   <div class="sc-hdr">
     <span class="sc-title">Small Caps</span>
-    <button class="btn btn-ghost btn-xs" onclick="toggleSC()">✕ Cerrar</button>
+    <button class="btn btn-ghost btn-xs" onclick="toggleSC()" data-i18n="scBtnClose">✕ Cerrar</button>
   </div>
   <div class="sc-body">
     <div class="sc-field">
-      <label>Texto de entrada</label>
-      <textarea id="sc-input" rows="3" placeholder="Escribe aquí..." oninput="doSC()"></textarea>
+      <label data-i18n="scLblInput">Texto de entrada</label>
+      <textarea id="sc-input" rows="3" placeholder="Escribe aquí..." data-i18n-ph="scPhInput" oninput="doSC()"></textarea>
     </div>
     <div class="sc-field">
-      <label>Color Minecraft</label>
+      <label data-i18n="scLblColor">Color Minecraft</label>
       <div class="sc-clrs" id="sc-colors"></div>
     </div>
     <div>
-      <div class="sc-preview-lbl">Modificadores</div>
+      <div class="sc-preview-lbl" data-i18n="scMods">Modificadores</div>
       <div class="sc-modes" id="sc-mods">
-        <div class="sc-mode on" data-m="" onclick="selMod(this)">Ninguno</div>
-        <div class="sc-mode" data-m="&l" onclick="selMod(this)">&amp;l Negrita</div>
-        <div class="sc-mode" data-m="&o" onclick="selMod(this)">&amp;o Cursiva</div>
-        <div class="sc-mode" data-m="&n" onclick="selMod(this)">&amp;n Subrayado</div>
-        <div class="sc-mode" data-m="&m" onclick="selMod(this)">&amp;m Tachado</div>
+        <div class="sc-mode on" data-m="" onclick="selMod(this)" data-i18n="scModNone">Ninguno</div>
+        <div class="sc-mode" data-m="&l" onclick="selMod(this)" data-i18n="ckBold">&amp;l Negrita</div>
+        <div class="sc-mode" data-m="&o" onclick="selMod(this)" data-i18n="ckItalic">&amp;o Cursiva</div>
+        <div class="sc-mode" data-m="&n" onclick="selMod(this)" data-i18n="ckUnderline">&amp;n Subrayado</div>
+        <div class="sc-mode" data-m="&m" onclick="selMod(this)" data-i18n="ckStrike">&amp;m Tachado</div>
       </div>
     </div>
     <div>
-      <div class="sc-preview-lbl">Vista previa</div>
+      <div class="sc-preview-lbl" data-i18n="gpPreview">Vista previa</div>
       <div class="sc-preview" id="sc-preview">—</div>
     </div>
     <div class="sc-field">
-      <label>Resultado</label>
+      <label data-i18n="gpResult">Resultado</label>
       <input type="text" id="sc-result" readonly onclick="this.select()" style="background:var(--bg-0);border-color:var(--line-2);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:text;border-radius:var(--radius-sm);padding:8px 10px;width:100%;outline:none">
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-ghost btn-sm" onclick="copySC()"><i class="fa-regular fa-copy"></i> Copiar</button>
-      <button class="btn btn-ghost btn-sm" onclick="insertSC()"><i class="fa-solid fa-arrow-turn-down"></i> Insertar</button>
+      <button class="btn btn-ghost btn-sm" onclick="copySC()" data-i18n="gpBtnCopy"><i class="fa-regular fa-copy"></i> Copiar</button>
+      <button class="btn btn-ghost btn-sm" onclick="insertSC()" data-i18n="gpBtnInsert"><i class="fa-solid fa-arrow-turn-down"></i> Insertar</button>
     </div>
     <div style="background:rgba(255,255,255,.02);border:1px solid var(--line-2);border-left:2px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-dim);line-height:1.9">
-      <span style="color:var(--accent)">¿Qué es?</span><br>
-      Versalitas Unicode (ᴀ ʙ ᴄ ᴅ...) que funcionan en cualquier versión de Minecraft sin mods ni plugins.
+      <span id="sc-info-box"><span style="color:var(--accent)">¿Qué es?</span><br>
+      Versalitas Unicode (ᴀ ʙ ᴄ ᴅ...) que funcionan en cualquier versión de Minecraft sin mods ni plugins.</span>
     </div>
   </div>
 </div>
@@ -1262,7 +1263,7 @@ body{
 <div id="import-overlay" onclick="closeImport(event)">
   <div id="import-modal">
     <div class="im-hdr">
-      <span class="im-title">Importar DeluxeMenus .yml</span>
+      <span class="im-title" data-i18n="imTitle">Importar DeluxeMenus .yml</span>
       <button class="btn btn-ghost btn-xs" onclick="closeImportDirect()">✕</button>
     </div>
     <div class="im-body">
@@ -1271,14 +1272,14 @@ body{
         ondragleave="g('im-drop').classList.remove('drag')"
         ondrop="dropImport(event)">
         <div class="drop-icon"><i class="fa-solid fa-folder-open"></i></div>
-        <p>Arrastra tu archivo .yml aquí<br>o haz clic para seleccionar</p>
+        <p id="im-drop-text">Arrastra tu archivo .yml aquí<br>o haz clic para seleccionar</p>
         <input type="file" accept=".yml,.yaml" onchange="importYAML(this)">
       </div>
       <div id="im-log" class="im-log"></div>
       <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn btn-ghost btn-sm" onclick="closeImportDirect()">Cancelar</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeImportDirect()" data-i18n="imBtnCancel">Cancelar</button>
         <button class="btn btn-primary btn-sm" id="im-confirm" style="display:none" onclick="confirmImport()">
-          <i class="fa-solid fa-check"></i> Cargar menú
+          <i class="fa-solid fa-check"></i> <span data-i18n="imBtnLoad">Cargar menú</span>
         </button>
       </div>
     </div>
@@ -1286,6 +1287,414 @@ body{
 </div>
 
 <script>
+// ════════════════════════════
+// I18N — LANGUAGE SYSTEM
+// ════════════════════════════
+let LANG = localStorage.getItem('dm-lang')||'es';
+
+const LANGS = {
+  es:{
+    // NAV
+    btnNew:'<i class="fa-solid fa-plus"></i> Nuevo',
+    btnImport:'<i class="fa-solid fa-upload"></i> Importar .yml',
+    btnGrad:'<i class="fa-solid fa-palette"></i> Degradado',
+    btnGradTitle:'Generador de degradados RGB',
+    btnSC:'ᴀ Small Caps',
+    btnCopy:'<i class="fa-regular fa-copy"></i> Copiar',
+    btnDownload:'<i class="fa-solid fa-download"></i> Descargar .yml',
+    // LEFT
+    phLeft:'Config. del GUI',
+    lblMenuTitle:'Título del menú',
+    hintTitle:'Soporta &amp;a &amp;c &amp;6 ... y PlaceholderAPI',
+    lblOpenCmd:'Comando de apertura',
+    hintCmd:'Sin "/" · Comas para múltiples',
+    lblInvType:'Tipo de inventario',
+    optChest:'CHEST (Cofre)',
+    lblSize:'Tamaño (slots)',
+    lblUpdateInterval:'Update interval (segundos)',
+    phOptional:'20 (opcional)',
+    sdivOnOpen:'Al abrir',
+    btnAddAction:'Añadir acción',
+    sdivOpenReq:'Requisito apertura',
+    lblPermission:'Permiso requerido',
+    phPermission:'mi.permiso (opcional)',
+    phDenyPerm:'&cNo tienes permiso.',
+    sdivColors:'Referencia de colores',
+    colorRefHTML:'<b>&amp;a</b> verde &nbsp;<b>&amp;c</b> rojo &nbsp;<b>&amp;6</b> naranja &nbsp;<b>&amp;e</b> amarillo<br><b>&amp;b</b> cyan &nbsp;<b>&amp;f</b> blanco &nbsp;<b>&amp;7</b> gris &nbsp;<b>&amp;d</b> rosa<br><b>&amp;l</b> negrita &nbsp;<b>&amp;o</b> cursiva &nbsp;<b>&amp;n</b> subrayado',
+    // CENTER
+    phCenter:'Inventario Visual',
+    tlTitle:'Título',
+    footerEdit:'Clic en slot para editar',
+    footerSel:'Seleccionado:',
+    selNone:'ninguno',
+    slActions:'Acciones',
+    btnFillBorders:'<i class="fa-solid fa-border-all"></i> Rellenar bordes',
+    btnFillAll:'<i class="fa-solid fa-table-cells"></i> Llenar todo',
+    btnClearAll:'<i class="fa-solid fa-trash"></i> Limpiar todo',
+    // RIGHT
+    phRight:'Editor de Item',
+    emptyText:'Haz clic en un slot<br>del inventario para editarlo.<br><br><span style="font-size:12px">Los slots vacíos también<br>soportan comandos (AIR)</span>',
+    lblYamlKey:'Nombre YAML (clave única)',
+    phItemKey:'mi_item',
+    lblMaterial:'Material',
+    lblAmount:'Cantidad',
+    lblDisplayName:'Display name',
+    phDisplayName:'&aNombre',
+    lblPriority:'Prioridad',
+    phPriority:'0 = máx',
+    lblLore:'Lore',
+    btnAddLore:'<i class="fa-solid fa-plus"></i> Línea',
+    sdivEnchs:'Encantamientos',
+    btnAddEnch:'<i class="fa-solid fa-plus"></i> Encantamiento',
+    sdivOptions:'Opciones',
+    ckUpdate:'Update dinámico',
+    ckUnbreak:'Inrompible',
+    lblActiveFlags:'Flags activos',
+    noFlags:'Sin flags activos',
+    lblAddFlag:'Añadir flag',
+    optSelectFlag:'— Seleccionar flag —',
+    grpUniversal:'Universales (todas las versiones)',
+    sdivClickCmds:'Comandos de clic',
+    btnAddCmd:'<i class="fa-solid fa-plus"></i> Acción',
+    sdivClickReq:'Requisito de clic',
+    lblType:'Tipo',
+    optNoReq:'— Sin requisito —',
+    optGT:'mayor que (&gt;)',
+    optGTE:'mayor o igual (&gt;=)',
+    optEQ:'igual (==)',
+    optLT:'menor que (&lt;)',
+    lblValue:'Valor',
+    phReqVal:'ej: deluxemenus.usar',
+    phDenyClick:'&cNo puedes.',
+    btnClearSlot:'<i class="fa-solid fa-trash"></i> Limpiar slot',
+    // YAML
+    yamlMaterials:'Materiales',
+    yamlPlaceholder:'-- Configura tu menú para ver el YAML aquí --',
+    yamlMatRef:'nombre',
+    // GRADIENT
+    gpTitle:'Generador de Degradado RGB',
+    gpLblText:'Texto',
+    gpPhText:'Escribe el texto...',
+    gpPreview:'Vista previa',
+    gpColors:'Colores del degradado',
+    gpBtnColor:'<i class="fa-solid fa-plus"></i> Color',
+    gpLblFormat:'Formato de salida',
+    gpLblExtra:'Formato extra',
+    ckBold:'&amp;l Negrita',
+    ckItalic:'&amp;o Cursiva',
+    ckStrike:'&amp;m Tachado',
+    ckUnderline:'&amp;n Subrayado',
+    gpResult:'Resultado',
+    gpBtnCopy:'<i class="fa-regular fa-copy"></i> Copiar',
+    gpBtnInsert:'<i class="fa-solid fa-arrow-turn-down"></i> Insertar',
+    gpBtnInsertTitle:'Insertar en el campo activo',
+    gpTipHTML:'<span style="color:var(--accent-2)">Tip</span><br>Añade 3+ colores para degradados más complejos.<br>Usa <b style="color:var(--fg)">MiniMessage</b> para servidores 1.16+.<br>Usa <b style="color:var(--fg)">Legacy</b> para plugins antiguos.',
+    // SMALL CAPS
+    scBtnClose:'✕ Cerrar',
+    scLblInput:'Texto de entrada',
+    scPhInput:'Escribe aquí...',
+    scLblColor:'Color Minecraft',
+    scMods:'Modificadores',
+    scModNone:'Ninguno',
+    scInfoHTML:'<span style="color:var(--accent)">¿Qué es?</span><br>Versalitas Unicode (ᴀ ʙ ᴄ ᴅ...) que funcionan en cualquier versión de Minecraft sin mods ni plugins.',
+    // MATERIAL PICKER
+    mpTitle:'Selector de Material',
+    mpSearch:'Buscar material...',
+    mpAll:'Todos',
+    mpHeads:'👤 Cabezas',
+    mpGlass:'🔲 Cristal',
+    mpOres:'💎 Minerales',
+    mpTools:'⚔️ Herramientas',
+    mpMisc:'📦 Misc',
+    mpHeadPlayerLbl:'👤 Cabeza de jugador',
+    mpHeadHdbLbl:'🗃 HeadDatabase (hdb)',
+    mpHeadBaseLbl:'🖼 Textura (basehead)',
+    mpHeadTexLbl:'🌐 Texture URL ID',
+    mpBtnUse:'Usar',
+    mpPhPlayer:'Nombre del jugador',
+    mpNoResults:'Sin resultados',
+    mpCatGlass:'Cristal',mpCatOres:'Minerales',mpCatTools:'Herramientas',mpCatMisc:'Varios',mpCatHeads:'Cabezas',
+    // IMPORT
+    imTitle:'Importar DeluxeMenus .yml',
+    imDropText:'Arrastra tu archivo .yml aquí<br>o haz clic para seleccionar',
+    imBtnCancel:'Cancelar',
+    imBtnLoad:'Cargar menú',
+    // TOASTS
+    toastBorders:'Bordes rellenados ✓',
+    toastFillAll:'Todos los slots rellenados ✓',
+    toastMatApplied:'Material aplicado ✓',
+    toastCopied:'YAML copiado al portapapeles',
+    toastNewMenu:'Nuevo menú creado',
+    toastFlagDupe:'Flag ya añadido',
+    toastSCCopied:'Small caps copiado ✓',
+    toastSCInserted:'Insertado en campo ✓',
+    toastGradCopied:'Degradado copiado ✓',
+    toastGradInserted:'Degradado insertado ✓',
+    // CONFIRMS
+    confirmClearAll:'¿Limpiar todos los slots?',
+    confirmClearSlot:'¿Limpiar slot ',
+    confirmClearSlot2:'?',
+    confirmReset:'¿Nuevo menú? Se perderán los cambios.',
+    // IMPORT LOG
+    logParsed:'✓ YAML parseado: ',
+    logTitle:'  título: ',
+    logCmd:'  comando: ',
+    logSize:'  tamaño: ',
+    logOpenCmds:' acciones',
+    logOpenReq:'  requisito apertura: ',
+    logItems:'items',
+    logWarnings:'avisos',
+    logNoSlot:'sin slot, ignorado',
+    logNoItems:'Sin items encontrados',
+    logReady:'Listo → haz clic en ',
+    logReadyBtn:'Cargar menú',
+    errSyntax:'Error de sintaxis: ',
+    errEmpty:'Archivo vacío o inválido',
+    // DYNAMIC
+    editorSlot:'Slot',
+    selNoneLabel:'ninguno',
+  },
+  en:{
+    // NAV
+    btnNew:'<i class="fa-solid fa-plus"></i> New',
+    btnImport:'<i class="fa-solid fa-upload"></i> Import .yml',
+    btnGrad:'<i class="fa-solid fa-palette"></i> Gradient',
+    btnGradTitle:'RGB Gradient Generator',
+    btnSC:'ᴀ Small Caps',
+    btnCopy:'<i class="fa-regular fa-copy"></i> Copy',
+    btnDownload:'<i class="fa-solid fa-download"></i> Download .yml',
+    // LEFT
+    phLeft:'GUI Config.',
+    lblMenuTitle:'Menu title',
+    hintTitle:'Supports &amp;a &amp;c &amp;6 ... and PlaceholderAPI',
+    lblOpenCmd:'Open command',
+    hintCmd:'No "/" · Commas for multiple',
+    lblInvType:'Inventory type',
+    optChest:'CHEST (Chest)',
+    lblSize:'Size (slots)',
+    lblUpdateInterval:'Update interval (seconds)',
+    phOptional:'20 (optional)',
+    sdivOnOpen:'On open',
+    btnAddAction:'Add action',
+    sdivOpenReq:'Open requirement',
+    lblPermission:'Required permission',
+    phPermission:'my.permission (optional)',
+    phDenyPerm:'&cYou don\'t have permission.',
+    sdivColors:'Color reference',
+    colorRefHTML:'<b>&amp;a</b> green &nbsp;<b>&amp;c</b> red &nbsp;<b>&amp;6</b> orange &nbsp;<b>&amp;e</b> yellow<br><b>&amp;b</b> cyan &nbsp;<b>&amp;f</b> white &nbsp;<b>&amp;7</b> grey &nbsp;<b>&amp;d</b> pink<br><b>&amp;l</b> bold &nbsp;<b>&amp;o</b> italic &nbsp;<b>&amp;n</b> underline',
+    // CENTER
+    phCenter:'Visual Inventory',
+    tlTitle:'Title',
+    footerEdit:'Click slot to edit',
+    footerSel:'Selected:',
+    selNone:'none',
+    slActions:'Actions',
+    btnFillBorders:'<i class="fa-solid fa-border-all"></i> Fill borders',
+    btnFillAll:'<i class="fa-solid fa-table-cells"></i> Fill all',
+    btnClearAll:'<i class="fa-solid fa-trash"></i> Clear all',
+    // RIGHT
+    phRight:'Item Editor',
+    emptyText:'Click on a slot<br>in the inventory to edit it.<br><br><span style="font-size:12px">Empty slots also<br>support commands (AIR)</span>',
+    lblYamlKey:'YAML Name (unique key)',
+    phItemKey:'my_item',
+    lblMaterial:'Material',
+    lblAmount:'Amount',
+    lblDisplayName:'Display name',
+    phDisplayName:'&aItem name',
+    lblPriority:'Priority',
+    phPriority:'0 = max',
+    lblLore:'Lore',
+    btnAddLore:'<i class="fa-solid fa-plus"></i> Line',
+    sdivEnchs:'Enchantments',
+    btnAddEnch:'<i class="fa-solid fa-plus"></i> Enchantment',
+    sdivOptions:'Options',
+    ckUpdate:'Dynamic update',
+    ckUnbreak:'Unbreakable',
+    lblActiveFlags:'Active flags',
+    noFlags:'No active flags',
+    lblAddFlag:'Add flag',
+    optSelectFlag:'— Select flag —',
+    grpUniversal:'Universal (all versions)',
+    sdivClickCmds:'Click commands',
+    btnAddCmd:'<i class="fa-solid fa-plus"></i> Action',
+    sdivClickReq:'Click requirement',
+    lblType:'Type',
+    optNoReq:'— No requirement —',
+    optGT:'greater than (&gt;)',
+    optGTE:'greater or equal (&gt;=)',
+    optEQ:'equal (==)',
+    optLT:'less than (&lt;)',
+    lblValue:'Value',
+    phReqVal:'e.g.: deluxemenus.use',
+    phDenyClick:'&cYou can\'t do that.',
+    btnClearSlot:'<i class="fa-solid fa-trash"></i> Clear slot',
+    // YAML
+    yamlMaterials:'Materials',
+    yamlPlaceholder:'-- Configure your menu to see the YAML here --',
+    yamlMatRef:'name',
+    // GRADIENT
+    gpTitle:'RGB Gradient Generator',
+    gpLblText:'Text',
+    gpPhText:'Type your text...',
+    gpPreview:'Preview',
+    gpColors:'Gradient colors',
+    gpBtnColor:'<i class="fa-solid fa-plus"></i> Color',
+    gpLblFormat:'Output format',
+    gpLblExtra:'Extra formatting',
+    ckBold:'&amp;l Bold',
+    ckItalic:'&amp;o Italic',
+    ckStrike:'&amp;m Strikethrough',
+    ckUnderline:'&amp;n Underline',
+    gpResult:'Result',
+    gpBtnCopy:'<i class="fa-regular fa-copy"></i> Copy',
+    gpBtnInsert:'<i class="fa-solid fa-arrow-turn-down"></i> Insert',
+    gpBtnInsertTitle:'Insert in active field',
+    gpTipHTML:'<span style="color:var(--accent-2)">Tip</span><br>Add 3+ colors for more complex gradients.<br>Use <b style="color:var(--fg)">MiniMessage</b> for 1.16+ servers.<br>Use <b style="color:var(--fg)">Legacy</b> for older plugins.',
+    // SMALL CAPS
+    scBtnClose:'✕ Close',
+    scLblInput:'Input text',
+    scPhInput:'Type here...',
+    scLblColor:'Minecraft Color',
+    scMods:'Modifiers',
+    scModNone:'None',
+    scInfoHTML:'<span style="color:var(--accent)">What is it?</span><br>Unicode small caps (ᴀ ʙ ᴄ ᴅ...) that work in any Minecraft version without mods or plugins.',
+    // MATERIAL PICKER
+    mpTitle:'Material Selector',
+    mpSearch:'Search material...',
+    mpAll:'All',
+    mpHeads:'👤 Heads',
+    mpGlass:'🔲 Glass',
+    mpOres:'💎 Ores',
+    mpTools:'⚔️ Tools',
+    mpMisc:'📦 Misc',
+    mpHeadPlayerLbl:'👤 Player Head',
+    mpHeadHdbLbl:'🗃 HeadDatabase (hdb)',
+    mpHeadBaseLbl:'🖼 Texture (basehead)',
+    mpHeadTexLbl:'🌐 Texture URL ID',
+    mpBtnUse:'Use',
+    mpPhPlayer:'Player name',
+    mpNoResults:'No results',
+    mpCatGlass:'Glass',mpCatOres:'Ores',mpCatTools:'Tools',mpCatMisc:'Misc',mpCatHeads:'Heads',
+    // IMPORT
+    imTitle:'Import DeluxeMenus .yml',
+    imDropText:'Drag your .yml file here<br>or click to select',
+    imBtnCancel:'Cancel',
+    imBtnLoad:'Load menu',
+    // TOASTS
+    toastBorders:'Borders filled ✓',
+    toastFillAll:'All slots filled ✓',
+    toastMatApplied:'Material applied ✓',
+    toastCopied:'YAML copied to clipboard',
+    toastNewMenu:'New menu created',
+    toastFlagDupe:'Flag already added',
+    toastSCCopied:'Small caps copied ✓',
+    toastSCInserted:'Inserted in field ✓',
+    toastGradCopied:'Gradient copied ✓',
+    toastGradInserted:'Gradient inserted ✓',
+    // CONFIRMS
+    confirmClearAll:'Clear all slots?',
+    confirmClearSlot:'Clear slot ',
+    confirmClearSlot2:'?',
+    confirmReset:'New menu? Changes will be lost.',
+    // IMPORT LOG
+    logParsed:'✓ YAML parsed: ',
+    logTitle:'  title: ',
+    logCmd:'  command: ',
+    logSize:'  size: ',
+    logOpenCmds:' actions',
+    logOpenReq:'  open requirement: ',
+    logItems:'items',
+    logWarnings:'warnings',
+    logNoSlot:'no slot, ignored',
+    logNoItems:'No items found',
+    logReady:'Ready → click ',
+    logReadyBtn:'Load menu',
+    errSyntax:'Syntax error: ',
+    errEmpty:'Empty or invalid file',
+    // DYNAMIC
+    editorSlot:'Slot',
+    selNoneLabel:'none',
+  }
+};
+
+function T(key){return LANGS[LANG][key]||LANGS.es[key]||key;}
+
+function applyLang(lang){
+  LANG=lang;
+  localStorage.setItem('dm-lang',lang);
+  const t=LANGS[lang];
+
+  // Toggle button
+  const lb=g('lang-btn');
+  if(lb){lb.textContent=lang==='es'?'ES':'EN';}
+
+  // All data-i18n elements (innerHTML)
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.dataset.i18n;
+    if(t[k]!==undefined)el.innerHTML=t[k];
+  });
+
+  // Placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const k=el.dataset.i18nPh;
+    if(t[k]!==undefined)el.placeholder=t[k].replace(/&amp;/g,'&');
+  });
+
+  // Title attributes
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    const k=el.dataset.i18nTitle;
+    if(t[k]!==undefined)el.title=t[k];
+  });
+
+  // Special: select options with data-i18n-opt
+  document.querySelectorAll('[data-i18n-opt]').forEach(el=>{
+    const k=el.dataset.i18nOpt;
+    if(t[k]!==undefined)el.innerHTML=t[k];
+  });
+
+  // Special: optgroup labels
+  document.querySelectorAll('[data-i18n-grp]').forEach(el=>{
+    const k=el.dataset.i18nGrp;
+    if(t[k]!==undefined)el.label=t[k];
+  });
+
+  // Special: color reference box
+  const cr=g('color-ref-text');
+  if(cr)cr.innerHTML=t.colorRefHTML;
+
+  // Special: gradient tip
+  const gt=g('gp-tip-box');
+  if(gt)gt.innerHTML=t.gpTipHTML;
+
+  // Special: sc info
+  const si=g('sc-info-box');
+  if(si)si.innerHTML=t.scInfoHTML;
+
+  // Special: import drop text
+  const dt=g('im-drop-text');
+  if(dt)dt.innerHTML=t.imDropText;
+
+  // Special: empty editor state
+  const et=g('empty-text');
+  if(et)et.innerHTML=t.emptyText;
+
+  // yaml placeholder text (only if not yet configured)
+  const yo=g('yaml-out');
+  if(yo&&yo.textContent.trim().startsWith('--'))yo.textContent=t.yamlPlaceholder;
+
+  // sel-disp "none" label only if currently showing "none"
+  const sd=g('sel-disp');
+  if(sd&&(sd.textContent==='ninguno'||sd.textContent==='none'))sd.textContent=t.selNone;
+
+  // ed-ph only if showing generic title
+  const ep=g('ed-ph');
+  if(ep&&(ep.textContent==='Editor de Item'||ep.textContent==='Item Editor'))ep.textContent=t.phRight;
+}
+
+function toggleLang(){
+  applyLang(LANG==='es'?'en':'es');
+}
+
 // ════════════════════════════
 // STATE
 // ════════════════════════════
@@ -1407,7 +1816,7 @@ function renderGrid(){
     d.addEventListener('click',()=>selSlot(i));
     gr.appendChild(d);
   }
-  g('sel-disp').textContent=S.sel!==null?`Slot ${S.sel}`:'ninguno';
+  g('sel-disp').textContent=S.sel!==null?`${T('editorSlot')} ${S.sel}`:T('selNone');
 }
 function selSlot(i){
   const isNew=!S.items[i];
@@ -1428,11 +1837,11 @@ function mkItem(i){
     shift_left_click_commands:[],shift_right_click_commands:[],click_commands:[],
     req_type:'',req_val:'',req_deny:''};
 }
-function showEmpty(){g('ed-empty').style.display='';g('ed-form').style.display='none';g('ed-ph').textContent='Editor de Item';}
+function showEmpty(){g('ed-empty').style.display='';g('ed-form').style.display='none';g('ed-ph').textContent=T('phRight');}
 function renderEditor(){
   if(S.sel===null){showEmpty();return;}
   g('ed-empty').style.display='none';g('ed-form').style.display='';
-  g('ed-ph').textContent=`Slot ${S.sel}`;
+  g('ed-ph').textContent=`${T('editorSlot')} ${S.sel}`;
   const it=S.items[S.sel];
   g('i-name').value=it.name;g('i-mat').value=it.material;g('i-amt').value=it.amount;
   g('i-dn').value=it.display_name;g('i-pri').value=it.priority;g('i-mdl').value=it.model_data;
@@ -1489,7 +1898,7 @@ function renderFlagsList(){
   const wrap=g('i-flags-wrap');
   wrap.innerHTML='';
   if(!it||!it.item_flags||!it.item_flags.length){
-    wrap.innerHTML=`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted)">Sin flags activos</span>`;
+    wrap.innerHTML=`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted)">${T('noFlags')}</span>`;
     return;
   }
   it.item_flags.forEach((fl,idx)=>{
@@ -1504,7 +1913,7 @@ function addItemFlag(){
   const sel=g('i-flag-sel');const val=sel.value;
   if(!val||!S.items[S.sel])return;
   if(!S.items[S.sel].item_flags)S.items[S.sel].item_flags=[];
-  if(S.items[S.sel].item_flags.includes(val)){toast('Flag ya añadido');return;}
+  if(S.items[S.sel].item_flags.includes(val)){toast(T('toastFlagDupe'));return;}
   S.items[S.sel].item_flags.push(val);
   sel.value='';
   renderFlagsList();genYAML();
@@ -1556,14 +1965,14 @@ function fillBorders(){
   for(let c=0;c<9;c++){bs.add(c);bs.add((r-1)*9+c);}
   for(let row=0;row<r;row++){bs.add(row*9);bs.add(row*9+8);}
   bs.forEach(i=>{if(!S.items[i]){S.items[i]=mkItem(i);S.items[i].material='GRAY_STAINED_GLASS_PANE';S.items[i].display_name='&7';S.items[i].name=`border_${i}`;}});
-  renderGrid();updStats();genYAML();toast('Bordes rellenados ✓');
+  renderGrid();updStats();genYAML();toast(T('toastBorders'));
 }
 function fillAll(){
   for(let i=0;i<S.gui.size;i++){if(!S.items[i]){S.items[i]=mkItem(i);S.items[i].material='GRAY_STAINED_GLASS_PANE';S.items[i].display_name='&7';S.items[i].name=`fill_${i}`;}}
-  renderGrid();updStats();genYAML();toast('Todos los slots rellenados ✓');
+  renderGrid();updStats();genYAML();toast(T('toastFillAll'));
 }
-function clearAllSlots(){if(!confirm('¿Limpiar todos los slots?'))return;S.items={};S.sel=null;showEmpty();renderGrid();updStats();genYAML();}
-function clearSlot(){const i=S.sel;if(i===null)return;if(!confirm(`¿Limpiar slot ${i}?`))return;delete S.items[i];S.sel=null;showEmpty();renderGrid();updStats();genYAML();}
+function clearAllSlots(){if(!confirm(T('confirmClearAll')))return;S.items={};S.sel=null;showEmpty();renderGrid();updStats();genYAML();}
+function clearSlot(){const i=S.sel;if(i===null)return;if(!confirm(T('confirmClearSlot')+i+T('confirmClearSlot2')))return;delete S.items[i];S.sel=null;showEmpty();renderGrid();updStats();genYAML();}
 
 // ════════════════════════════
 // STATS
@@ -1641,12 +2050,12 @@ function setOut(t){g('yaml-out').textContent=t;}
 // ════════════════════════════
 // EXPORT
 // ════════════════════════════
-function copyYAML(){navigator.clipboard.writeText(g('yaml-out').textContent).then(()=>toast('YAML copiado al portapapeles'));}
+function copyYAML(){navigator.clipboard.writeText(g('yaml-out').textContent).then(()=>toast(T('toastCopied')));}
 function downloadYAML(){
   const fn=(S.gui.open_command||'menu')+'.yml';
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([g('yaml-out').textContent],{type:'text/yaml'}));
-  a.download=fn;a.click();toast(`Descargado: ${fn}`);
+  a.download=fn;a.click();toast(`${T('btnDownload').replace(/<[^>]*>/g,'')} ${fn}`);
 }
 function resetAll(){
   if(!confirm('¿Crear un menú nuevo? Se perderán los cambios.'))return;
@@ -1658,7 +2067,7 @@ function resetAll(){
   g('inv-title').innerHTML=mcClr('&aMi Menú');
   g('yaml-fname').textContent='mimenu.yml';
   renderGrid();renderOpenCmds();showEmpty();updStats();genYAML();
-  toast('Nuevo menú creado');
+  toast(T('toastNewMenu'));
 }
 
 // ════════════════════════════
@@ -1956,7 +2365,7 @@ function updateGradBar(){
 
 function copyGrad(){
   const t=g('gp-result').textContent;
-  if(t&&t!=='—')navigator.clipboard.writeText(t).then(()=>toast('Degradado copiado ✓'));
+  if(t&&t!=='—')navigator.clipboard.writeText(t).then(()=>toast(T('toastGradCopied')));
 }
 function selectGpResult(){
   const r=document.createRange();r.selectNodeContents(g('gp-result'));
@@ -1969,7 +2378,7 @@ function insertGrad(){
   el.value=el.value.substring(0,s)+v+el.value.substring(e);
   el.selectionStart=el.selectionEnd=s+v.length;
   el.dispatchEvent(new Event('input'));
-  toast('Degradado insertado ✓');
+  toast(T('toastGradInserted'));
 }
 
 // ════════════════════════════
@@ -2051,7 +2460,7 @@ function applyMat(matStr){
   g('i-mat').value=matStr;
   g('i-mat').dispatchEvent(new Event('input'));
   closeMatPicker();
-  toast('Material aplicado ✓');
+  toast(T('toastMatApplied'));
 }
 
 function renderMatPicker(){
@@ -2074,7 +2483,7 @@ function renderMatPicker(){
 
   // Group by cat if "all" and no search
   if(mpCat==='all'&&!q){
-    const catNames={glass:'Cristal',ores:'Minerales',tools:'Herramientas',misc:'Varios'};
+    const catNames={glass:T('mpCatGlass'),ores:T('mpCatOres'),tools:T('mpCatTools'),misc:T('mpCatMisc')};
     // show heads first
     renderHeadHelpers(body);
     for(const[cat,items]of Object.entries(MAT_CATS)){
@@ -2087,7 +2496,7 @@ function renderMatPicker(){
 }
 
 function renderHeadHelpers(body){
-  const title=document.createElement('div');title.className='mp-cat-title';title.textContent='Cabezas';body.appendChild(title);
+  const title=document.createElement('div');title.className='mp-cat-title';title.textContent=T('mpCatHeads');body.appendChild(title);
   const form=document.createElement('div');form.className='mp-head-form';
   form.innerHTML=`
     <div>
@@ -2152,13 +2561,13 @@ function doSC(){
   g('sc-preview').innerHTML=mcClr(full)||'—';
 }
 function selMod(el){document.querySelectorAll('.sc-mode').forEach(x=>x.classList.remove('on'));el.classList.add('on');scMod=el.dataset.m;doSC();}
-function copySC(){const v=g('sc-result').value;if(!v)return;navigator.clipboard.writeText(v).then(()=>toast('Small caps copiado ✓'));}
+function copySC(){const v=g('sc-result').value;if(!v)return;navigator.clipboard.writeText(v).then(()=>toast(T('toastSCCopied')));}
 function insertSC(){
   const v=g('sc-result').value;if(!v||!lastFocused)return;
   const el=lastFocused,s=el.selectionStart,e=el.selectionEnd;
   el.value=el.value.substring(0,s)+v+el.value.substring(e);
   el.selectionStart=el.selectionEnd=s+v.length;
-  el.dispatchEvent(new Event('input'));toast('Insertado en campo ✓');
+  el.dispatchEvent(new Event('input'));toast(T('toastSCInserted'));
 }
 function toggleSC(){
   const p=g('sc-panel');p.classList.toggle('open');
@@ -2202,9 +2611,9 @@ function parseImportYAML(text,filename){
   g('im-log').innerHTML='';g('im-log').classList.add('show');
   g('im-confirm').style.display='none';pendingImport=null;
   let data;
-  try{data=jsyaml.load(text);log(`✓ YAML parseado: ${filename}`);}
-  catch(e){log(`✕ Error de sintaxis: ${e.message}`,'ie');return;}
-  if(!data||typeof data!=='object'){log('✕ Archivo vacío o inválido','ie');return;}
+  try{data=jsyaml.load(text);log(`✓ ${T('logParsed')}${filename}`);}
+  catch(e){log(`✕ ${T('errSyntax')}${e.message}`,'ie');return;}
+  if(!data||typeof data!=='object'){log(`✕ ${T('errEmpty')}`,'ie');return;}
 
   const result={
     gui:{
@@ -2216,14 +2625,14 @@ function parseImportYAML(text,filename){
     },
     items:{}
   };
-  log(`  título: <span class="io">${result.gui.menu_title}</span>`);
-  log(`  comando: <span class="io">${result.gui.open_command}</span>`);
-  log(`  tamaño: <span class="io">${result.gui.size}</span>`);
+  log(`  ${T('logTitle')}<span class="io">${result.gui.menu_title}</span>`);
+  log(`  ${T('logCmd')}<span class="io">${result.gui.open_command}</span>`);
+  log(`  ${T('logSize')}<span class="io">${result.gui.size}</span>`);
 
-  if(Array.isArray(data.open_commands)){result.gui.open_commands=data.open_commands.map(c=>parseAction(String(c)));log(`  open_commands: <span class="io">${data.open_commands.length} acciones</span>`);}
+  if(Array.isArray(data.open_commands)){result.gui.open_commands=data.open_commands.map(c=>parseAction(String(c)));log(`  open_commands: <span class="io">${data.open_commands.length} ${T('logOpenCmds')}</span>`);}
   try{
     const reqs=data.open_requirement?.requirements;
-    if(reqs){const first=Object.values(reqs)[0];if(first?.type==='has permission'&&first.permission){result.gui.open_perm=first.permission;result.gui.open_deny=(first.deny_commands?.[0]||'').replace(/^\[message\]\s*/i,'');log(`  requisito apertura: <span class="io">${first.permission}</span>`);}}
+    if(reqs){const first=Object.values(reqs)[0];if(first?.type==='has permission'&&first.permission){result.gui.open_perm=first.permission;result.gui.open_deny=(first.deny_commands?.[0]||'').replace(/^\[message\]\s*/i,'');log(`  ${T('logOpenReq')}<span class="io">${first.permission}</span>`);}}
   }catch(e){}
 
   if(data.items&&typeof data.items==='object'){
@@ -2260,12 +2669,12 @@ function parseImportYAML(text,filename){
       });
       itemCount++;
     }
-    log(`✓ <span class="io">${itemCount} items</span>${warnCount?` · <span class="iw">${warnCount} avisos</span>`:''}`);
-  }else{log('  ⚠ Sin items encontrados','iw');}
+    log(`✓ <span class="io">${itemCount} ${T('logItems')}</span>${warnCount?` · <span class="iw">${warnCount} ${T('logWarnings')}</span>`:''}`);
+  }else{log(`  ⚠ ${T('logNoItems')}`,'iw');}
 
   pendingImport=result;
   g('im-confirm').style.display='';
-  log(`<br>Listo → haz clic en <span class="io">Cargar menú</span>`);
+  log(`<br>${T('logReady')}<span class="io">${T('logReadyBtn')}</span>`);
 }
 
 function confirmImport(){
@@ -2280,7 +2689,7 @@ function confirmImport(){
   g('yaml-fname').textContent=(S.gui.open_command||'menu')+'.yml';
   renderGrid();renderOpenCmds();showEmpty();updStats();genYAML();
   closeImportDirect();
-  toast(`Menú importado · ${Object.keys(S.items).length} items`);
+  toast(`${T('imBtnLoad')}: ${Object.keys(S.items).length} ${T('logItems')}`);
 }
 
 // ════════════════════════════
@@ -2330,6 +2739,8 @@ function toast(msg){
   // Nav scroll effect
   window.addEventListener('scroll',()=>g('nav').classList.toggle('scrolled',window.scrollY>10),{passive:true});
 })();
+
+applyLang(LANG);
 </script>
 </body>
 </html>
