@@ -323,12 +323,36 @@ body{
 .erow select{flex:1}.erow input{width:52px;flex:none}
 .erow select:focus,.erow input:focus{border-color:var(--accent)}
 
-/* Checkboxes */
-.ck{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
+/* Checkboxes — custom styled */
+.ck{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;user-select:none}
 .ck input[type=checkbox]{
-  accent-color:var(--accent);width:14px;height:14px;cursor:pointer;border-radius:4px;
+  opacity:0;position:absolute;width:0;height:0;margin:0;pointer-events:none;
 }
-.ck span{font-size:14px;color:var(--fg-dim)}
+.ck-box{
+  width:16px;height:16px;flex-shrink:0;
+  background:#0e1a18;
+  border:1px solid var(--line-2);
+  border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+  position:relative;
+}
+.ck input[type=checkbox]:checked + .ck-box{
+  background:var(--accent);
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-dim);
+}
+.ck-box::after{
+  content:'';
+  width:9px;height:5px;
+  border-left:2px solid #031111;
+  border-bottom:2px solid #031111;
+  transform:rotate(-45deg) translateY(-1px);
+  opacity:0;transition:opacity .12s;
+  display:block;
+}
+.ck input[type=checkbox]:checked + .ck-box::after{opacity:1}
+.ck span:last-child{font-size:14px;color:var(--fg-dim)}
 
 /* ── YAML PANEL ── */
 #yaml-panel{
@@ -566,6 +590,167 @@ body{
 .im-log::-webkit-scrollbar-thumb{background:var(--line-2)}
 .iw{color:var(--warn)}.ie{color:var(--red-a)}.io{color:var(--green-a)}
 
+/* ── GRADIENT TOOL PANEL ── */
+#grad-panel{
+  position:fixed;top:52px;left:0;
+  width:380px;height:calc(100vh - 52px);
+  background:linear-gradient(180deg,var(--bg-1),var(--bg-0));
+  border-right:1px solid var(--line-2);
+  z-index:200;
+  transform:translateX(-100%);
+  transition:transform .28s cubic-bezier(.16,1,.3,1);
+  display:flex;flex-direction:column;
+  box-shadow:20px 0 60px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+#grad-panel.open{transform:translateX(0)}
+.gp-hdr{
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.02);flex-shrink:0;
+}
+.gp-title{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent-2);text-transform:uppercase;letter-spacing:.12em;
+  display:flex;align-items:center;gap:8px;
+}
+.gp-title::before{content:'';width:16px;height:1px;background:var(--accent-2)}
+.gp-body{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px}
+.gp-body::-webkit-scrollbar{width:3px}
+.gp-body::-webkit-scrollbar-thumb{background:var(--line-2)}
+
+/* Preview bar */
+.grad-preview-wrap{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--line-2)}
+.grad-preview-bar{height:10px;width:100%;transition:all .2s}
+.grad-preview-text{
+  background:var(--bg-0);padding:14px 16px;
+  font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;
+  word-break:break-all;line-height:1.5;min-height:54px;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+
+/* Color stops */
+.gp-stops{display:flex;flex-direction:column;gap:8px}
+.gp-stop{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.02);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:8px 12px;
+}
+.gp-stop-num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--fg-muted);width:16px;flex-shrink:0;
+}
+/* ── CUSTOM COLOR PICKER ── */
+#cpicker{
+  position:fixed;z-index:500;
+  width:252px;
+  background:var(--bg-1);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  box-shadow:0 24px 60px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06);
+  display:none;flex-direction:column;overflow:hidden;
+}
+#cpicker.show{display:flex}
+.cp-sv{
+  width:100%;height:152px;position:relative;cursor:crosshair;flex-shrink:0;
+  border-radius:0;
+}
+.cp-sv-sat{position:absolute;inset:0;background:linear-gradient(to right,#fff,transparent)}
+.cp-sv-dark{position:absolute;inset:0;background:linear-gradient(to bottom,transparent,#000)}
+.cp-sv-thumb{
+  position:absolute;width:13px;height:13px;border-radius:50%;
+  border:2px solid #fff;pointer-events:none;
+  box-shadow:0 0 0 1px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.5);
+  transform:translate(-50%,-50%);
+}
+.cp-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.cp-sliders{display:flex;flex-direction:column;gap:6px}
+.cp-hue-row,.cp-alpha-row{display:flex;align-items:center;gap:8px}
+.cp-hue-bar{
+  flex:1;height:10px;border-radius:5px;position:relative;cursor:pointer;
+  background:linear-gradient(to right,
+    hsl(0,100%,50%),hsl(30,100%,50%),hsl(60,100%,50%),hsl(90,100%,50%),
+    hsl(120,100%,50%),hsl(150,100%,50%),hsl(180,100%,50%),hsl(210,100%,50%),
+    hsl(240,100%,50%),hsl(270,100%,50%),hsl(300,100%,50%),hsl(330,100%,50%),hsl(360,100%,50%));
+}
+.cp-slider-thumb{
+  position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+  border:2px solid #fff;pointer-events:none;
+  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 2px 5px rgba(0,0,0,.5);
+  transform:translate(-50%,-50%);
+}
+.cp-row1{display:flex;align-items:center;gap:10px}
+.cp-preview-swatch{
+  width:36px;height:36px;border-radius:8px;flex-shrink:0;
+  border:1px solid rgba(255,255,255,.15);
+}
+.cp-hex-wrap{flex:1;display:flex;flex-direction:column;gap:2px}
+.cp-hex-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em}
+.cp-hex-inp{
+  width:100%;background:#0a1210;border:1px solid var(--line-2);border-radius:6px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
+  padding:5px 8px;outline:none;text-transform:uppercase;letter-spacing:.05em;
+}
+.cp-hex-inp:focus{border-color:var(--accent)}
+.cp-rgb{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.cp-rgb-wrap{display:flex;flex-direction:column;gap:2px;align-items:center}
+.cp-rgb-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em}
+.cp-rgb-inp{
+  width:100%;text-align:center;background:#0a1210;border:1px solid var(--line-2);border-radius:6px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:12px;
+  padding:5px 4px;outline:none;
+}
+.cp-rgb-inp:focus{border-color:var(--accent)}
+
+/* Grad stop swatch (replaces native color input) */
+.gp-color-btn{
+  width:32px;height:32px;border-radius:7px;
+  border:2px solid rgba(255,255,255,.2);
+  cursor:pointer;flex-shrink:0;transition:transform .15s,border-color .15s;
+  position:relative;display:block;
+}
+.gp-color-btn:hover{transform:scale(1.1);border-color:rgba(255,255,255,.5)}
+.gp-hex{
+  flex:1;background:#0e1a18;border:1px solid var(--line-2);border-radius:6px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:12px;
+  padding:5px 8px;outline:none;text-transform:uppercase;
+  color-scheme:dark;
+}
+.gp-hex:focus{border-color:var(--accent-2)}
+.gp-stop-del{
+  width:24px;height:24px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:oklch(0.72 0.18 22 / .08);color:var(--red-a);
+  border:1px solid oklch(0.72 0.18 22 / .2);cursor:pointer;transition:all .12s;
+  font-size:11px;flex-shrink:0;
+}
+.gp-stop-del:hover{background:oklch(0.72 0.18 22 / .2)}
+
+/* Options */
+.gp-field label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:5px}
+.gp-field select,.gp-field input{
+  width:100%;background:#0e1a18;border:1px solid var(--line-2);border-radius:var(--radius-sm);
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:12px;
+  padding:7px 10px;outline:none;color-scheme:dark;transition:border-color .15s;
+}
+.gp-field select option{background:#0e1a18}
+.gp-field select:focus,.gp-field input:focus{border-color:var(--accent-2)}
+
+/* Result */
+.gp-result{
+  background:var(--bg-0);border:1px solid var(--line-2);border-radius:var(--radius-sm);
+  border-top:1px solid var(--accent-2);
+  padding:10px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:oklch(0.82 0.14 200);
+  word-break:break-all;line-height:1.7;
+  max-height:120px;overflow-y:auto;
+  cursor:text;
+}
+.gp-result::-webkit-scrollbar{width:3px}
+.gp-result::-webkit-scrollbar-thumb{background:var(--line-2)}
+
 /* ── TOAST ── */
 .toast{
   position:fixed;bottom:24px;right:24px;
@@ -600,6 +785,9 @@ body{
     </button>
     <button class="btn btn-ghost btn-sm" onclick="triggerImport()">
       <i class="fa-solid fa-upload"></i> Importar .yml
+    </button>
+    <button class="btn btn-ghost btn-sm" id="grad-btn" onclick="toggleGrad()" title="Generador de degradados RGB">
+      <i class="fa-solid fa-palette"></i> Degradado
     </button>
     <button class="btn btn-ghost btn-sm" id="sc-btn" onclick="toggleSC()">
       ᴀ Small Caps
@@ -783,10 +971,57 @@ body{
     <button class="btn btn-ghost btn-xs" onclick="addEnch()"><i class="fa-solid fa-plus"></i> Encantamiento</button>
 
     <div class="sdiv">Opciones</div>
-    <label class="ck"><input type="checkbox" id="i-upd" onchange="onItem()"><span>Update dinámico</span></label>
-    <label class="ck"><input type="checkbox" id="i-ubr" onchange="onItem()"><span>Inrompible</span></label>
-    <label class="ck"><input type="checkbox" id="i-glo" onchange="onItem()"><span>Brillo encantamiento</span></label>
-    <label class="ck"><input type="checkbox" id="i-hat" onchange="onItem()"><span>Ocultar atributos</span></label>
+    <label class="ck"><input type="checkbox" id="i-upd" onchange="onItem()"><span class="ck-box"></span><span>Update dinámico</span></label>
+    <label class="ck"><input type="checkbox" id="i-ubr" onchange="onItem()"><span class="ck-box"></span><span>Inrompible</span></label>
+
+    <div class="sdiv">Item Flags</div>
+    <div class="f">
+      <label>Flags activos</label>
+      <div id="i-flags-wrap" style="display:flex;flex-direction:column;gap:4px;background:#0e1a18;border:1px solid var(--line-2);border-radius:var(--radius-sm);padding:8px 10px;max-height:200px;overflow-y:auto"></div>
+    </div>
+    <div class="f" style="margin-top:-6px">
+      <label>Añadir flag</label>
+      <div style="display:flex;gap:6px">
+        <select id="i-flag-sel" style="flex:1;background:#0e1a18;border:1px solid var(--line-2);border-radius:var(--radius-sm);color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 8px;outline:none;color-scheme:dark">
+          <option value="">— Seleccionar flag —</option>
+          <optgroup label="Universales (todas las versiones)">
+            <option value="HIDE_ENCHANTS">HIDE_ENCHANTS — Encantamientos</option>
+            <option value="HIDE_ATTRIBUTES">HIDE_ATTRIBUTES — Atributos (daño, velocidad...)</option>
+            <option value="HIDE_UNBREAKABLE">HIDE_UNBREAKABLE — Estado inrompible</option>
+            <option value="HIDE_DESTROYS">HIDE_DESTROYS — Bloques que puede romper</option>
+            <option value="HIDE_PLACED_ON">HIDE_PLACED_ON — Bloques donde se puede colocar</option>
+            <option value="HIDE_POTION_EFFECTS">HIDE_POTION_EFFECTS — Efectos de poción</option>
+          </optgroup>
+          <optgroup label="1.16+">
+            <option value="HIDE_DYE">HIDE_DYE — Tinte de armadura de cuero</option>
+          </optgroup>
+          <optgroup label="1.20.5+">
+            <option value="HIDE_ADDITIONAL_TOOLTIP">HIDE_ADDITIONAL_TOOLTIP — Tooltip adicional</option>
+            <option value="HIDE_ARMOR_TRIM">HIDE_ARMOR_TRIM — Trim de armadura</option>
+          </optgroup>
+          <optgroup label="1.21+ (experimental)">
+            <option value="HIDE_ENCHANTMENTS">HIDE_ENCHANTMENTS — Encantamientos (nuevo)</option>
+            <option value="HIDE_CAN_PLACE_ON">HIDE_CAN_PLACE_ON</option>
+            <option value="HIDE_CAN_BREAK">HIDE_CAN_BREAK</option>
+            <option value="HIDE_ATTRIBUTE_MODIFIERS">HIDE_ATTRIBUTE_MODIFIERS</option>
+            <option value="HIDE_CUSTOM_MODEL_DATA">HIDE_CUSTOM_MODEL_DATA</option>
+            <option value="HIDE_TOOLTIP_DISPLAY">HIDE_TOOLTIP_DISPLAY</option>
+            <option value="HIDE_REPAIR_COST">HIDE_REPAIR_COST — Coste de reparación</option>
+            <option value="HIDE_CREATIVE_SLOT_LOCK">HIDE_CREATIVE_SLOT_LOCK</option>
+            <option value="HIDE_ENCHANTMENT_GLINT_OVERRIDE">HIDE_ENCHANTMENT_GLINT_OVERRIDE</option>
+            <option value="HIDE_STORED_ENCHANTMENTS">HIDE_STORED_ENCHANTMENTS</option>
+            <option value="HIDE_DYED_COLOR">HIDE_DYED_COLOR</option>
+            <option value="HIDE_FOOD">HIDE_FOOD</option>
+            <option value="HIDE_CONSUMABLE">HIDE_CONSUMABLE</option>
+            <option value="HIDE_EQUIPPABLE">HIDE_EQUIPPABLE</option>
+            <option value="HIDE_REPAIRABLE">HIDE_REPAIRABLE</option>
+            <option value="HIDE_DAMAGE">HIDE_DAMAGE — Durabilidad</option>
+            <option value="HIDE_CUSTOM_NAME">HIDE_CUSTOM_NAME</option>
+          </optgroup>
+        </select>
+        <button class="btn btn-ghost btn-xs" onclick="addItemFlag()" style="flex-shrink:0"><i class="fa-solid fa-plus"></i></button>
+      </div>
+    </div>
 
     <div class="sdiv">Comandos de clic</div>
     <div class="ctabs" id="ctabs">
@@ -846,6 +1081,118 @@ body{
 </div>
 
 </div><!-- #app -->
+
+<!-- ══ GRADIENT PANEL ══ -->
+<div id="grad-panel">
+  <div class="gp-hdr">
+    <span class="gp-title">Generador de Degradado RGB</span>
+    <button class="btn btn-ghost btn-xs" onclick="toggleGrad()">✕</button>
+  </div>
+  <div class="gp-body">
+
+    <!-- Text input -->
+    <div class="gp-field">
+      <label>Texto</label>
+      <input id="gp-text" value="Texto de ejemplo" oninput="genGrad()" placeholder="Escribe el texto...">
+    </div>
+
+    <!-- Preview -->
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Vista previa</div>
+      <div class="grad-preview-wrap">
+        <div class="grad-preview-bar" id="gp-bar"></div>
+        <div class="grad-preview-text" id="gp-preview">—</div>
+      </div>
+    </div>
+
+    <!-- Color stops -->
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em">Colores del degradado</div>
+        <button class="btn btn-ghost btn-xs" onclick="addGradStop()"><i class="fa-solid fa-plus"></i> Color</button>
+      </div>
+      <div class="gp-stops" id="gp-stops"></div>
+    </div>
+
+    <!-- Options -->
+    <div class="gp-field">
+      <label>Formato de salida</label>
+      <select id="gp-format" onchange="genGrad()">
+        <option value="minimessage" selected>MiniMessage (&lt;#RRGGBB&gt;)</option>
+        <option value="amphex">&amp;#RRGGBB (CMI, EssentialsX...)</option>
+        <option value="legacy">Legacy (&amp;x&amp;R&amp;R&amp;G&amp;G&amp;B&amp;B)</option>
+        <option value="bungee">BungeeCord (§x§R§R§G§G§B§B)</option>
+      </select>
+    </div>
+
+    <div class="gp-field">
+      <label>Formato extra</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="gp-fmt-opts">
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-bold" onchange="genGrad()"><span class="ck-box"></span><span>&amp;l Negrita</span></label>
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-italic" onchange="genGrad()"><span class="ck-box"></span><span>&amp;o Cursiva</span></label>
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-strikethrough" onchange="genGrad()"><span class="ck-box"></span><span>&amp;m Tachado</span></label>
+        <label class="ck" style="margin-bottom:0"><input type="checkbox" id="gp-underline" onchange="genGrad()"><span class="ck-box"></span><span>&amp;n Subrayado</span></label>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Resultado</div>
+      <div class="gp-result" id="gp-result" onclick="selectGpResult()">—</div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="copyGrad()"><i class="fa-regular fa-copy"></i> Copiar</button>
+      <button class="btn btn-ghost btn-sm" onclick="insertGrad()" title="Insertar en el campo activo"><i class="fa-solid fa-arrow-turn-down"></i> Insertar</button>
+    </div>
+
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--line-2);border-left:2px solid var(--accent-2);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-dim);line-height:1.9">
+      <span style="color:var(--accent-2)">Tip</span><br>
+      Añade 3+ colores para degradados más complejos.<br>
+      Usa <b style="color:var(--fg)">MiniMessage</b> para servidores 1.16+.<br>
+      Usa <b style="color:var(--fg)">Legacy</b> para plugins antiguos.
+    </div>
+  </div>
+</div>
+
+<!-- ══ CUSTOM COLOR PICKER ══ -->
+<div id="cpicker">
+  <div class="cp-sv" id="cp-sv">
+    <div class="cp-sv-sat"></div>
+    <div class="cp-sv-dark"></div>
+    <div class="cp-sv-thumb" id="cp-sv-thumb"></div>
+  </div>
+  <div class="cp-body">
+    <div class="cp-sliders">
+      <div class="cp-hue-row">
+        <div class="cp-hue-bar" id="cp-hue">
+          <div class="cp-slider-thumb" id="cp-hue-thumb"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cp-row1">
+      <div class="cp-preview-swatch" id="cp-preview"></div>
+      <div class="cp-hex-wrap">
+        <div class="cp-hex-lbl">Hex</div>
+        <input class="cp-hex-inp" id="cp-hex" maxlength="7" oninput="cpHexInput(this.value)">
+      </div>
+    </div>
+    <div class="cp-rgb">
+      <div class="cp-rgb-wrap">
+        <div class="cp-rgb-lbl">R</div>
+        <input class="cp-rgb-inp" id="cp-r" type="number" min="0" max="255" oninput="cpRgbInput()">
+      </div>
+      <div class="cp-rgb-wrap">
+        <div class="cp-rgb-lbl">G</div>
+        <input class="cp-rgb-inp" id="cp-g" type="number" min="0" max="255" oninput="cpRgbInput()">
+      </div>
+      <div class="cp-rgb-wrap">
+        <div class="cp-rgb-lbl">B</div>
+        <input class="cp-rgb-inp" id="cp-b" type="number" min="0" max="255" oninput="cpRgbInput()">
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ MATERIAL PICKER ══ -->
 <div id="mat-picker">
@@ -1075,7 +1422,7 @@ function selSlot(i){
 // ════════════════════════════
 function mkItem(i){
   return{name:`item_${i}`,material:'STONE',amount:1,display_name:'',lore:[],
-    enchantments:[],update:false,unbreakable:false,glow:false,hide_attributes:false,
+    enchantments:[],update:false,unbreakable:false,item_flags:[],
     priority:'',model_data:'',
     left_click_commands:[],right_click_commands:[],
     shift_left_click_commands:[],shift_right_click_commands:[],click_commands:[],
@@ -1090,9 +1437,8 @@ function renderEditor(){
   g('i-name').value=it.name;g('i-mat').value=it.material;g('i-amt').value=it.amount;
   g('i-dn').value=it.display_name;g('i-pri').value=it.priority;g('i-mdl').value=it.model_data;
   g('i-upd').checked=it.update;g('i-ubr').checked=it.unbreakable;
-  g('i-glo').checked=it.glow;g('i-hat').checked=it.hide_attributes;
   g('i-rtype').value=it.req_type;g('i-rval').value=it.req_val;g('i-rdeny').value=it.req_deny;
-  renderLore();renderEnchs();renderCmds();
+  renderFlagsList();renderLore();renderEnchs();renderCmds();
 }
 function onItem(){
   const i=S.sel;if(i===null)return;
@@ -1103,7 +1449,7 @@ function onItem(){
   it.display_name=g('i-dn').value;
   it.priority=g('i-pri').value;it.model_data=g('i-mdl').value;
   it.update=g('i-upd').checked;it.unbreakable=g('i-ubr').checked;
-  it.glow=g('i-glo').checked;it.hide_attributes=g('i-hat').checked;
+  // item_flags managed separately via addItemFlag/rmFlag
   it.req_type=g('i-rtype').value;it.req_val=g('i-rval').value;it.req_deny=g('i-rdeny').value;
   renderGrid();updStats();genYAML();
 }
@@ -1137,6 +1483,38 @@ function rmEnch(i){S.items[S.sel].enchantments.splice(i,1);renderEnchs();genYAML
 function updEnch(i,f,v){S.items[S.sel].enchantments[i][f]=f==='level'?parseInt(v):v;genYAML();}
 
 // CLICK COMMANDS
+// ITEM FLAGS
+function renderFlagsList(){
+  const it=S.items[S.sel];
+  const wrap=g('i-flags-wrap');
+  wrap.innerHTML='';
+  if(!it||!it.item_flags||!it.item_flags.length){
+    wrap.innerHTML=`<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted)">Sin flags activos</span>`;
+    return;
+  }
+  it.item_flags.forEach((fl,idx)=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;background:var(--accent-dim);border-radius:6px;';
+    d.innerHTML=`<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent)">${fl}</span>
+    <div class="btn-icon" style="width:20px;height:20px;font-size:10px" onclick="rmFlag(${idx})"><i class="fa-solid fa-xmark"></i></div>`;
+    wrap.appendChild(d);
+  });
+}
+function addItemFlag(){
+  const sel=g('i-flag-sel');const val=sel.value;
+  if(!val||!S.items[S.sel])return;
+  if(!S.items[S.sel].item_flags)S.items[S.sel].item_flags=[];
+  if(S.items[S.sel].item_flags.includes(val)){toast('Flag ya añadido');return;}
+  S.items[S.sel].item_flags.push(val);
+  sel.value='';
+  renderFlagsList();genYAML();
+}
+function rmFlag(i){
+  if(!S.items[S.sel])return;
+  S.items[S.sel].item_flags.splice(i,1);
+  renderFlagsList();genYAML();
+}
+
 function selTab(el){document.querySelectorAll('.ct').forEach(t=>t.classList.remove('on'));el.classList.add('on');S.ctab=el.dataset.k;renderCmds();}
 function renderCmds(){
   const it=S.items[S.sel];if(!it)return;
@@ -1240,8 +1618,10 @@ function genYAML(){
     if(it.enchantments&&it.enchantments.length){L.push(`    enchantments:`);it.enchantments.forEach(e=>L.push(`      - '${e.name};${e.level}'`));}
     if(it.update)L.push(`    update: true`);
     if(it.unbreakable)L.push(`    unbreakable: true`);
-    if(it.glow)L.push(`    enchantment_glint_override: true`);
-    if(it.hide_attributes)L.push(`    item_flags:`,`      - HIDE_ATTRIBUTES`);
+    if(it.item_flags&&it.item_flags.length){
+      L.push(`    item_flags:`);
+      it.item_flags.forEach(f=>L.push(`      - ${f}`));
+    }
     for(const k of['left_click_commands','right_click_commands','shift_left_click_commands','shift_right_click_commands','click_commands']){
       const cmds=it[k];if(!cmds||!cmds.length)continue;
       if(k==='left_click_commands'&&it.req_type){
@@ -1303,6 +1683,294 @@ function mcClr(txt){
   return out;
 }
 
+
+
+// ════════════════════════════
+// GRADIENT GENERATOR
+// ════════════════════════════
+let gradStops=[{hex:'#ff4d6d'},{hex:'#c77dff'},{hex:'#4cc9f0'}];
+
+function toggleGrad(){
+  const p=g('grad-panel');p.classList.toggle('open');
+  const on=p.classList.contains('open');
+  const btn=g('grad-btn');
+  btn.style.borderColor=on?'var(--accent-2)':'';
+  btn.style.color=on?'var(--accent-2)':'';
+  btn.style.background=on?'oklch(0.82 0.14 200 / .1)':'';
+  if(on){renderGradStops();genGrad();}
+}
+
+function renderGradStops(){
+  const c=g('gp-stops');c.innerHTML='';
+  gradStops.forEach((s,i)=>{
+    const r=document.createElement('div');r.className='gp-stop';
+    r.innerHTML=`
+      <span class="gp-stop-num">${i+1}</span>
+      <div class="gp-color-btn" id="gp-cb-${i}" style="background:${s.hex}" title="Cambiar color" onclick="openCPicker(${i},this)"></div>
+      <input class="gp-hex" maxlength="7" value="${s.hex.toUpperCase()}"
+        oninput="updGradHex(${i},this.value)" placeholder="#RRGGBB">
+      ${gradStops.length>2
+        ?`<div class="gp-stop-del" onclick="rmGradStop(${i})"><i class="fa-solid fa-xmark"></i></div>`
+        :'<div style="width:24px;flex-shrink:0"></div>'}
+    `;
+    c.appendChild(r);
+  });
+}
+
+function updGradColor(i,hex){
+  gradStops[i].hex=hex;
+  const hexInps=g('gp-stops').querySelectorAll('.gp-hex');
+  if(hexInps[i])hexInps[i].value=hex.toUpperCase();
+  const cb=g(`gp-cb-${i}`);
+  if(cb)cb.style.background=hex;
+  genGrad();
+}
+function updGradHex(i,val){
+  const v=val.trim();
+  const hex=/^#/.test(v)?v:'#'+v;
+  if(/^#[0-9a-fA-F]{6}$/.test(hex)){
+    gradStops[i].hex=hex;
+    const cb=g(`gp-cb-${i}`);
+    if(cb)cb.style.background=hex;
+    if(cpState.idx===i)cpSetHex(hex,false);
+    genGrad();
+  }
+}
+
+// ════════════════════════════
+// CUSTOM COLOR PICKER
+// ════════════════════════════
+const cpState={idx:-1,h:0,s:1,v:1,dragging:null};
+
+function hsv2rgb(h,s,v){
+  let r,gr,b;
+  const i=Math.floor(h/60)%6,f=h/60-Math.floor(h/60);
+  const p=v*(1-s),q=v*(1-f*s),t=v*(1-(1-f)*s);
+  if(i===0){r=v;gr=t;b=p;}else if(i===1){r=q;gr=v;b=p;}
+  else if(i===2){r=p;gr=v;b=t;}else if(i===3){r=p;gr=q;b=v;}
+  else if(i===4){r=t;gr=p;b=v;}else{r=v;gr=p;b=q;}
+  return[Math.round(r*255),Math.round(gr*255),Math.round(b*255)];
+}
+function rgb2hsv(r,gv,b){
+  r/=255;gv/=255;b/=255;
+  const max=Math.max(r,gv,b),min=Math.min(r,gv,b),d=max-min;
+  let h=0,s=max===0?0:d/max,v=max;
+  if(d!==0){
+    if(max===r)h=((gv-b)/d+6)%6;
+    else if(max===gv)h=(b-r)/d+2;
+    else h=(r-gv)/d+4;
+    h*=60;
+  }
+  return{h,s,v};
+}
+function rgb2hex(r,gv,b){return'#'+[r,gv,b].map(x=>Math.round(Math.max(0,Math.min(255,x))).toString(16).padStart(2,'0')).join('');}
+function cpHex2rgb(h){const x=h.replace('#','');return[parseInt(x.slice(0,2),16),parseInt(x.slice(2,4),16),parseInt(x.slice(4,6),16)];}
+
+function cpRender(){
+  const {h,s,v}=cpState;
+  const[r,gv,b]=hsv2rgb(h,s,v);
+  const hex=rgb2hex(r,gv,b);
+  const hueColor=`hsl(${h},100%,50%)`;
+  const svEl=g('cp-sv');
+  svEl.style.background=hueColor;
+  const t=g('cp-sv-thumb');
+  const w=svEl.offsetWidth||220,ht2=svEl.offsetHeight||152;
+  t.style.left=(s*w)+'px';t.style.top=((1-v)*ht2)+'px';
+  t.style.background=hex;
+  const hth=g('cp-hue-thumb');
+  hth.style.left=(h/360*100)+'%';
+  hth.style.background=hueColor;
+  g('cp-preview').style.background=hex;
+  const hxEl=g('cp-hex');if(document.activeElement!==hxEl)hxEl.value=hex.toUpperCase();
+  const ri=g('cp-r'),gi=g('cp-g'),bi=g('cp-b');
+  if(document.activeElement!==ri)ri.value=r;
+  if(document.activeElement!==gi)gi.value=gv;
+  if(document.activeElement!==bi)bi.value=b;
+  if(cpState.idx>=0)updGradColor(cpState.idx,hex);
+}
+
+function cpSetHex(hex,doRender=true){
+  if(!/^#[0-9a-fA-F]{6}$/i.test(hex))return;
+  const[r,gv,b]=cpHex2rgb(hex);
+  const{h,s,v}=rgb2hsv(r,gv,b);
+  cpState.h=h;cpState.s=s;cpState.v=v;
+  if(doRender)cpRender();
+}
+
+function openCPicker(i,btn){
+  const cp=g('cpicker');
+  cpState.idx=i;
+  cpSetHex(gradStops[i].hex,false);
+  const rect=btn.getBoundingClientRect();
+  let left=rect.right+10,top=rect.top-8;
+  if(left+260>window.innerWidth)left=rect.left-268;
+  if(top+370>window.innerHeight)top=window.innerHeight-375;
+  if(top<8)top=8;
+  cp.style.left=left+'px';cp.style.top=top+'px';
+  cp.classList.add('show');
+  cpRender();
+  setTimeout(()=>document.addEventListener('mousedown',cpOutside,{capture:true}),10);
+}
+function closeCPicker(){
+  g('cpicker').classList.remove('show');
+  document.removeEventListener('mousedown',cpOutside,{capture:true});
+  cpState.idx=-1;
+}
+function cpOutside(e){
+  if(!g('cpicker').contains(e.target)&&!e.target.classList.contains('gp-color-btn'))closeCPicker();
+}
+
+// SV drag
+document.getElementById('cp-sv').addEventListener('mousedown',e=>{
+  cpState.dragging='sv';cpSvMove(e);e.preventDefault();
+});
+document.addEventListener('mousemove',e=>{
+  if(cpState.dragging==='sv')cpSvMove(e);
+  else if(cpState.dragging==='hue')cpHueMove(e);
+});
+document.addEventListener('mouseup',()=>{cpState.dragging=null;});
+function cpSvMove(e){
+  const sv=g('cp-sv'),rect=sv.getBoundingClientRect();
+  cpState.s=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+  cpState.v=Math.max(0,Math.min(1,1-(e.clientY-rect.top)/rect.height));
+  cpRender();
+}
+document.getElementById('cp-hue').addEventListener('mousedown',e=>{
+  cpState.dragging='hue';cpHueMove(e);e.preventDefault();
+});
+function cpHueMove(e){
+  const rect=g('cp-hue').getBoundingClientRect();
+  cpState.h=Math.max(0,Math.min(359.9,(e.clientX-rect.left)/rect.width*360));
+  cpRender();
+}
+function cpHexInput(val){
+  const hex=val.startsWith('#')?val:'#'+val;
+  if(/^#[0-9a-fA-F]{6}$/i.test(hex))cpSetHex(hex);
+}
+function cpRgbInput(){
+  const r=Math.max(0,Math.min(255,parseInt(g('cp-r').value)||0));
+  const gv=Math.max(0,Math.min(255,parseInt(g('cp-g').value)||0));
+  const b=Math.max(0,Math.min(255,parseInt(g('cp-b').value)||0));
+  cpSetHex(rgb2hex(r,gv,b));
+}
+function addGradStop(){
+  // Add a color between last two
+  const last=gradStops[gradStops.length-1].hex;
+  gradStops.push({hex:lerpHex(last,'#ffffff',0.4)});
+  renderGradStops();genGrad();
+}
+function rmGradStop(i){
+  if(gradStops.length<=2)return;
+  gradStops.splice(i,1);renderGradStops();genGrad();
+}
+
+// Interpolate between multiple stops
+function hexToRgb(h){
+  const x=h.replace('#','');
+  return[parseInt(x.slice(0,2),16),parseInt(x.slice(2,4),16),parseInt(x.slice(4,6),16)];
+}
+function rgbToHex(r,g,b){
+  return'#'+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');
+}
+function lerpRgb(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
+function lerpHex(h1,h2,t){return rgbToHex(...lerpRgb(hexToRgb(h1),hexToRgb(h2),t));}
+
+function getColorAt(t){
+  // t = 0..1 across all stops
+  if(gradStops.length===1)return gradStops[0].hex;
+  const seg=gradStops.length-1;
+  const pos=t*seg;
+  const lo=Math.floor(pos),hi=Math.min(lo+1,seg);
+  const lt=pos-lo;
+  const a=hexToRgb(gradStops[lo].hex),b=hexToRgb(gradStops[hi].hex);
+  return rgbToHex(...lerpRgb(a,b,lt));
+}
+
+function genGrad(){
+  const text=g('gp-text').value||'';
+  const fmt=g('gp-format').value;
+  const bold=g('gp-bold').checked;
+  const italic=g('gp-italic').checked;
+  const strike=g('gp-strikethrough').checked;
+  const under=g('gp-underline').checked;
+
+  if(!text){g('gp-preview').innerHTML='—';g('gp-result').textContent='—';updateGradBar();return;}
+
+  const chars=[...text]; // handle unicode
+  const colored=[];
+  let result='';
+  let previewHtml='';
+
+  // Extra formatting codes
+  const fmtCode=(bold?'&l':'')+(italic?'&o':'')+(strike?'&m':'')+(under?'&n':'');
+  const mmFmt=(bold?'<bold>':'')+(italic?'<italic>':'')+(strike?'<strikethrough>':'')+(under?'<underlined>':'');
+
+  chars.forEach((ch,idx)=>{
+    const t=chars.length<=1?0:idx/(chars.length-1);
+    const hex=getColorAt(t);
+    const [r,g2,b]=hexToRgb(hex);
+    colored.push({ch,hex,r,g2,b});
+    // Preview span
+    previewHtml+=`<span style="color:${hex}">${ch==='<'?'&lt;':ch==='>'?'&gt;':ch===' '?'&nbsp;':ch}</span>`;
+  });
+
+  // Build result string per format
+  if(fmt==='minimessage'){
+    // Group consecutive chars with same color → output <#hex>char
+    let prev='';
+    colored.forEach(({ch,hex})=>{
+      if(hex!==prev){result+=`<${hex}>`;prev=hex;}
+      result+=ch;
+    });
+    if(mmFmt) result=mmFmt+result+(bold?'</bold>':'')+(italic?'</italic>':'')+(strike?'</strikethrough>':'')+(under?'</underlined>':'');
+  }else if(fmt==='amphex'){
+    // &#RRGGBB format — CMI, EssentialsX, some DeluxeMenus + ChatColor setups
+    colored.forEach(({ch,hex})=>{
+      result+=`&#${hex.replace('#','').toUpperCase()}${fmtCode}${ch}`;
+    });
+  }else if(fmt==='legacy'){
+    colored.forEach(({ch,r,g2,b})=>{
+      const rh=r.toString(16).padStart(2,'0');
+      const gh=g2.toString(16).padStart(2,'0');
+      const bh=b.toString(16).padStart(2,'0');
+      result+=`&x&${rh[0]}&${rh[1]}&${gh[0]}&${gh[1]}&${bh[0]}&${bh[1]}${fmtCode}${ch}`;
+    });
+  }else if(fmt==='bungee'){
+    colored.forEach(({ch,r,g2,b})=>{
+      const rh=r.toString(16).padStart(2,'0');
+      const gh=g2.toString(16).padStart(2,'0');
+      const bh=b.toString(16).padStart(2,'0');
+      result+=`§x§${rh[0]}§${rh[1]}§${gh[0]}§${gh[1]}§${bh[0]}§${bh[1]}${fmtCode.replace(/&/g,'§')}${ch}`;
+    });
+  }
+
+  g('gp-preview').innerHTML=previewHtml;
+  g('gp-result').textContent=result;
+  updateGradBar();
+}
+
+function updateGradBar(){
+  const stops=gradStops.map((s,i)=>`${s.hex} ${(i/(gradStops.length-1)*100).toFixed(1)}%`).join(', ');
+  g('gp-bar').style.background=`linear-gradient(to right, ${stops})`;
+}
+
+function copyGrad(){
+  const t=g('gp-result').textContent;
+  if(t&&t!=='—')navigator.clipboard.writeText(t).then(()=>toast('Degradado copiado ✓'));
+}
+function selectGpResult(){
+  const r=document.createRange();r.selectNodeContents(g('gp-result'));
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);
+}
+function insertGrad(){
+  const v=g('gp-result').textContent;
+  if(!v||v==='—'||!lastFocused)return;
+  const el=lastFocused,s=el.selectionStart,e=el.selectionEnd;
+  el.value=el.value.substring(0,s)+v+el.value.substring(e);
+  el.selectionStart=el.selectionEnd=s+v.length;
+  el.dispatchEvent(new Event('input'));
+  toast('Degradado insertado ✓');
+}
 
 // ════════════════════════════
 // MATERIAL PICKER
@@ -1574,13 +2242,12 @@ function parseImportYAML(text,filename){
       };
       const lcReq=pReq(raw.left_click_requirement);
       const enchs=Array.isArray(raw.enchantments)?raw.enchantments.map(e=>{const p=String(e).split(';');return{name:p[0]||'SHARPNESS',level:parseInt(p[1])||1};}):[];
-      const flags=(Array.isArray(raw.item_flags)?raw.item_flags.map(f=>String(f).toUpperCase()):[]);
 
       const it={
         name:iname,material:String(raw.material||'STONE').toUpperCase(),amount:parseInt(raw.amount)||1,
         display_name:raw.display_name||'',lore:Array.isArray(raw.lore)?raw.lore.map(String):[],
         enchantments:enchs,update:!!raw.update,unbreakable:!!raw.unbreakable,
-        glow:!!raw.enchantment_glint_override,hide_attributes:flags.includes('HIDE_ATTRIBUTES'),
+        item_flags:Array.isArray(raw.item_flags)?raw.item_flags.map(f=>String(f).toUpperCase()):[],
         priority:raw.priority!==undefined?String(raw.priority):'',
         model_data:raw.model_data!==undefined?String(raw.model_data):'',
         left_click_commands:pCmds(raw.left_click_commands),right_click_commands:pCmds(raw.right_click_commands),
@@ -1655,6 +2322,10 @@ function toast(msg){
   renderGrid();renderOpenCmds();
   g('inv-title').innerHTML=mcClr('&aMi Menú');
   genYAML();updStats();
+
+  // Init gradient
+  renderGradStops();
+  updateGradBar();
 
   // Nav scroll effect
   window.addEventListener('scroll',()=>g('nav').classList.toggle('scrolled',window.scrollY>10),{passive:true});
