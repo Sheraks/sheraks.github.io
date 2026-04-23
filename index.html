@@ -1,315 +1,1664 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Sheraks</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeluxeMenus Builder</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+<style>
+/* ── TOKENS ── */
+:root{
+  --bg-0:#07100f;
+  --bg-1:#0c1816;
+  --bg-2:#13211e;
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.14);
+  --fg:#eef5f3;
+  --fg-dim:rgba(238,245,243,.68);
+  --fg-muted:rgba(238,245,243,.4);
+  --accent:oklch(0.78 0.16 300);
+  --accent-dim:oklch(0.78 0.16 300 / .14);
+  --accent-2:oklch(0.82 0.14 200);
+  --green-a:oklch(0.82 0.14 155);
+  --red-a:oklch(0.72 0.18 22);
+  --warn:oklch(0.82 0.14 70);
+  --radius:18px;
+  --radius-sm:10px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Space Grotesk',ui-sans-serif,sans-serif;
+  background:var(--bg-0);color:var(--fg);
+  -webkit-font-smoothing:antialiased;
+  font-size:14px;line-height:1.55;
+}
+::selection{background:var(--accent);color:#031111}
+
+/* ── BACKGROUND ── */
+.bg-layer{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(800px 500px at 80% -5%,oklch(0.78 0.16 300 / .12),transparent 60%),
+    radial-gradient(600px 400px at -5% 90%,oklch(0.78 0.14 180 / .07),transparent 60%),
+    linear-gradient(180deg,var(--bg-0),var(--bg-1));
+}
+.bg-grid{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.3;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(1100px 700px at 50% 0%,black 30%,transparent 80%);
+}
+
+/* ── NAV ── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;
+  backdrop-filter:blur(14px);
+  background:linear-gradient(180deg,rgba(7,16,15,.8),rgba(7,16,15,.3));
+  border-bottom:1px solid transparent;
+  transition:all .3s;
+}
+#nav.scrolled{border-bottom-color:var(--line);background:rgba(7,16,15,.9);padding:10px 28px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;color:var(--fg);text-decoration:none}
+.brand-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:grid;place-items:center;color:#031111;font-weight:700;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 8px 24px -8px var(--accent);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+}
+.nav-right{display:flex;gap:8px;align-items:center}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:999px;font-weight:600;
+  text-decoration:none;font-size:13px;border:1px solid transparent;
+  cursor:pointer;transition:all .22s;white-space:nowrap;
+  font-family:'Space Grotesk',sans-serif;
+}
+.btn-primary{background:var(--accent);color:#031111;border-color:var(--accent)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 36px -10px var(--accent)}
+.btn-ghost{color:var(--fg-dim);border-color:var(--line-2);background:rgba(255,255,255,.02)}
+.btn-ghost:hover{color:var(--fg);border-color:var(--fg-dim);background:rgba(255,255,255,.05)}
+.btn-danger{color:var(--red-a);border-color:oklch(0.72 0.18 22 / .3);background:oklch(0.72 0.18 22 / .06)}
+.btn-danger:hover{background:oklch(0.72 0.18 22 / .14);border-color:var(--red-a)}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-xs{padding:5px 10px;font-size:11px}
+.btn-icon{
+  width:26px;height:26px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  background:oklch(0.72 0.18 22 / .08);color:var(--red-a);
+  border:1px solid oklch(0.72 0.18 22 / .2);
+  cursor:pointer;transition:all .2s;font-size:12px;flex-shrink:0;
+}
+.btn-icon:hover{background:oklch(0.72 0.18 22 / .18);border-color:var(--red-a)}
+
+/* ── APP LAYOUT ── */
+#app{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:290px 1fr 330px;
+  grid-template-rows:1fr 210px;
+  height:calc(100vh - 52px);
+  margin-top:52px;
+}
+.pnl{
+  overflow-y:auto;overflow-x:hidden;
+  border-right:1px solid var(--line);
+  padding:20px;
+}
+.pnl::-webkit-scrollbar{width:3px}
+.pnl::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:2px}
+
+/* ── PANEL HEADER ── */
+.ph{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);letter-spacing:.12em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:20px;padding-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+.ph::before{content:'';width:20px;height:1px;background:var(--accent)}
+
+/* ── FORM ── */
+.f{margin-bottom:14px}
+.f label{
+  display:block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;
+}
+.f input,.f select,.f textarea{
+  width:100%;
+  background:#0e1a18;
+  border:1px solid var(--line-2);
+  border-radius:var(--radius-sm);
+  color:var(--fg);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px;padding:8px 12px;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  color-scheme:dark;
+}
+.f input:focus,.f select:focus,.f textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px oklch(0.78 0.16 300 / .12);
+}
+.f select option{background:#0e1a18;color:var(--fg)}
+.f textarea{resize:vertical;min-height:60px;font-size:13px;font-family:'JetBrains Mono',monospace}
+.hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);margin-top:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.sdiv{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.12em;
+  margin:18px 0 12px;display:flex;align-items:center;gap:10px;
+}
+.sdiv::before{content:'';flex:1;height:1px;background:var(--line)}
+.sdiv::after{content:'';flex:1;height:1px;background:var(--line)}
+
+.spills{display:flex;gap:6px;flex-wrap:wrap}
+.sp{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:5px 12px;border-radius:999px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line-2);
+  cursor:pointer;transition:all .2s;color:var(--fg-muted);
+}
+.sp:hover,.sp.on{
+  border-color:var(--accent);color:var(--accent);
+  background:var(--accent-dim);
+  box-shadow:0 0 0 1px oklch(0.78 0.16 300 / .2);
+}
+
+/* ── CENTER ── */
+#center{
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px;overflow-y:auto;
+  border-right:1px solid var(--line);
+  background:radial-gradient(600px 400px at 50% 0%,oklch(0.78 0.16 300 / .05),transparent 60%);
+}
+#center .ph{width:100%;max-width:530px}
+
+/* Inventory */
+.mc-wrap{width:fit-content;max-width:100%}
+.mc-titlebar{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  border:1px solid var(--line-2);border-bottom:none;
+  border-radius:var(--radius) var(--radius) 0 0;
+  padding:10px 18px;
+  display:flex;align-items:center;gap:12px;
+}
+.mc-titlebar .tl{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--fg-muted);letter-spacing:.08em;text-transform:uppercase;
+}
+.mc-titletext{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600}
+.mc-grid{
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+  border:1px solid var(--line-2);
+  border-radius:0 0 var(--radius) var(--radius);
+  padding:12px;
+  display:grid;
+  grid-template-columns:repeat(9,52px);
+  gap:4px;
+}
+
+/* Slot */
+.slot{
+  width:52px;height:52px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:all .18s cubic-bezier(.2,.8,.2,1);
+}
+.slot:hover{
+  border-color:var(--accent);
+  background:var(--accent-dim);
+  transform:scale(1.06);
+  z-index:2;
+}
+.slot.filled{background:rgba(255,255,255,.045);border-color:var(--line-2)}
+.slot.sel{
+  border-color:var(--accent)!important;
+  background:var(--accent-dim)!important;
+  box-shadow:0 0 0 2px oklch(0.78 0.16 300 / .3),0 8px 24px -8px var(--accent);
+  transform:scale(1.06);z-index:2;
+}
+.snum{position:absolute;top:2px;right:4px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--fg-muted);opacity:.5;line-height:1}
+.sicon{font-size:22px;line-height:1;pointer-events:none}
+.smat{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--fg-muted);max-width:48px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;pointer-events:none;margin-top:1px}
+.samt{position:absolute;bottom:2px;right:4px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;color:var(--fg);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+
+/* Stats */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;margin-top:16px;
+  width:100%;max-width:530px;
+}
+.stat-box{
+  padding:14px 16px;border-right:1px solid var(--line);
+  background:rgba(255,255,255,.015);
+  transition:background .2s;
+}
+.stat-box:last-child{border-right:none}
+.stat-box:hover{background:rgba(255,255,255,.03)}
+.sv{font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.sv .unit{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--accent);margin-left:2px}
+.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+
+.qbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.inv-footer{margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-muted);display:flex;align-items:center;gap:8px}
+.sel-badge{color:var(--accent);font-weight:600}
+
+/* ── ITEM EDITOR ── */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:300px;text-align:center;gap:14px;color:var(--fg-muted);
+}
+.empty-icon{
+  width:64px;height:64px;border-radius:18px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line-2);
+  display:grid;place-items:center;font-size:28px;opacity:.5;
+}
+.empty-state p{font-size:14px;color:var(--fg-muted);line-height:1.7}
+
+/* Click tabs */
+.ctabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.ct{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:5px 12px;border-radius:999px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line-2);
+  cursor:pointer;color:var(--fg-muted);transition:all .18s;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.ct:hover,.ct.on{
+  color:var(--accent);border-color:var(--accent);background:var(--accent-dim);
+}
+
+/* Action rows */
+.aclist{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.acrow{display:flex;gap:5px;align-items:center}
+.acrow select{
+  width:115px;flex-shrink:0;
+  background:#0e1a18;border:1px solid var(--line-2);border-radius:8px;
+  color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:5px 7px;outline:none;transition:border-color .18s;
+  color-scheme:dark;
+}
+.acrow select option{background:#0e1a18;color:var(--fg)}
+.acrow select:focus{border-color:var(--accent)}
+.acrow input{
+  flex:1;background:#0e1a18;border:1px solid var(--line-2);border-radius:8px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:5px 9px;outline:none;transition:border-color .18s,box-shadow .18s;
+}
+.acrow input:focus{border-color:var(--accent);box-shadow:0 0 0 2px oklch(0.78 0.16 300 / .1)}
+
+/* Lore rows */
+.lrow{display:flex;gap:5px;margin-bottom:5px}
+.lrow input{
+  flex:1;background:#0e1a18;border:1px solid var(--line-2);border-radius:8px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:5px 9px;outline:none;transition:all .18s;
+}
+.lrow input:focus{border-color:var(--accent);box-shadow:0 0 0 2px oklch(0.78 0.16 300 / .1)}
+
+/* Ench rows */
+.erow{display:flex;gap:5px;margin-bottom:5px;align-items:center}
+.erow select,.erow input{
+  background:#0e1a18;border:1px solid var(--line-2);border-radius:8px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:5px 7px;outline:none;color-scheme:dark;
+}
+.erow select option{background:#0e1a18;color:var(--fg)}
+.erow select{flex:1}.erow input{width:52px;flex:none}
+.erow select:focus,.erow input:focus{border-color:var(--accent)}
+
+/* Checkboxes */
+.ck{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
+.ck input[type=checkbox]{
+  accent-color:var(--accent);width:14px;height:14px;cursor:pointer;border-radius:4px;
+}
+.ck span{font-size:14px;color:var(--fg-dim)}
+
+/* ── YAML PANEL ── */
+#yaml-panel{
+  grid-column:1/-1;
+  border-top:1px solid var(--line);
+  background:rgba(255,255,255,.01);
+  display:grid;grid-template-columns:1fr 150px;
+  gap:14px;padding:14px 20px;align-items:start;
+}
+.yaml-ph{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--green-a);letter-spacing:.12em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;margin-bottom:8px;
+}
+.yaml-ph::before{content:'';width:16px;height:1px;background:var(--green-a)}
+#yaml-out{
+  background:var(--bg-0);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius-sm);
+  padding:10px 14px;
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  color:var(--green-a);
+  overflow:auto;height:162px;white-space:pre;
+  line-height:1.65;
+}
+.yaml-side{display:flex;flex-direction:column;gap:6px}
+.yaml-fname{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);
+  margin-bottom:2px;
+}
+
+/* ── SEPARATOR ── */
+.sep{height:1px;background:var(--line);margin:12px 0}
+
+/* ── HELP BOX ── */
+.help-box{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--line-2);
+  border-left:2px solid var(--accent);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  padding:12px 14px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--fg-dim);line-height:1.9;
+}
+.help-box b{color:var(--accent)}
+
+
+/* ── MATERIAL PICKER ── */
+#mat-picker{
+  position:fixed;z-index:250;
+  width:360px;
+  background:linear-gradient(180deg,var(--bg-1),var(--bg-0));
+  border:1px solid var(--line-2);border-radius:var(--radius);
+  box-shadow:0 30px 60px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06);
+  display:none;
+  overflow:hidden;
+  max-height:520px;
+  flex-direction:column;
+}
+#mat-picker.show{display:flex}
+.mp-hdr{
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  flex-shrink:0;
+}
+.mp-hdr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mp-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:8px}
+.mp-title::before{content:'';width:14px;height:1px;background:var(--accent)}
+.mp-search{
+  width:100%;background:#0e1a18;border:1px solid var(--line-2);border-radius:8px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:12px;
+  padding:7px 10px;outline:none;transition:border-color .18s;
+  color-scheme:dark;
+}
+.mp-search:focus{border-color:var(--accent)}
+.mp-tabs{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.mp-tab{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  padding:4px 10px;border-radius:999px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line-2);
+  cursor:pointer;color:var(--fg-muted);transition:all .15s;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.mp-tab:hover,.mp-tab.on{color:var(--accent);border-color:var(--accent);background:var(--accent-dim)}
+.mp-body{overflow-y:auto;flex:1;padding:12px 14px}
+.mp-body::-webkit-scrollbar{width:3px}
+.mp-body::-webkit-scrollbar-thumb{background:var(--line-2)}
+
+/* Head helper */
+.mp-head-form{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.mp-head-row{display:flex;gap:6px;align-items:center}
+.mp-head-row input{
+  flex:1;background:#0e1a18;border:1px solid var(--line-2);border-radius:8px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:6px 9px;outline:none;color-scheme:dark;
+}
+.mp-head-row input:focus{border-color:var(--accent)}
+.mp-head-row input::placeholder{color:var(--fg-muted)}
+.mp-head-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+
+/* Material grid */
+.mp-cat-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px;display:flex;align-items:center;gap:8px}
+.mp-cat-title::after{content:'';flex:1;height:1px;background:var(--line)}
+.mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:5px;margin-bottom:8px}
+.mp-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 4px;border-radius:var(--radius-sm);
+  background:rgba(255,255,255,.02);border:1px solid var(--line);
+  cursor:pointer;transition:all .15s;text-align:center;
+}
+.mp-item:hover,.mp-item.chosen{
+  border-color:var(--accent);background:var(--accent-dim);
+  transform:translateY(-2px);
+}
+.mp-item .mpi{font-size:22px;line-height:1}
+.mp-item .mpn{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--fg-muted);word-break:break-all;line-height:1.3}
+.mp-item:hover .mpn{color:var(--accent)}
+
+/* ── SMALL CAPS PANEL ── */
+#sc-panel{
+  position:fixed;top:52px;right:0;
+  width:330px;height:calc(100vh - 52px);
+  background:linear-gradient(180deg,var(--bg-1),var(--bg-0));
+  border-left:1px solid var(--line-2);
+  z-index:200;
+  transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.16,1,.3,1);
+  display:flex;flex-direction:column;
+  box-shadow:-20px 0 60px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+#sc-panel.open{transform:translateX(0)}
+.sc-hdr{
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.02);flex-shrink:0;
+}
+.sc-title{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.12em;
+  display:flex;align-items:center;gap:8px;
+}
+.sc-title::before{content:'';width:16px;height:1px;background:var(--accent)}
+.sc-body{padding:18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px}
+.sc-body::-webkit-scrollbar{width:3px}
+.sc-body::-webkit-scrollbar-thumb{background:var(--line-2)}
+
+.sc-field label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:5px}
+.sc-field textarea,.sc-field input[type=text]{
+  width:100%;background:rgba(255,255,255,.03);border:1px solid var(--line-2);border-radius:var(--radius-sm);
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:13px;
+  padding:8px 10px;outline:none;resize:vertical;transition:border-color .18s;
+}
+.sc-field textarea:focus,.sc-field input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+
+.sc-preview{
+  background:var(--bg-0);
+  border:1px solid var(--line-2);border-radius:var(--radius-sm);
+  border-top:1px solid var(--accent);
+  padding:12px 14px;min-height:54px;
+  font-family:'Space Grotesk',sans-serif;font-size:18px;
+  color:var(--fg);word-break:break-all;
+}
+.sc-preview-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+
+.sc-clrs{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:5px}
+.sc-clr{
+  height:28px;border-radius:6px;cursor:pointer;
+  border:1px solid transparent;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+  transition:all .14s;
+}
+.sc-clr:hover,.sc-clr.on{border-color:rgba(255,255,255,.4);transform:scale(1.1);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+
+.sc-modes{display:flex;gap:5px;flex-wrap:wrap}
+.sc-mode{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:5px 12px;border-radius:999px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line-2);
+  cursor:pointer;color:var(--fg-muted);transition:all .18s;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.sc-mode:hover,.sc-mode.on{color:var(--accent);border-color:var(--accent);background:var(--accent-dim)}
+
+/* ── IMPORT MODAL ── */
+#import-overlay{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+}
+#import-overlay.show{display:flex}
+#import-modal{
+  background:linear-gradient(180deg,var(--bg-1),var(--bg-0));
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  width:500px;max-width:94vw;
+  box-shadow:0 40px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.im-hdr{
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.im-title{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.12em;
+  display:flex;align-items:center;gap:10px;
+}
+.im-title::before{content:'';width:16px;height:1px;background:var(--accent)}
+.im-body{padding:20px 24px}
+.im-drop{
+  border:1.5px dashed var(--line-2);
+  border-radius:var(--radius);
+  padding:32px 20px;text-align:center;cursor:pointer;
+  transition:all .18s;color:var(--fg-muted);
+  position:relative;
+  background:rgba(255,255,255,.01);
+}
+.im-drop:hover,.im-drop.drag{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.im-drop .drop-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.im-drop p{font-size:14px;line-height:1.7}
+.im-drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.im-log{
+  margin-top:14px;background:var(--bg-0);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  color:var(--green-a);max-height:140px;overflow-y:auto;display:none;line-height:1.7;
+}
+.im-log.show{display:block}
+.im-log::-webkit-scrollbar{width:3px}
+.im-log::-webkit-scrollbar-thumb{background:var(--line-2)}
+.iw{color:var(--warn)}.ie{color:var(--red-a)}.io{color:var(--green-a)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--bg-1);color:var(--fg);
+  border:1px solid var(--line-2);border-radius:var(--radius-sm);
+  box-shadow:0 20px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.06);
+  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;
+  padding:12px 18px;z-index:999;
+  display:flex;align-items:center;gap:8px;
+  animation:tIn .2s ease,tOut .3s ease 2s forwards;
+}
+.toast::before{content:'◆';color:var(--accent);font-size:10px}
+@keyframes tIn{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tOut{to{opacity:0;transform:translateY(8px)}}
+
+</style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Sheraks Portfolio</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#home">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#projects">Proyectos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#services">Servicios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contacto</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="hero-title">Diseño <span class="highlight">servidores Minecraft</span> que crean impacto</h1>
-                    <div class="hero-buttons">
-                        <a href="#projects" class="btn btn-custom">Ver Proyectos</a>
-                        <a href="#contact" class="btn btn-outline">Contacto</a>
-                    </div>
-                </div>
-                <div class="col-lg-6 profile-section">
-                    <div class="text-center">
-                        <img src="/api/placeholder/500/600" alt="Profile" class="img-fluid profile-img">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
 
-    <!-- Featured Projects / Opiniones -->
-    <section class="featured-work opinion-section" id="projects">
-        <div class="container">
-            <div class="section-background">
-                <h2 class="section-title">Opiniones Clientes</h2>
-                <div class="row">
-                    <!-- Project 1 - Fila 1 -->
-                    <div class="col-lg-6 col-md-6">
-                        <div class="project-card">
-                            <div class="project-img-container smaller-img">
-                                <img src="./assets/img/kotaro-logo.png" alt="Kotaro Network" class="project-img-custom">
-                            </div>
-                            <div class="project-content">
-                                <h3 class="project-title network-title">Kotaro Network</h3>
-                                <div class="project-tags">
-                                    <span class="project-tag">Dystemic - Dueño</span>
-                                </div>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <p class="mt-3 opinion-text">Requería de trabajos rápidos dentro de mis servidores y para ello una persona con experiencia en el tema, por lo que Cheraks fue la opción más apta para los problemas que tenia que solucionar y me ayudo en lo que hacia falta para que funcione todo de mucha mejor manera, ya que teníamos configuraciones antiguas con bastantes carencias que logro mejorar. Totalmente recomendado para trabajar, una experiencia grata</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Project 2 - Fila 1 -->
-                    <div class="col-lg-6 col-md-6">
-                        <div class="project-card">
-                            <div class="project-img-container smaller-img">
-                                <img src="./assets/img/stelar-logo.png" alt="Stellar MC" class="project-img-custom">
-                            </div>
-                            <div class="project-content">
-                                <h3 class="project-title network-title">StelarMC Network</h3>
-                                <div class="project-tags">
-                                    <span class="project-tag">Ekelgans - Dueño</span>
-                                </div>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                </div>
-                                <p class="mt-3 opinion-text">Servidor temático de exploración espacial con sistemas de planetas y naves personalizadas. Sheraks implementó mecánicas únicas que realmente destacaron nuestro servidor. Su conocimiento técnico es impresionante y logró hacer que todo funcionara muy bien optimizado. Estamos muy satisfechos con los resultados.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Project 3 - Fila 2 -->
-                    <div class="col-lg-6 col-md-6">
-                        <div class="project-card">
-                            <div class="project-img-container smaller-img">
-                                <img src="./assets/img/voxcraft-logo.png" alt="Vox Craft" class="project-img-custom">
-                            </div>
-                            <div class="project-content">
-                                <h3 class="project-title network-title">VoxCraft Network</h3>
-                                <div class="project-tags">
-                                    <span class="project-tag">Dentray - Dueño</span>
-                                </div>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <p class="mt-3 opinion-text">Contraté a Sheraks para hacer varios ajustes e implementaciones en una de mis modalidades. Estoy muy satisfecho con su trabajo de configuración, fue rápido y efectivo. Resolvió problemas que teníamos desde hace tiempo y añadió características que nuestros jugadores adoran. Siempre estuvo disponible para responder preguntas y hacer ajustes cuando fue necesario.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Project 4 - Fila 2 -->
-                    <div class="col-lg-6 col-md-6">
-                        <div class="project-card">
-                            <div class="project-img-container smaller-img">
-                                <img src="./assets/img/minefun-logo.png" alt="MineFun Network" class="project-img-custom">
-                            </div>
-                            <div class="project-content">
-                                <h3 class="project-title network-title">MineFun Network</h3>
-                                <div class="project-tags">
-                                    <span class="project-tag">Ederra - Dueño</span>
-                                </div>
-                                <div class="rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                </div>
-                                <p class="mt-3 opinion-text">Estaba buscando un configurador para que me hiciera un Gens desde 0, y encontré al indicado. Me lo hizo en muy poco tiempo, sin ningún error y todo perfecto. Es super educado, y siempre te da soporte por cualquier cosa. Nunca suelo contratar a Configuradores, pero si le necesitase, le volvería a contratar. La verdad, es perfecto</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- ── NAV ── -->
+<nav id="nav">
+  <a href="#" class="brand">
+    <div class="brand-mark">DM</div>
+    DeluxeMenus <span style="color:var(--fg-dim);font-weight:400">Builder</span>
+  </a>
+  <div class="nav-right">
+    <button class="btn btn-ghost btn-sm" onclick="resetAll()">
+      <i class="fa-solid fa-plus"></i> Nuevo
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="triggerImport()">
+      <i class="fa-solid fa-upload"></i> Importar .yml
+    </button>
+    <button class="btn btn-ghost btn-sm" id="sc-btn" onclick="toggleSC()">
+      ᴀ Small Caps
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="copyYAML()">
+      <i class="fa-regular fa-copy"></i> Copiar
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="downloadYAML()">
+      <i class="fa-solid fa-download"></i> Descargar .yml
+    </button>
+  </div>
+  <input type="file" id="import-file" accept=".yml,.yaml" style="display:none" onchange="importYAML(this)">
+</nav>
 
-    <!-- Services (FUSIONADO) con fondo tipo tarjeta como el de opiniones -->
-    <section class="services" id="services">
-        <div class="container">
-            <div class="section-background">
-                <h2 class="section-title">Servicios</h2>
-                <div class="row">
-                    <!-- Service 1 -->
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="service-box p-0 overflow-hidden">
-                            <div class="service-header bg-primary p-4 d-flex align-items-center">
-                                <i class="fas fa-server text-white me-3" style="font-size: 1.5rem;"></i>
-                                <h3 class="text-white mb-0 fs-5">Configuración Servidores</h3>
-                            </div>
-                            <div class="service-content p-4">
-                                <p>Configuración inicial del servidor con plugins esenciales y optimización básica.</p>
-                                
-                                <p class="fw-bold mt-4 mb-2">Incluye:</p>
-                                <ul>
-                                    <li>Instalación de servidor (Paper/Spigot/Bukkit)</li>
-                                    <li>Configuración básica de rendimiento</li>
-                                    <li>Instalación de plugins esenciales</li>
-                                    <li>Configuración de permisos básicos</li>
-                                </ul>
-                                
-                                <p class="mt-4 fw-bold highlight">Desde 30€</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Service 2 -->
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="service-box p-0 overflow-hidden">
-                            <div class="service-header bg-primary p-4 d-flex align-items-center">
-                                <i class="fas fa-tachometer-alt text-white me-3" style="font-size: 1.5rem;"></i>
-                                <h3 class="text-white mb-0 fs-5">Optimización de Rendimiento</h3>
-                            </div>
-                            <div class="service-content p-4">
-                                <p>Análisis completo y optimización para maximizar el TPS y minimizar el lag.</p>
-                                
-                                <p class="fw-bold mt-4 mb-2">Incluye:</p>
-                                <ul>
-                                    <li>Análisis de rendimiento actual</li>
-                                    <li>Optimización de chunks y entidades</li>
-                                    <li>Configuración para reducir lag</li>
-                                    <li>Ajustes de view-distance y mob-spawning</li>
-                                    <li>Informe detallado de cambios realizados</li>
-                                </ul>
-                                
-                                <p class="mt-4 fw-bold highlight">Desde 25€</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Service 3 -->
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="service-box p-0 overflow-hidden">
-                            <div class="service-header bg-primary p-4 d-flex align-items-center">
-                                <i class="fas fa-puzzle-piece text-white me-3" style="font-size: 1.5rem;"></i>
-                                <h3 class="text-white mb-0 fs-5">Configuración de Modalidades</h3>
-                            </div>
-                            <div class="service-content p-4">
-                                <p>Instalación y configuración personalizada de la modalidad desea</p>
-                                
-                                <p class="fw-bold mt-4 mb-2">Incluye:</p>
-                                <ul>
-                                    <li>Instalación de plugins premium</li>
-                                    <li>Configuración personalizada según tus necesidades</li>
-                                    <li>Integración entre plugins</li>
-                                    <li>Solución de conflictos</li>
-                                    <li>Documentación de configuraciones</li>
-                                </ul>
-                                
-                                <p class="mt-4 fw-bold highlight">Desde 100€</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<div id="app">
 
-    <!-- Contact (Simplificado y centrado) -->
-    <section class="contact" id="contact">
-        <div class="container">
-            <h2 class="section-title">Contáctame</h2>
-            <div class="contact-card">
-                <h3 class="contact-title">¿Tienes un proyecto en mente?</h3>
-                <p class="mb-4">Estoy disponible para crear o mejorar tu servidor de Minecraft, llevar a cabo tus ideas personalizadas o solucionar diferentes problemas. Contáctame por cualquiera de estas vías:</p>
-                
-                <div class="row justify-content-center">
-                    <!-- Email -->
-                    <div class="col-md-6">
-                        <div class="contact-method">
-                            <div class="contact-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="contact-info">
-                                <h4>Email</h4>
-                                <p>contacto@sheraks.es</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Discord -->
-                    <div class="col-md-6">
-                        <div class="contact-method">
-                            <div class="contact-icon">
-                                <i class="fab fa-discord"></i>
-                            </div>
-                            <div class="contact-info">
-                                <h4>Discord</h4>
-                                <p>sheraks</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="contact-cta">
-                    <a href="mailto:contacto@sheraks.es" class="btn btn-custom">¡Hablemos de tu servidor!</a>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- ══ LEFT ══ -->
+<div class="pnl">
+  <div class="ph">Config. del GUI</div>
 
-    <!-- Footer (sin iconos sociales) -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Sheraks MC. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+  <div class="f">
+    <label>Título del menú</label>
+    <input id="g-title" value="&aMi Menú" oninput="onGUI()">
+    <div class="hint">Soporta &amp;a &amp;c &amp;6 ... y PlaceholderAPI</div>
+  </div>
+  <div class="f">
+    <label>Comando de apertura</label>
+    <input id="g-cmd" value="mimenu" oninput="onGUI()">
+    <div class="hint">Sin "/" · Comas para múltiples</div>
+  </div>
+  <div class="f">
+    <label>Tipo de inventario</label>
+    <select id="g-invtype" onchange="onInvType()">
+      <option value="CHEST" selected>CHEST (Cofre)</option>
+      <option value="HOPPER">HOPPER</option>
+      <option value="DISPENSER">DISPENSER</option>
+      <option value="DROPPER">DROPPER</option>
+      <option value="FURNACE">FURNACE</option>
+      <option value="BREWING">BREWING</option>
+      <option value="ENCHANTING">ENCHANTING</option>
+      <option value="ANVIL">ANVIL</option>
+      <option value="WORKBENCH">WORKBENCH</option>
+      <option value="ENDER_CHEST">ENDER_CHEST</option>
+      <option value="BARREL">BARREL</option>
+      <option value="SHULKER_BOX">SHULKER_BOX</option>
+    </select>
+  </div>
+  <div class="f" id="size-f">
+    <label>Tamaño (slots)</label>
+    <div class="spills">
+      <div class="sp" data-s="9" onclick="setSize(9)">9</div>
+      <div class="sp" data-s="18" onclick="setSize(18)">18</div>
+      <div class="sp" data-s="27" onclick="setSize(27)">27</div>
+      <div class="sp on" data-s="36" onclick="setSize(36)">36</div>
+      <div class="sp" data-s="45" onclick="setSize(45)">45</div>
+      <div class="sp" data-s="54" onclick="setSize(54)">54</div>
+    </div>
+  </div>
+  <div class="f">
+    <label>Update interval (segundos)</label>
+    <input type="number" id="g-upd" oninput="onGUI()" placeholder="20 (opcional)">
+  </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Código para detectar el scroll y cambiar la apariencia de la navbar
-            window.addEventListener('scroll', function() {
-                // Obtiene la posición actual del scroll
-                const scrollPos = window.scrollY;
-                
-                // Si hemos desplazado más allá de 100px, cambia el estilo de la navbar
-                if (scrollPos > 100) {
-                    document.querySelector('.navbar').classList.add('scrolled');
-                } else {
-                    document.querySelector('.navbar').classList.remove('scrolled');
-                }
-            });
-        });
-    </script>
+  <div class="sdiv">Al abrir</div>
+  <div id="open-cmds" class="aclist"></div>
+  <button class="btn btn-ghost btn-sm" onclick="addOpenCmd()">
+    <i class="fa-solid fa-plus"></i> Añadir acción
+  </button>
+
+  <div class="sdiv">Requisito apertura</div>
+  <div class="f">
+    <label>Permiso requerido</label>
+    <input id="g-perm" oninput="onGUI()" placeholder="mi.permiso (opcional)">
+  </div>
+  <div class="f">
+    <label>Deny message</label>
+    <input id="g-deny" oninput="onGUI()" placeholder="&cNo tienes permiso.">
+  </div>
+
+  <div class="sdiv">Referencia de colores</div>
+  <div class="help-box">
+    <b>&amp;a</b> verde &nbsp;<b>&amp;c</b> rojo &nbsp;<b>&amp;6</b> naranja &nbsp;<b>&amp;e</b> amarillo<br>
+    <b>&amp;b</b> cyan &nbsp;<b>&amp;f</b> blanco &nbsp;<b>&amp;7</b> gris &nbsp;<b>&amp;d</b> rosa<br>
+    <b>&amp;l</b> negrita &nbsp;<b>&amp;o</b> cursiva &nbsp;<b>&amp;n</b> subrayado
+  </div>
+</div>
+
+<!-- ══ CENTER ══ -->
+<div id="center">
+  <div class="ph" style="max-width:530px;width:100%">Inventario Visual</div>
+
+  <div class="mc-wrap">
+    <div class="mc-titlebar">
+      <span class="tl">Título</span>
+      <span class="mc-titletext" id="inv-title"></span>
+    </div>
+    <div class="mc-grid" id="inv-grid"></div>
+  </div>
+
+  <div class="inv-footer" style="margin-top:10px;max-width:530px;width:100%">
+    Clic en slot para editar &nbsp;·&nbsp; Seleccionado:
+    <span class="sel-badge" id="sel-disp">ninguno</span>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="sv" id="st-i" style="color:var(--accent)">0<span class="unit"></span></div>
+      <div class="sl">Items</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" id="st-s" style="color:var(--accent-2)">36<span class="unit"></span></div>
+      <div class="sl">Slots</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" id="st-a" style="color:var(--green-a)">0<span class="unit"></span></div>
+      <div class="sl">Acciones</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" id="st-l" style="color:var(--warn)">0<span class="unit"></span></div>
+      <div class="sl">Lore</div>
+    </div>
+  </div>
+
+  <div class="qbtns">
+    <button class="btn btn-ghost btn-sm" onclick="fillBorders()">
+      <i class="fa-solid fa-border-all"></i> Rellenar bordes
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="fillAll()">
+      <i class="fa-solid fa-table-cells"></i> Llenar todo
+    </button>
+    <button class="btn btn-danger btn-sm" onclick="clearAllSlots()">
+      <i class="fa-solid fa-trash"></i> Limpiar todo
+    </button>
+  </div>
+</div>
+
+<!-- ══ RIGHT: ITEM EDITOR ══ -->
+<div class="pnl">
+  <div class="ph" id="ed-ph">Editor de Item</div>
+
+  <div id="ed-empty" class="empty-state">
+    <div class="empty-icon">📦</div>
+    <p>Haz clic en un slot<br>del inventario para editarlo.<br><br>
+    <span style="font-size:12px">Los slots vacíos también<br>soportan comandos (AIR)</span></p>
+  </div>
+
+  <div id="ed-form" style="display:none">
+    <div class="f">
+      <label>Nombre YAML (clave única)</label>
+      <input id="i-name" placeholder="mi_item" oninput="onItem()">
+    </div>
+    <div class="row2">
+      <div class="f">
+        <label>Material</label>
+        <div style="display:flex;gap:5px;align-items:center">
+          <input id="i-mat" placeholder="STONE" oninput="onItem()" style="flex:1">
+          <button class="btn btn-ghost btn-xs" onclick="openMatPicker()" title="Selector de materiales" style="flex-shrink:0;padding:7px 9px">
+            <i class="fa-solid fa-cubes-stacked"></i>
+          </button>
+        </div>
+      </div>
+      <div class="f"><label>Cantidad</label><input type="number" id="i-amt" value="1" min="1" max="64" oninput="onItem()"></div>
+    </div>
+    <div class="f">
+      <label>Display name</label>
+      <input id="i-dn" placeholder="&aNombre" oninput="onItem()">
+    </div>
+    <div class="row2">
+      <div class="f"><label>Prioridad</label><input type="number" id="i-pri" placeholder="0 = máx" oninput="onItem()"></div>
+      <div class="f"><label>Model data</label><input type="number" id="i-mdl" placeholder="14" oninput="onItem()"></div>
+    </div>
+
+    <div class="f">
+      <label>Lore</label>
+      <div id="lore-list"></div>
+      <button class="btn btn-ghost btn-xs" onclick="addLore()"><i class="fa-solid fa-plus"></i> Línea</button>
+    </div>
+
+    <div class="sdiv">Encantamientos</div>
+    <div id="ench-list"></div>
+    <button class="btn btn-ghost btn-xs" onclick="addEnch()"><i class="fa-solid fa-plus"></i> Encantamiento</button>
+
+    <div class="sdiv">Opciones</div>
+    <label class="ck"><input type="checkbox" id="i-upd" onchange="onItem()"><span>Update dinámico</span></label>
+    <label class="ck"><input type="checkbox" id="i-ubr" onchange="onItem()"><span>Inrompible</span></label>
+    <label class="ck"><input type="checkbox" id="i-glo" onchange="onItem()"><span>Brillo encantamiento</span></label>
+    <label class="ck"><input type="checkbox" id="i-hat" onchange="onItem()"><span>Ocultar atributos</span></label>
+
+    <div class="sdiv">Comandos de clic</div>
+    <div class="ctabs" id="ctabs">
+      <div class="ct on" data-k="left_click_commands" onclick="selTab(this)">Left</div>
+      <div class="ct" data-k="right_click_commands" onclick="selTab(this)">Right</div>
+      <div class="ct" data-k="shift_left_click_commands" onclick="selTab(this)">⇧Left</div>
+      <div class="ct" data-k="shift_right_click_commands" onclick="selTab(this)">⇧Right</div>
+      <div class="ct" data-k="click_commands" onclick="selTab(this)">All</div>
+    </div>
+    <div id="cmd-list" class="aclist"></div>
+    <button class="btn btn-ghost btn-xs" onclick="addCmd()"><i class="fa-solid fa-plus"></i> Acción</button>
+
+    <div class="sdiv">Requisito de clic</div>
+    <div class="f">
+      <label>Tipo</label>
+      <select id="i-rtype" onchange="onItem()">
+        <option value="">— Sin requisito —</option>
+        <option value="has permission">has permission</option>
+        <option value="has money">has money (Vault)</option>
+        <option value="has exp">has exp</option>
+        <option value="has item">has item</option>
+        <option value="string equals">string equals</option>
+        <option value=">">mayor que (&gt;)</option>
+        <option value=">=">mayor o igual (&gt;=)</option>
+        <option value="==">igual (==)</option>
+        <option value="<">menor que (&lt;)</option>
+        <option value="javascript">javascript</option>
+      </select>
+    </div>
+    <div class="f"><label>Valor</label><input id="i-rval" placeholder="ej: deluxemenus.usar" oninput="onItem()"></div>
+    <div class="f"><label>Deny message</label><input id="i-rdeny" placeholder="&cNo puedes." oninput="onItem()"></div>
+
+    <div class="sep"></div>
+    <button class="btn btn-danger btn-xs" onclick="clearSlot()"><i class="fa-solid fa-trash"></i> Limpiar slot</button>
+  </div>
+</div>
+
+<!-- ══ YAML PANEL ══ -->
+<div id="yaml-panel">
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="yaml-ph">YAML Output</div>
+      <span class="yaml-fname" id="yaml-fname">menu.yml</span>
+    </div>
+    <pre id="yaml-out">-- Configura tu menú para ver el YAML aquí --</pre>
+  </div>
+  <div class="yaml-side">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Materiales</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-dim);line-height:2">
+      <span style="color:var(--accent)">head-</span>nombre<br>
+      <span style="color:var(--accent)">hdb-</span>ID<br>
+      <span style="color:var(--accent)">texture-</span>ID<br>
+      <span style="color:var(--accent)">nexo-</span>id<br>
+      <span style="color:var(--accent)">mmoitems-</span>T:ID
+    </div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<!-- ══ MATERIAL PICKER ══ -->
+<div id="mat-picker">
+  <div class="mp-hdr">
+    <div class="mp-hdr-row">
+      <span class="mp-title">Selector de Material</span>
+      <button class="btn btn-ghost btn-xs" onclick="closeMatPicker()">✕</button>
+    </div>
+    <input class="mp-search" id="mp-search" placeholder="Buscar material..." oninput="renderMatPicker()">
+    <div class="mp-tabs" id="mp-tabs">
+      <div class="mp-tab on" data-cat="all" onclick="selMatTab(this)">Todos</div>
+      <div class="mp-tab" data-cat="heads" onclick="selMatTab(this)">👤 Cabezas</div>
+      <div class="mp-tab" data-cat="glass" onclick="selMatTab(this)">🔲 Cristal</div>
+      <div class="mp-tab" data-cat="ores" onclick="selMatTab(this)">💎 Minerales</div>
+      <div class="mp-tab" data-cat="tools" onclick="selMatTab(this)">⚔️ Herramientas</div>
+      <div class="mp-tab" data-cat="misc" onclick="selMatTab(this)">📦 Misc</div>
+    </div>
+  </div>
+  <div class="mp-body" id="mp-body"></div>
+</div>
+
+<!-- ══ SMALL CAPS PANEL ══ -->
+<div id="sc-panel">
+  <div class="sc-hdr">
+    <span class="sc-title">Small Caps</span>
+    <button class="btn btn-ghost btn-xs" onclick="toggleSC()">✕ Cerrar</button>
+  </div>
+  <div class="sc-body">
+    <div class="sc-field">
+      <label>Texto de entrada</label>
+      <textarea id="sc-input" rows="3" placeholder="Escribe aquí..." oninput="doSC()"></textarea>
+    </div>
+    <div class="sc-field">
+      <label>Color Minecraft</label>
+      <div class="sc-clrs" id="sc-colors"></div>
+    </div>
+    <div>
+      <div class="sc-preview-lbl">Modificadores</div>
+      <div class="sc-modes" id="sc-mods">
+        <div class="sc-mode on" data-m="" onclick="selMod(this)">Ninguno</div>
+        <div class="sc-mode" data-m="&l" onclick="selMod(this)">&amp;l Negrita</div>
+        <div class="sc-mode" data-m="&o" onclick="selMod(this)">&amp;o Cursiva</div>
+        <div class="sc-mode" data-m="&n" onclick="selMod(this)">&amp;n Subrayado</div>
+        <div class="sc-mode" data-m="&m" onclick="selMod(this)">&amp;m Tachado</div>
+      </div>
+    </div>
+    <div>
+      <div class="sc-preview-lbl">Vista previa</div>
+      <div class="sc-preview" id="sc-preview">—</div>
+    </div>
+    <div class="sc-field">
+      <label>Resultado</label>
+      <input type="text" id="sc-result" readonly onclick="this.select()" style="background:var(--bg-0);border-color:var(--line-2);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:text;border-radius:var(--radius-sm);padding:8px 10px;width:100%;outline:none">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="copySC()"><i class="fa-regular fa-copy"></i> Copiar</button>
+      <button class="btn btn-ghost btn-sm" onclick="insertSC()"><i class="fa-solid fa-arrow-turn-down"></i> Insertar</button>
+    </div>
+    <div style="background:rgba(255,255,255,.02);border:1px solid var(--line-2);border-left:2px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-dim);line-height:1.9">
+      <span style="color:var(--accent)">¿Qué es?</span><br>
+      Versalitas Unicode (ᴀ ʙ ᴄ ᴅ...) que funcionan en cualquier versión de Minecraft sin mods ni plugins.
+    </div>
+  </div>
+</div>
+
+<!-- ══ IMPORT MODAL ══ -->
+<div id="import-overlay" onclick="closeImport(event)">
+  <div id="import-modal">
+    <div class="im-hdr">
+      <span class="im-title">Importar DeluxeMenus .yml</span>
+      <button class="btn btn-ghost btn-xs" onclick="closeImportDirect()">✕</button>
+    </div>
+    <div class="im-body">
+      <div class="im-drop" id="im-drop"
+        ondragover="event.preventDefault();g('im-drop').classList.add('drag')"
+        ondragleave="g('im-drop').classList.remove('drag')"
+        ondrop="dropImport(event)">
+        <div class="drop-icon"><i class="fa-solid fa-folder-open"></i></div>
+        <p>Arrastra tu archivo .yml aquí<br>o haz clic para seleccionar</p>
+        <input type="file" accept=".yml,.yaml" onchange="importYAML(this)">
+      </div>
+      <div id="im-log" class="im-log"></div>
+      <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="closeImportDirect()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" id="im-confirm" style="display:none" onclick="confirmImport()">
+          <i class="fa-solid fa-check"></i> Cargar menú
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════
+// STATE
+// ════════════════════════════
+let S={
+  gui:{menu_title:'&aMi Menú',open_command:'mimenu',inventory_type:'CHEST',size:36,
+       update_interval:null,open_commands:[],open_perm:'',open_deny:''},
+  items:{},sel:null,ctab:'left_click_commands'
+};
+
+// ════════════════════════════
+// MATERIAL ICONS
+// ════════════════════════════
+const MI={
+  STONE:'🪨',COBBLESTONE:'🧱',GRASS_BLOCK:'🟩',DIRT:'🟫',SAND:'🟨',
+  DIAMOND:'💎',DIAMOND_SWORD:'⚔️',DIAMOND_PICKAXE:'⛏️',
+  GOLD_BLOCK:'🟡',GOLD_INGOT:'🪙',GOLDEN_APPLE:'🍎',
+  IRON_BLOCK:'⬜',IRON_INGOT:'🔩',IRON_SWORD:'⚔️',
+  NETHERITE_INGOT:'⬛',EMERALD:'💚',EMERALD_BLOCK:'💚',
+  COAL:'⚫',REDSTONE:'🔴',LAPIS_LAZULI:'🔵',
+  BARRIER:'🚫',AIR:'　',GLASS:'🔲',GLASS_PANE:'🪟',
+  GRAY_STAINED_GLASS_PANE:'🪟',WHITE_STAINED_GLASS_PANE:'🪟',
+  PAPER:'📄',BOOK:'📕',ENCHANTED_BOOK:'📗',WRITTEN_BOOK:'📘',
+  CHEST:'📦',ENDER_CHEST:'📦',SHULKER_BOX:'📦',
+  BOW:'🏹',ARROW:'➡️',TRIDENT:'🔱',
+  NETHER_STAR:'⭐',BEACON:'💡',COMPASS:'🧭',CLOCK:'⏰',
+  APPLE:'🍎',BREAD:'🍞',COOKED_BEEF:'🥩',CARROT:'🥕',
+  TNT:'💥',BLAZE_ROD:'🔥',SKELETON_SKULL:'💀',PLAYER_HEAD:'👤',
+  FEATHER:'🪶',SHIELD:'🛡️',DEFAULT:'📦'
+};
+function mi(m){
+  if(!m)return'❓';
+  const u=m.toUpperCase().replace(/-.*$/,'');
+  if(MI[u])return MI[u];
+  for(const k of Object.keys(MI)){if(k!=='DEFAULT'&&u.includes(k))return MI[k];}
+  return MI.DEFAULT;
+}
+
+// ════════════════════════════
+// ACTION TYPES
+// ════════════════════════════
+const AT=[
+  {v:'player',l:'[player]',p:'tp %player_name% 0 64 0'},
+  {v:'console',l:'[console]',p:'eco give %player_name% 100'},
+  {v:'message',l:'[message]',p:'&a¡Hola %player_name%!'},
+  {v:'broadcast',l:'[broadcast]',p:'&e%player_name% abrió el menú'},
+  {v:'minimessage',l:'[minimessage]',p:'<green>Hola <gold>%player_name%'},
+  {v:'minibroadcast',l:'[minibroadcast]',p:'<yellow>Broadcast global'},
+  {v:'openguimenu',l:'[openguimenu]',p:'nombre_menu'},
+  {v:'connect',l:'[connect]',p:'hub'},
+  {v:'close',l:'[close]',p:''},
+  {v:'refresh',l:'[refresh]',p:''},
+  {v:'sound',l:'[sound]',p:'ENTITY_EXPERIENCE_ORB_PICKUP 1 1'},
+  {v:'broadcastsound',l:'[broadcastsound]',p:'UI_TOAST_CHALLENGE_COMPLETE 1 1'},
+  {v:'broadcastsoundworld',l:'[broadcastsoundworld]',p:'UI_TOAST_CHALLENGE_COMPLETE 1 1'},
+  {v:'takemoney',l:'[takemoney]',p:'100'},
+  {v:'givemoney',l:'[givemoney]',p:'500'},
+  {v:'takeexp',l:'[takeexp]',p:'5L'},
+  {v:'giveexp',l:'[giveexp]',p:'10L'},
+  {v:'givepermission',l:'[givepermission]',p:'mi.permiso'},
+  {v:'takepermission',l:'[takepermission]',p:'mi.permiso'},
+  {v:'json',l:'[json]',p:'{"text":"Hola","color":"green"}'},
+  {v:'jsonbroadcast',l:'[jsonbroadcast]',p:'{"text":"Broadcast"}'},
+  {v:'chat',l:'[chat]',p:'Mensaje en chat'},
+  {v:'placeholder',l:'[placeholder]',p:'%player_name%'},
+  {v:'meta',l:'[meta]',p:'set mi_clave STRING mi_valor'},
+  {v:'commandevent',l:'[commandevent]',p:'mi_comando'},
+];
+const NV=['close','refresh'];
+function ap(v){const a=AT.find(x=>x.v===v);return a?a.p:'';}
+
+const ENCHS=['SHARPNESS','SMITE','BANE_OF_ARTHROPODS','KNOCKBACK','FIRE_ASPECT','LOOTING','SWEEPING_EDGE',
+  'EFFICIENCY','SILK_TOUCH','UNBREAKING','FORTUNE','POWER','PUNCH','FLAME','INFINITY',
+  'LUCK_OF_THE_SEA','LURE','MENDING','CURSE_OF_BINDING','CURSE_OF_VANISHING',
+  'PROTECTION','FIRE_PROTECTION','FEATHER_FALLING','BLAST_PROTECTION','PROJECTILE_PROTECTION',
+  'RESPIRATION','AQUA_AFFINITY','THORNS','DEPTH_STRIDER','FROST_WALKER','SOUL_SPEED','SWIFT_SNEAK',
+  'LOYALTY','IMPALING','RIPTIDE','CHANNELING','MULTISHOT','QUICK_CHARGE','PIERCING',
+  'WIND_BURST','BREACH','DENSITY'];
+
+// ════════════════════════════
+// GUI SETTINGS
+// ════════════════════════════
+function onGUI(){
+  S.gui.menu_title=g('g-title').value;
+  S.gui.open_command=g('g-cmd').value;
+  S.gui.inventory_type=g('g-invtype').value;
+  const u=g('g-upd').value;
+  S.gui.update_interval=u?parseInt(u):null;
+  S.gui.open_perm=g('g-perm').value;
+  S.gui.open_deny=g('g-deny').value;
+  g('inv-title').innerHTML=mcClr(S.gui.menu_title);
+  g('yaml-fname').textContent=(S.gui.open_command||'menu')+'.yml';
+  genYAML();
+}
+function onInvType(){onGUI();g('size-f').style.display=g('g-invtype').value==='CHEST'?'':'none';renderGrid();}
+function setSize(s){
+  S.gui.size=s;
+  Object.keys(S.items).forEach(k=>{if(parseInt(k)>=s)delete S.items[k];});
+  if(S.sel!==null&&S.sel>=s){S.sel=null;showEmpty();}
+  document.querySelectorAll('.sp').forEach(p=>p.classList.toggle('on',parseInt(p.dataset.s)===s));
+  renderGrid();updStats();genYAML();
+}
+
+// ════════════════════════════
+// GRID
+// ════════════════════════════
+function renderGrid(){
+  const gr=g('inv-grid'),sz=S.gui.size;
+  gr.style.gridTemplateColumns=`repeat(9,52px)`;
+  gr.innerHTML='';
+  for(let i=0;i<sz;i++){
+    const d=document.createElement('div');
+    const it=S.items[i];
+    d.className='slot'+(it?' filled':'')+(S.sel===i?' sel':'');
+    if(it){
+      d.innerHTML=`<span class="snum">${i}</span><span class="sicon">${mi(it.material)}</span><span class="smat">${(it.material||'?').substring(0,7)}</span>${it.amount>1?`<span class="samt">${it.amount}</span>`:''}`;
+    }else{
+      d.innerHTML=`<span class="snum">${i}</span>`;
+    }
+    d.addEventListener('click',()=>selSlot(i));
+    gr.appendChild(d);
+  }
+  g('sel-disp').textContent=S.sel!==null?`Slot ${S.sel}`:'ninguno';
+}
+function selSlot(i){
+  const isNew=!S.items[i];
+  S.sel=i;
+  if(isNew)S.items[i]=mkItem(i);
+  renderGrid();renderEditor();
+  if(isNew){updStats();genYAML();}
+}
+
+// ════════════════════════════
+// ITEM
+// ════════════════════════════
+function mkItem(i){
+  return{name:`item_${i}`,material:'STONE',amount:1,display_name:'',lore:[],
+    enchantments:[],update:false,unbreakable:false,glow:false,hide_attributes:false,
+    priority:'',model_data:'',
+    left_click_commands:[],right_click_commands:[],
+    shift_left_click_commands:[],shift_right_click_commands:[],click_commands:[],
+    req_type:'',req_val:'',req_deny:''};
+}
+function showEmpty(){g('ed-empty').style.display='';g('ed-form').style.display='none';g('ed-ph').textContent='Editor de Item';}
+function renderEditor(){
+  if(S.sel===null){showEmpty();return;}
+  g('ed-empty').style.display='none';g('ed-form').style.display='';
+  g('ed-ph').textContent=`Slot ${S.sel}`;
+  const it=S.items[S.sel];
+  g('i-name').value=it.name;g('i-mat').value=it.material;g('i-amt').value=it.amount;
+  g('i-dn').value=it.display_name;g('i-pri').value=it.priority;g('i-mdl').value=it.model_data;
+  g('i-upd').checked=it.update;g('i-ubr').checked=it.unbreakable;
+  g('i-glo').checked=it.glow;g('i-hat').checked=it.hide_attributes;
+  g('i-rtype').value=it.req_type;g('i-rval').value=it.req_val;g('i-rdeny').value=it.req_deny;
+  renderLore();renderEnchs();renderCmds();
+}
+function onItem(){
+  const i=S.sel;if(i===null)return;
+  const it=S.items[i];
+  it.name=g('i-name').value||`item_${i}`;
+  it.material=g('i-mat').value.toUpperCase();
+  it.amount=parseInt(g('i-amt').value)||1;
+  it.display_name=g('i-dn').value;
+  it.priority=g('i-pri').value;it.model_data=g('i-mdl').value;
+  it.update=g('i-upd').checked;it.unbreakable=g('i-ubr').checked;
+  it.glow=g('i-glo').checked;it.hide_attributes=g('i-hat').checked;
+  it.req_type=g('i-rtype').value;it.req_val=g('i-rval').value;it.req_deny=g('i-rdeny').value;
+  renderGrid();updStats();genYAML();
+}
+
+// LORE
+function renderLore(){
+  const it=S.items[S.sel];const c=g('lore-list');c.innerHTML='';
+  (it.lore||[]).forEach((ln,i)=>{
+    const r=document.createElement('div');r.className='lrow';
+    r.innerHTML=`<input type="text" value="${esc(ln)}" placeholder="&7Texto..." oninput="updLore(${i},this.value)"><div class="btn-icon" onclick="rmLore(${i})"><i class="fa-solid fa-xmark"></i></div>`;
+    c.appendChild(r);
+  });
+}
+function addLore(){const it=S.items[S.sel];if(!it)return;it.lore.push('&7');renderLore();genYAML();}
+function updLore(i,v){S.items[S.sel].lore[i]=v;genYAML();updStats();}
+function rmLore(i){S.items[S.sel].lore.splice(i,1);renderLore();genYAML();updStats();}
+
+// ENCHANTS
+function renderEnchs(){
+  const it=S.items[S.sel];const c=g('ench-list');c.innerHTML='';
+  (it.enchantments||[]).forEach((e,i)=>{
+    const r=document.createElement('div');r.className='erow';
+    r.innerHTML=`<select onchange="updEnch(${i},'name',this.value)">${ENCHS.map(en=>`<option value="${en}" ${e.name===en?'selected':''}>${en}</option>`).join('')}</select>
+    <input type="number" value="${e.level||1}" min="1" max="10" oninput="updEnch(${i},'level',this.value)">
+    <div class="btn-icon" onclick="rmEnch(${i})"><i class="fa-solid fa-xmark"></i></div>`;
+    c.appendChild(r);
+  });
+}
+function addEnch(){const it=S.items[S.sel];if(!it)return;it.enchantments.push({name:'SHARPNESS',level:1});renderEnchs();genYAML();}
+function rmEnch(i){S.items[S.sel].enchantments.splice(i,1);renderEnchs();genYAML();}
+function updEnch(i,f,v){S.items[S.sel].enchantments[i][f]=f==='level'?parseInt(v):v;genYAML();}
+
+// CLICK COMMANDS
+function selTab(el){document.querySelectorAll('.ct').forEach(t=>t.classList.remove('on'));el.classList.add('on');S.ctab=el.dataset.k;renderCmds();}
+function renderCmds(){
+  const it=S.items[S.sel];if(!it)return;
+  const c=g('cmd-list');c.innerHTML='';
+  (it[S.ctab]||[]).forEach((cmd,i)=>{
+    const nv=NV.includes(cmd.type);
+    const r=document.createElement('div');r.className='acrow';
+    r.innerHTML=`<select onchange="updCmd(${i},'type',this.value)">${AT.map(t=>`<option value="${t.v}" ${cmd.type===t.v?'selected':''}>${t.l}</option>`).join('')}</select>
+    <input type="text" value="${esc(cmd.value||'')}" placeholder="${ap(cmd.type)}" oninput="updCmd(${i},'value',this.value)" ${nv?'disabled style="opacity:.35"':''}>
+    <div class="btn-icon" onclick="rmCmd(${i})"><i class="fa-solid fa-xmark"></i></div>`;
+    c.appendChild(r);
+  });
+}
+function addCmd(){const it=S.items[S.sel];if(!it)return;if(!it[S.ctab])it[S.ctab]=[];it[S.ctab].push({type:'player',value:''});renderCmds();genYAML();}
+function rmCmd(i){S.items[S.sel][S.ctab].splice(i,1);renderCmds();genYAML();}
+function updCmd(i,f,v){S.items[S.sel][S.ctab][i][f]=v;if(f==='type')renderCmds();genYAML();}
+
+// OPEN COMMANDS
+function renderOpenCmds(){
+  const c=g('open-cmds');c.innerHTML='';
+  S.gui.open_commands.forEach((cmd,i)=>{
+    const nv=NV.includes(cmd.type);
+    const r=document.createElement('div');r.className='acrow';
+    r.innerHTML=`<select onchange="updOCmd(${i},'type',this.value)">${AT.map(t=>`<option value="${t.v}" ${cmd.type===t.v?'selected':''}>${t.l}</option>`).join('')}</select>
+    <input type="text" value="${esc(cmd.value||'')}" placeholder="${ap(cmd.type)}" oninput="updOCmd(${i},'value',this.value)" ${nv?'disabled style="opacity:.35"':''}>
+    <div class="btn-icon" onclick="rmOCmd(${i})"><i class="fa-solid fa-xmark"></i></div>`;
+    c.appendChild(r);
+  });
+}
+function addOpenCmd(){S.gui.open_commands.push({type:'message',value:''});renderOpenCmds();genYAML();}
+function updOCmd(i,f,v){S.gui.open_commands[i][f]=v;genYAML();}
+function rmOCmd(i){S.gui.open_commands.splice(i,1);renderOpenCmds();genYAML();}
+
+// ════════════════════════════
+// QUICK ACTIONS
+// ════════════════════════════
+function fillBorders(){
+  const sz=S.gui.size,r=sz/9,bs=new Set();
+  for(let c=0;c<9;c++){bs.add(c);bs.add((r-1)*9+c);}
+  for(let row=0;row<r;row++){bs.add(row*9);bs.add(row*9+8);}
+  bs.forEach(i=>{if(!S.items[i]){S.items[i]=mkItem(i);S.items[i].material='GRAY_STAINED_GLASS_PANE';S.items[i].display_name='&7';S.items[i].name=`border_${i}`;}});
+  renderGrid();updStats();genYAML();toast('Bordes rellenados ✓');
+}
+function fillAll(){
+  for(let i=0;i<S.gui.size;i++){if(!S.items[i]){S.items[i]=mkItem(i);S.items[i].material='GRAY_STAINED_GLASS_PANE';S.items[i].display_name='&7';S.items[i].name=`fill_${i}`;}}
+  renderGrid();updStats();genYAML();toast('Todos los slots rellenados ✓');
+}
+function clearAllSlots(){if(!confirm('¿Limpiar todos los slots?'))return;S.items={};S.sel=null;showEmpty();renderGrid();updStats();genYAML();}
+function clearSlot(){const i=S.sel;if(i===null)return;if(!confirm(`¿Limpiar slot ${i}?`))return;delete S.items[i];S.sel=null;showEmpty();renderGrid();updStats();genYAML();}
+
+// ════════════════════════════
+// STATS
+// ════════════════════════════
+function updStats(){
+  let actions=0,lore=0;
+  for(const it of Object.values(S.items)){
+    ['left_click_commands','right_click_commands','shift_left_click_commands','shift_right_click_commands','click_commands'].forEach(k=>actions+=(it[k]||[]).length);
+    lore+=(it.lore||[]).length;
+  }
+  g('st-i').textContent=Object.keys(S.items).length;
+  g('st-s').textContent=S.gui.size;
+  g('st-a').textContent=actions;
+  g('st-l').textContent=lore;
+}
+
+// ════════════════════════════
+// YAML GENERATION
+// ════════════════════════════
+function fa(cmd){return NV.includes(cmd.type)?`[${cmd.type}]`:`[${cmd.type}] ${cmd.value||''}`;}
+function ys(v){
+  if(v===undefined||v===null||v==='')return"''";
+  const s=String(v);
+  if(/[:#&'`%\[\]{},|>]/.test(s)||s.startsWith(' ')||s.endsWith(' '))return`'${s.replace(/'/g,"''")}'`;
+  return s;
+}
+function genYAML(){
+  const G=S.gui,L=[];
+  L.push(`menu_title: ${ys(G.menu_title)}`);
+  if(G.open_command)L.push(`open_command: ${G.open_command}`);
+  if(G.inventory_type&&G.inventory_type!=='CHEST')L.push(`inventory_type: '${G.inventory_type}'`);
+  if(!G.inventory_type||G.inventory_type==='CHEST')L.push(`size: ${G.size}`);
+  if(G.update_interval)L.push(`update_interval: ${G.update_interval}`);
+  if(G.open_perm){
+    L.push(`open_requirement:`,`  requirements:`,`    permission:`,`      type: has permission`,`      permission: ${G.open_perm}`);
+    if(G.open_deny)L.push(`      deny_commands:`,`        - '[message] ${G.open_deny}'`);
+  }
+  if(G.open_commands.length){L.push(`open_commands:`);G.open_commands.forEach(c=>L.push(`  - '${fa(c)}'`));}
+  const entries=Object.entries(S.items);
+  if(!entries.length){L.push(`items: {}`);return setOut(L.join('\n'));}
+  L.push(`items:`);
+  for(const[slot,it]of entries){
+    const n=it.name||`item_${slot}`;
+    L.push(`  '${n}':`);
+    L.push(`    material: ${it.material||'STONE'}`);
+    L.push(`    slot: ${slot}`);
+    if(it.amount&&it.amount!==1)L.push(`    amount: ${it.amount}`);
+    if(it.display_name)L.push(`    display_name: ${ys(it.display_name)}`);
+    if(it.priority!=='')L.push(`    priority: ${it.priority}`);
+    if(it.model_data)L.push(`    model_data: ${it.model_data}`);
+    if(it.lore&&it.lore.length){L.push(`    lore:`);it.lore.forEach(l=>L.push(`      - ${ys(l)}`));}
+    if(it.enchantments&&it.enchantments.length){L.push(`    enchantments:`);it.enchantments.forEach(e=>L.push(`      - '${e.name};${e.level}'`));}
+    if(it.update)L.push(`    update: true`);
+    if(it.unbreakable)L.push(`    unbreakable: true`);
+    if(it.glow)L.push(`    enchantment_glint_override: true`);
+    if(it.hide_attributes)L.push(`    item_flags:`,`      - HIDE_ATTRIBUTES`);
+    for(const k of['left_click_commands','right_click_commands','shift_left_click_commands','shift_right_click_commands','click_commands']){
+      const cmds=it[k];if(!cmds||!cmds.length)continue;
+      if(k==='left_click_commands'&&it.req_type){
+        L.push(`    left_click_requirement:`,`      requirements:`,`        req:`,`          type: ${it.req_type}`);
+        if(it.req_type==='has permission')L.push(`          permission: ${it.req_val||'mi.permiso'}`);
+        else if(['has money','has exp','>','>=','==','<'].includes(it.req_type))L.push(`          amount: ${it.req_val||0}`);
+        else if(it.req_val)L.push(`          input: '${it.req_val}'`);
+        if(it.req_deny)L.push(`          deny_commands:`,`            - '[message] ${it.req_deny}'`);
+      }
+      L.push(`    ${k}:`);cmds.forEach(c=>L.push(`      - '${fa(c)}'`));
+    }
+  }
+  setOut(L.join('\n'));
+}
+function setOut(t){g('yaml-out').textContent=t;}
+
+// ════════════════════════════
+// EXPORT
+// ════════════════════════════
+function copyYAML(){navigator.clipboard.writeText(g('yaml-out').textContent).then(()=>toast('YAML copiado al portapapeles'));}
+function downloadYAML(){
+  const fn=(S.gui.open_command||'menu')+'.yml';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([g('yaml-out').textContent],{type:'text/yaml'}));
+  a.download=fn;a.click();toast(`Descargado: ${fn}`);
+}
+function resetAll(){
+  if(!confirm('¿Crear un menú nuevo? Se perderán los cambios.'))return;
+  S={gui:{menu_title:'&aMi Menú',open_command:'mimenu',inventory_type:'CHEST',size:36,update_interval:null,open_commands:[],open_perm:'',open_deny:''},items:{},sel:null,ctab:'left_click_commands'};
+  g('g-title').value='&aMi Menú';g('g-cmd').value='mimenu';g('g-invtype').value='CHEST';
+  g('g-upd').value='';g('g-perm').value='';g('g-deny').value='';
+  document.querySelectorAll('.sp').forEach(p=>p.classList.toggle('on',parseInt(p.dataset.s)===36));
+  g('size-f').style.display='';
+  g('inv-title').innerHTML=mcClr('&aMi Menú');
+  g('yaml-fname').textContent='mimenu.yml';
+  renderGrid();renderOpenCmds();showEmpty();updStats();genYAML();
+  toast('Nuevo menú creado');
+}
+
+// ════════════════════════════
+// MC COLOR
+// ════════════════════════════
+const MC_MAP={a:'#55FF55',b:'#55FFFF',c:'#FF5555',d:'#FF55FF',e:'#FFFF55',
+  f:'#FFFFFF',6:'#FFAA00',7:'#AAAAAA',8:'#555555',9:'#5555FF',
+  0:'#000000',1:'#0000AA',2:'#00AA00',3:'#00AAAA',4:'#AA0000',5:'#AA00AA'};
+function mcClr(txt){
+  if(!txt)return'';
+  let out='',i=0,col='#eef5f3';
+  while(i<txt.length){
+    if(txt[i]==='&'&&i+1<txt.length){
+      const c=txt[i+1].toLowerCase();
+      if(MC_MAP[c]){col=MC_MAP[c];i+=2;continue;}
+      if('lkonmr'.includes(c)){i+=2;continue;}
+    }
+    const ch=txt[i]==='<'?'&lt;':txt[i]==='>'?'&gt;':txt[i];
+    out+=`<span style="color:${col}">${ch}</span>`;
+    i++;
+  }
+  return out;
+}
+
+
+// ════════════════════════════
+// MATERIAL PICKER
+// ════════════════════════════
+const MAT_CATS={
+  glass:[
+    {m:'GRAY_STAINED_GLASS_PANE',e:'🪟'},{m:'WHITE_STAINED_GLASS_PANE',e:'⬜'},{m:'BLACK_STAINED_GLASS_PANE',e:'⬛'},
+    {m:'RED_STAINED_GLASS_PANE',e:'🟥'},{m:'BLUE_STAINED_GLASS_PANE',e:'🟦'},{m:'GREEN_STAINED_GLASS_PANE',e:'🟩'},
+    {m:'YELLOW_STAINED_GLASS_PANE',e:'🟨'},{m:'ORANGE_STAINED_GLASS_PANE',e:'🟧'},{m:'PURPLE_STAINED_GLASS_PANE',e:'🟪'},
+    {m:'CYAN_STAINED_GLASS_PANE',e:'🔵'},{m:'LIME_STAINED_GLASS_PANE',e:'💚'},{m:'PINK_STAINED_GLASS_PANE',e:'🌸'},
+    {m:'MAGENTA_STAINED_GLASS_PANE',e:'💜'},{m:'LIGHT_BLUE_STAINED_GLASS_PANE',e:'🔷'},{m:'BROWN_STAINED_GLASS_PANE',e:'🟫'},
+    {m:'GLASS_PANE',e:'🪟'},{m:'GLASS',e:'🔲'},{m:'BARRIER',e:'🚫'},
+  ],
+  ores:[
+    {m:'DIAMOND',e:'💎'},{m:'DIAMOND_BLOCK',e:'💎'},{m:'EMERALD',e:'💚'},{m:'EMERALD_BLOCK',e:'💚'},
+    {m:'GOLD_INGOT',e:'🪙'},{m:'GOLD_BLOCK',e:'🟡'},{m:'GOLD_NUGGET',e:'🟡'},
+    {m:'IRON_INGOT',e:'🔩'},{m:'IRON_BLOCK',e:'⬜'},{m:'NETHERITE_INGOT',e:'⬛'},
+    {m:'COAL',e:'⚫'},{m:'REDSTONE',e:'🔴'},{m:'LAPIS_LAZULI',e:'🔵'},
+    {m:'AMETHYST_SHARD',e:'💜'},{m:'QUARTZ',e:'⬜'},{m:'NETHER_STAR',e:'⭐'},
+  ],
+  tools:[
+    {m:'DIAMOND_SWORD',e:'⚔️'},{m:'IRON_SWORD',e:'⚔️'},{m:'STONE_SWORD',e:'⚔️'},
+    {m:'DIAMOND_PICKAXE',e:'⛏️'},{m:'IRON_PICKAXE',e:'⛏️'},{m:'DIAMOND_AXE',e:'🪓'},
+    {m:'BOW',e:'🏹'},{m:'CROSSBOW',e:'🏹'},{m:'TRIDENT',e:'🔱'},
+    {m:'SHIELD',e:'🛡️'},{m:'DIAMOND_HELMET',e:'⛑️'},{m:'DIAMOND_CHESTPLATE',e:'🦺'},
+    {m:'DIAMOND_LEGGINGS',e:'👖'},{m:'DIAMOND_BOOTS',e:'👟'},
+    {m:'ENCHANTED_BOOK',e:'📗'},{m:'BLAZE_ROD',e:'🔥'},{m:'FISHING_ROD',e:'🎣'},
+  ],
+  misc:[
+    {m:'PAPER',e:'📄'},{m:'BOOK',e:'📕'},{m:'WRITTEN_BOOK',e:'📘'},
+    {m:'COMPASS',e:'🧭'},{m:'CLOCK',e:'⏰'},{m:'MAP',e:'🗺️'},
+    {m:'CHEST',e:'📦'},{m:'ENDER_CHEST',e:'📦'},{m:'SHULKER_BOX',e:'📦'},
+    {m:'BEACON',e:'💡'},{m:'FEATHER',e:'🪶'},{m:'BONE',e:'🦴'},
+    {m:'TNT',e:'💥'},{m:'FIREWORK_ROCKET',e:'🎆'},{m:'TOTEM_OF_UNDYING',e:'🗿'},
+    {m:'NETHER_STAR',e:'⭐'},{m:'DRAGON_EGG',e:'🥚'},{m:'ELYTRA',e:'🦋'},
+    {m:'AIR',e:'　'},{m:'STONE',e:'🪨'},{m:'COBBLESTONE',e:'🧱'},
+    {m:'GRASS_BLOCK',e:'🟩'},{m:'DIRT',e:'🟫'},{m:'SAND',e:'🟨'},
+    {m:'APPLE',e:'🍎'},{m:'GOLDEN_APPLE',e:'🍎'},{m:'BREAD',e:'🍞'},
+    {m:'SKELETON_SKULL',e:'💀'},{m:'ZOMBIE_HEAD',e:'🧟'},{m:'PLAYER_HEAD',e:'👤'},
+  ],
+};
+const MAT_ALL=Object.values(MAT_CATS).flat();
+
+let mpCat='all';
+let mpAnchor=null; // element to position near
+
+function openMatPicker(){
+  const btn=document.activeElement;
+  const imat=g('i-mat');
+  mpAnchor=imat;
+  const p=g('mat-picker');
+  p.classList.add('show');
+  // Position next to button
+  const rect=imat.closest('.row2').getBoundingClientRect();
+  p.style.top=(rect.bottom+8)+'px';
+  p.style.left=Math.min(rect.left, window.innerWidth-380)+'px';
+  g('mp-search').value='';
+  renderMatPicker();
+  setTimeout(()=>g('mp-search').focus(),50);
+  // Click outside to close
+  setTimeout(()=>document.addEventListener('click',mpOutside),10);
+}
+function closeMatPicker(){
+  g('mat-picker').classList.remove('show');
+  document.removeEventListener('click',mpOutside);
+}
+function mpOutside(e){if(!g('mat-picker').contains(e.target))closeMatPicker();}
+
+function selMatTab(el){
+  document.querySelectorAll('.mp-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');mpCat=el.dataset.cat;
+  g('mp-search').value='';
+  renderMatPicker();
+}
+
+function applyMat(matStr){
+  if(!g('i-mat'))return;
+  g('i-mat').value=matStr;
+  g('i-mat').dispatchEvent(new Event('input'));
+  closeMatPicker();
+  toast('Material aplicado ✓');
+}
+
+function renderMatPicker(){
+  const q=g('mp-search').value.toLowerCase().trim();
+  const body=g('mp-body');
+  body.innerHTML='';
+
+  // HEADS tab - always show head helpers
+  if(mpCat==='heads'||(!q&&mpCat==='all'&&false)){
+    renderHeadHelpers(body);
+    if(mpCat==='heads')return;
+  }
+  if(mpCat==='heads'){renderHeadHelpers(body);return;}
+
+  // Filter mats
+  let list=mpCat==='all'?MAT_ALL:MAT_CATS[mpCat]||MAT_ALL;
+  if(q)list=MAT_ALL.filter(x=>x.m.toLowerCase().includes(q));
+
+  if(!list.length){body.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--fg-muted);padding:20px;text-align:center">Sin resultados</div>';return;}
+
+  // Group by cat if "all" and no search
+  if(mpCat==='all'&&!q){
+    const catNames={glass:'Cristal',ores:'Minerales',tools:'Herramientas',misc:'Varios'};
+    // show heads first
+    renderHeadHelpers(body);
+    for(const[cat,items]of Object.entries(MAT_CATS)){
+      const ct=document.createElement('div');ct.className='mp-cat-title';ct.textContent=catNames[cat]||cat;body.appendChild(ct);
+      renderMatGrid(body,items);
+    }
+  }else{
+    renderMatGrid(body,list);
+  }
+}
+
+function renderHeadHelpers(body){
+  const title=document.createElement('div');title.className='mp-cat-title';title.textContent='Cabezas';body.appendChild(title);
+  const form=document.createElement('div');form.className='mp-head-form';
+  form.innerHTML=`
+    <div>
+      <div class="mp-head-lbl">👤 Cabeza de jugador</div>
+      <div class="mp-head-row">
+        <input id="mp-h-player" placeholder="Nombre del jugador" onkeydown="if(event.key==='Enter')applyMat('head-'+this.value.trim())">
+        <button class="btn btn-ghost btn-xs" onclick="if(g('mp-h-player').value.trim())applyMat('head-'+g('mp-h-player').value.trim())">Usar</button>
+      </div>
+    </div>
+    <div>
+      <div class="mp-head-lbl">🗃 HeadDatabase (hdb)</div>
+      <div class="mp-head-row">
+        <input id="mp-h-hdb" placeholder="ID numérico (ej: 1234)" onkeydown="if(event.key==='Enter')applyMat('hdb-'+this.value.trim())">
+        <button class="btn btn-ghost btn-xs" onclick="if(g('mp-h-hdb').value.trim())applyMat('hdb-'+g('mp-h-hdb').value.trim())">Usar</button>
+      </div>
+    </div>
+    <div>
+      <div class="mp-head-lbl">🖼 Textura (basehead)</div>
+      <div class="mp-head-row">
+        <input id="mp-h-base" placeholder="Base64 o valor de textura" onkeydown="if(event.key==='Enter')applyMat('basehead-'+this.value.trim())">
+        <button class="btn btn-ghost btn-xs" onclick="if(g('mp-h-base').value.trim())applyMat('basehead-'+g('mp-h-base').value.trim())">Usar</button>
+      </div>
+    </div>
+    <div>
+      <div class="mp-head-lbl">🌐 Texture URL ID</div>
+      <div class="mp-head-row">
+        <input id="mp-h-tex" placeholder="ID tras textures.minecraft.net/..." onkeydown="if(event.key==='Enter')applyMat('texture-'+this.value.trim())">
+        <button class="btn btn-ghost btn-xs" onclick="if(g('mp-h-tex').value.trim())applyMat('texture-'+g('mp-h-tex').value.trim())">Usar</button>
+      </div>
+    </div>
+  `;
+  body.appendChild(form);
+}
+
+function renderMatGrid(body,items){
+  const grid=document.createElement('div');grid.className='mp-grid';
+  const current=(g('i-mat')?.value||'').toUpperCase();
+  items.forEach(({m,e})=>{
+    const d=document.createElement('div');
+    d.className='mp-item'+(current===m?' chosen':'');
+    d.innerHTML=`<span class="mpi">${e}</span><span class="mpn">${m.replace(/_/g,' ').toLowerCase()}</span>`;
+    d.onclick=()=>applyMat(m);
+    grid.appendChild(d);
+  });
+  body.appendChild(grid);
+}
+
+// ════════════════════════════
+// SMALL CAPS
+// ════════════════════════════
+const SC_MAP={a:'ᴀ',b:'ʙ',c:'ᴄ',d:'ᴅ',e:'ᴇ',f:'ꜰ',g:'ɢ',h:'ʜ',i:'ɪ',j:'ᴊ',
+  k:'ᴋ',l:'ʟ',m:'ᴍ',n:'ɴ',o:'ᴏ',p:'ᴘ',q:'ǫ',r:'ʀ',s:'ꜱ',t:'ᴛ',
+  u:'ᴜ',v:'ᴠ',w:'ᴡ',x:'x',y:'ʏ',z:'ᴢ'};
+function toSC(txt){return txt.split('').map(c=>{const l=c.toLowerCase();return SC_MAP[l]||c;}).join('');}
+
+let scColor='&f',scMod='',lastFocused=null;
+
+function doSC(){
+  const raw=g('sc-input').value||'';
+  const full=scColor+scMod+toSC(raw);
+  g('sc-result').value=full;
+  g('sc-preview').innerHTML=mcClr(full)||'—';
+}
+function selMod(el){document.querySelectorAll('.sc-mode').forEach(x=>x.classList.remove('on'));el.classList.add('on');scMod=el.dataset.m;doSC();}
+function copySC(){const v=g('sc-result').value;if(!v)return;navigator.clipboard.writeText(v).then(()=>toast('Small caps copiado ✓'));}
+function insertSC(){
+  const v=g('sc-result').value;if(!v||!lastFocused)return;
+  const el=lastFocused,s=el.selectionStart,e=el.selectionEnd;
+  el.value=el.value.substring(0,s)+v+el.value.substring(e);
+  el.selectionStart=el.selectionEnd=s+v.length;
+  el.dispatchEvent(new Event('input'));toast('Insertado en campo ✓');
+}
+function toggleSC(){
+  const p=g('sc-panel');p.classList.toggle('open');
+  const on=p.classList.contains('open');
+  const btn=g('sc-btn');
+  btn.style.borderColor=on?'var(--accent)':'';
+  btn.style.color=on?'var(--accent)':'';
+  btn.style.background=on?'var(--accent-dim)':'';
+  if(on)doSC();
+}
+document.addEventListener('focusin',e=>{
+  if(e.target.matches('input[type=text],textarea')&&!e.target.closest('#sc-panel')&&!e.target.closest('#import-modal'))
+    lastFocused=e.target;
+});
+
+// ════════════════════════════
+// IMPORT
+// ════════════════════════════
+let pendingImport=null;
+function triggerImport(){
+  g('import-overlay').classList.add('show');
+  g('im-log').classList.remove('show');g('im-log').innerHTML='';
+  g('im-confirm').style.display='none';pendingImport=null;
+}
+function closeImport(e){if(e.target===g('import-overlay'))closeImportDirect();}
+function closeImportDirect(){g('import-overlay').classList.remove('show');}
+function dropImport(e){e.preventDefault();g('im-drop').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readImportFile(f);}
+function importYAML(inp){const f=inp.files[0];if(f)readImportFile(f);inp.value='';}
+function readImportFile(file){const r=new FileReader();r.onload=ev=>parseImportYAML(ev.target.result,file.name);r.readAsText(file,'UTF-8');}
+
+function log(msg,cls='io'){const el=g('im-log');el.classList.add('show');el.innerHTML+=`<div class="${cls}">${msg}</div>`;el.scrollTop=el.scrollHeight;}
+
+function parseAction(str){
+  if(typeof str!=='string')return{type:'player',value:String(str)};
+  const m=str.match(/^\[([^\]]+)\]\s*(.*)?$/s);
+  if(!m)return{type:'player',value:str};
+  return{type:m[1].trim().toLowerCase(),value:(m[2]||'').trim()};
+}
+
+function parseImportYAML(text,filename){
+  g('im-log').innerHTML='';g('im-log').classList.add('show');
+  g('im-confirm').style.display='none';pendingImport=null;
+  let data;
+  try{data=jsyaml.load(text);log(`✓ YAML parseado: ${filename}`);}
+  catch(e){log(`✕ Error de sintaxis: ${e.message}`,'ie');return;}
+  if(!data||typeof data!=='object'){log('✕ Archivo vacío o inválido','ie');return;}
+
+  const result={
+    gui:{
+      menu_title:data.menu_title||'&fMenú Importado',
+      open_command:Array.isArray(data.open_command)?data.open_command.join(','):(data.open_command||'menu'),
+      inventory_type:data.inventory_type||'CHEST',
+      size:data.size||54,update_interval:data.update_interval||null,
+      open_commands:[],open_perm:'',open_deny:''
+    },
+    items:{}
+  };
+  log(`  título: <span class="io">${result.gui.menu_title}</span>`);
+  log(`  comando: <span class="io">${result.gui.open_command}</span>`);
+  log(`  tamaño: <span class="io">${result.gui.size}</span>`);
+
+  if(Array.isArray(data.open_commands)){result.gui.open_commands=data.open_commands.map(c=>parseAction(String(c)));log(`  open_commands: <span class="io">${data.open_commands.length} acciones</span>`);}
+  try{
+    const reqs=data.open_requirement?.requirements;
+    if(reqs){const first=Object.values(reqs)[0];if(first?.type==='has permission'&&first.permission){result.gui.open_perm=first.permission;result.gui.open_deny=(first.deny_commands?.[0]||'').replace(/^\[message\]\s*/i,'');log(`  requisito apertura: <span class="io">${first.permission}</span>`);}}
+  }catch(e){}
+
+  if(data.items&&typeof data.items==='object'){
+    let itemCount=0,warnCount=0;
+    for(const[iname,raw]of Object.entries(data.items)){
+      if(!raw||typeof raw!=='object')continue;
+      let slots=[];
+      if(raw.slot!==undefined)slots=[parseInt(raw.slot)];
+      else if(Array.isArray(raw.slots)){raw.slots.forEach(s=>{if(typeof s==='string'&&s.includes('-')){const[a,b]=s.split('-').map(Number);for(let i=a;i<=b;i++)slots.push(i);}else slots.push(parseInt(s));});}
+      if(!slots.length){log(`  ⚠ ${iname}: sin slot, ignorado`,'iw');warnCount++;continue;}
+
+      const pCmds=arr=>Array.isArray(arr)?arr.map(c=>parseAction(String(c))):[];
+      const pReq=rb=>{
+        if(!rb?.requirements)return{type:'',val:'',deny:''};
+        try{const f=Object.values(rb.requirements)[0];if(!f)return{type:'',val:'',deny:''};return{type:f.type||'',val:String(f.permission||f.amount||f.input||''),deny:String(f.deny_commands?.[0]||'').replace(/^\[message\]\s*/i,'')};}catch(e){return{type:'',val:'',deny:''};}
+      };
+      const lcReq=pReq(raw.left_click_requirement);
+      const enchs=Array.isArray(raw.enchantments)?raw.enchantments.map(e=>{const p=String(e).split(';');return{name:p[0]||'SHARPNESS',level:parseInt(p[1])||1};}):[];
+      const flags=(Array.isArray(raw.item_flags)?raw.item_flags.map(f=>String(f).toUpperCase()):[]);
+
+      const it={
+        name:iname,material:String(raw.material||'STONE').toUpperCase(),amount:parseInt(raw.amount)||1,
+        display_name:raw.display_name||'',lore:Array.isArray(raw.lore)?raw.lore.map(String):[],
+        enchantments:enchs,update:!!raw.update,unbreakable:!!raw.unbreakable,
+        glow:!!raw.enchantment_glint_override,hide_attributes:flags.includes('HIDE_ATTRIBUTES'),
+        priority:raw.priority!==undefined?String(raw.priority):'',
+        model_data:raw.model_data!==undefined?String(raw.model_data):'',
+        left_click_commands:pCmds(raw.left_click_commands),right_click_commands:pCmds(raw.right_click_commands),
+        shift_left_click_commands:pCmds(raw.shift_left_click_commands),shift_right_click_commands:pCmds(raw.shift_right_click_commands),
+        click_commands:pCmds(raw.click_commands),req_type:lcReq.type,req_val:lcReq.val,req_deny:lcReq.deny
+      };
+      slots.forEach(sn=>{
+        if(sn>=result.gui.size&&sn<54)result.gui.size=Math.ceil((sn+1)/9)*9;
+        result.items[sn]={...it,name:slots.length>1?`${iname}_${sn}`:iname};
+      });
+      itemCount++;
+    }
+    log(`✓ <span class="io">${itemCount} items</span>${warnCount?` · <span class="iw">${warnCount} avisos</span>`:''}`);
+  }else{log('  ⚠ Sin items encontrados','iw');}
+
+  pendingImport=result;
+  g('im-confirm').style.display='';
+  log(`<br>Listo → haz clic en <span class="io">Cargar menú</span>`);
+}
+
+function confirmImport(){
+  if(!pendingImport)return;
+  S.gui={...pendingImport.gui};S.items={...pendingImport.items};S.sel=null;
+  g('g-title').value=S.gui.menu_title;g('g-cmd').value=S.gui.open_command;
+  g('g-invtype').value=S.gui.inventory_type||'CHEST';g('g-upd').value=S.gui.update_interval||'';
+  g('g-perm').value=S.gui.open_perm||'';g('g-deny').value=S.gui.open_deny||'';
+  g('size-f').style.display=(S.gui.inventory_type||'CHEST')==='CHEST'?'':'none';
+  document.querySelectorAll('.sp').forEach(p=>p.classList.toggle('on',parseInt(p.dataset.s)===S.gui.size));
+  g('inv-title').innerHTML=mcClr(S.gui.menu_title);
+  g('yaml-fname').textContent=(S.gui.open_command||'menu')+'.yml';
+  renderGrid();renderOpenCmds();showEmpty();updStats();genYAML();
+  closeImportDirect();
+  toast(`Menú importado · ${Object.keys(S.items).length} items`);
+}
+
+// ════════════════════════════
+// UTILS
+// ════════════════════════════
+function g(id){return document.getElementById(id)}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2400);
+}
+
+// ════════════════════════════
+// INIT
+// ════════════════════════════
+(function(){
+  // Build SC color grid
+  const colors=[
+    {code:'&f',hex:'#FFFFFF',label:'f'},{code:'&7',hex:'#AAAAAA',label:'7'},{code:'&8',hex:'#555555',label:'8'},
+    {code:'&a',hex:'#55FF55',label:'a'},{code:'&2',hex:'#00AA00',label:'2'},{code:'&e',hex:'#FFFF55',label:'e'},
+    {code:'&6',hex:'#FFAA00',label:'6'},{code:'&c',hex:'#FF5555',label:'c'},{code:'&4',hex:'#AA0000',label:'4'},
+    {code:'&d',hex:'#FF55FF',label:'d'},{code:'&5',hex:'#AA00AA',label:'5'},{code:'&b',hex:'#55FFFF',label:'b'},
+    {code:'&3',hex:'#00AAAA',label:'3'},{code:'&9',hex:'#5555FF',label:'9'},{code:'&1',hex:'#0000AA',label:'1'},
+    {code:'&0',hex:'#1a1a2e',label:'0'},
+  ];
+  const cg=g('sc-colors');
+  colors.forEach(cl=>{
+    const d=document.createElement('div');
+    d.className='sc-clr'+(cl.code==='&f'?' on':'');
+    d.style.background=cl.hex;
+    d.style.color=parseInt(cl.hex.replace('#',''),16)>0x888888?'#000':'#fff';
+    d.title=`&${cl.label}`;
+    d.dataset.code=cl.code;
+    d.textContent=cl.label.toUpperCase();
+    d.onclick=()=>{document.querySelectorAll('.sc-clr').forEach(x=>x.classList.remove('on'));d.classList.add('on');scColor=cl.code;doSC();};
+    cg.appendChild(d);
+  });
+
+  renderGrid();renderOpenCmds();
+  g('inv-title').innerHTML=mcClr('&aMi Menú');
+  genYAML();updStats();
+
+  // Nav scroll effect
+  window.addEventListener('scroll',()=>g('nav').classList.toggle('scrolled',window.scrollY>10),{passive:true});
+})();
+</script>
 </body>
 </html>
