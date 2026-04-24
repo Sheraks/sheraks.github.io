@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PhantomDungeons Enchant Builder</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg-0:#070a0d;--bg-1:#0b1018;--bg-2:#101820;--bg-3:#141e2a;
+  --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);--line-3:rgba(255,255,255,.18);
+  --fg:#d8eaf0;--fg-dim:rgba(216,234,240,.65);--fg-muted:rgba(216,234,240,.38);
+  --accent:oklch(0.78 0.18 195);        /* teal */
+  --accent-dim:oklch(0.78 0.18 195 / .12);
+  --accent-2:oklch(0.80 0.16 270);      /* purple */
+  --green-a:oklch(0.82 0.14 155);
+  --red-a:oklch(0.72 0.18 22);
+  --warn:oklch(0.82 0.15 70);
+  --r:16px;--r-sm:9px;
+  --inp:#0a1218;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg-0);color:var(--fg);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* BG */
+.bg-l{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(800px 500px at 85% -5%,oklch(0.78 0.18 195/.10),transparent 60%),
+             radial-gradient(600px at -5% 90%,oklch(0.80 0.16 270/.07),transparent 60%),
+             linear-gradient(180deg,var(--bg-0),var(--bg-1))}
+.bg-g{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.25;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:54px 54px;
+  mask-image:radial-gradient(1000px 700px at 50% 0%,black 20%,transparent 80%)}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;height:50px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  background:linear-gradient(180deg,rgba(7,10,13,.85),rgba(7,10,13,.4));
+  border-bottom:1px solid transparent;transition:all .3s;backdrop-filter:blur(12px)}
+#nav.scrolled{border-bottom-color:var(--line);background:rgba(7,10,13,.92)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--fg);text-decoration:none}
+.brand-mark{width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:grid;place-items:center;color:#030c10;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 6px 20px -6px var(--accent)}
+.nav-r{display:flex;gap:7px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:999px;
+  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;border:1px solid transparent;
+  cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#020e0e;border-color:var(--accent);box-shadow:0 6px 24px -6px var(--accent)}
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.btn-ghost{color:var(--fg-dim);border-color:var(--line-2);background:rgba(255,255,255,.02)}
+.btn-ghost:hover{color:var(--fg);border-color:var(--line-3);background:rgba(255,255,255,.05)}
+.btn-danger{color:var(--red-a);border-color:oklch(0.72 0.18 22/.25);background:oklch(0.72 0.18 22/.06)}
+.btn-danger:hover{background:oklch(0.72 0.18 22/.16)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:4px 9px;font-size:11px}
+.icon-btn{width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  background:oklch(0.72 0.18 22/.08);color:var(--red-a);border:1px solid oklch(0.72 0.18 22/.2);
+  border-radius:6px;cursor:pointer;transition:all .15s;font-size:11px;flex-shrink:0}
+.icon-btn:hover{background:oklch(0.72 0.18 22/.2);border-color:var(--red-a)}
+
+/* LAYOUT */
+#app{display:grid;grid-template-columns:292px 1fr 336px;grid-template-rows:1fr 200px;
+  height:calc(100vh - 50px);margin-top:50px}
+.pnl{overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--line);padding:16px}
+.pnl::-webkit-scrollbar{width:3px}
+.pnl::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:2px}
+
+/* PANEL HEADER */
+.ph{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);
+  letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;
+  margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.ph::before{content:'';width:18px;height:1px;background:var(--accent)}
+
+/* FORM */
+.f{margin-bottom:12px}
+.f label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.f input,.f select,.f textarea{
+  width:100%;background:var(--inp);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:13px;
+  padding:7px 10px;outline:none;transition:border-color .18s;color-scheme:dark}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim)}
+.f select option{background:var(--inp);color:var(--fg)}
+.f textarea{resize:vertical;min-height:52px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);margin-top:3px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sdiv{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.12em;margin:14px 0 10px;
+  display:flex;align-items:center;gap:8px}
+.sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--line)}
+
+/* CHECKBOX */
+.ck{display:flex;align-items:center;gap:9px;margin-bottom:8px;cursor:pointer;user-select:none}
+.ck input[type=checkbox]{opacity:0;position:absolute;width:0;height:0;pointer-events:none}
+.ck-box{width:15px;height:15px;flex-shrink:0;background:var(--inp);border:1px solid var(--line-2);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .14s}
+.ck input[type=checkbox]:checked + .ck-box{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim)}
+.ck-box::after{content:'';width:8px;height:4px;border-left:2px solid #020e0e;border-bottom:2px solid #020e0e;
+  transform:rotate(-45deg) translateY(-1px);opacity:0;transition:opacity .12s;display:block}
+.ck input[type=checkbox]:checked + .ck-box::after{opacity:1}
+.ck span:last-child{font-size:13px;color:var(--fg-dim)}
+
+/* TAGS INPUT */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:5px;background:var(--inp);border:1px solid var(--line-2);
+  border-radius:var(--r-sm);padding:5px 8px;min-height:36px;cursor:text;align-items:center}
+.tags-wrap:focus-within{border-color:var(--accent)}
+.tag{display:inline-flex;align-items:center;gap:4px;background:var(--accent-dim);color:var(--accent);
+  border:1px solid oklch(0.78 0.18 195/.25);border-radius:4px;padding:2px 6px;
+  font-family:'JetBrains Mono',monospace;font-size:10px}
+.tag-x{cursor:pointer;opacity:.7;font-size:9px}
+.tag-x:hover{opacity:1}
+.tag-input{background:none;border:none;outline:none;color:var(--fg);font-family:'JetBrains Mono',monospace;
+  font-size:12px;min-width:80px;flex:1;padding:0}
+
+/* CENTER */
+#center{display:flex;flex-direction:column;align-items:center;padding:16px;
+  overflow-y:auto;border-right:1px solid var(--line);
+  background:radial-gradient(500px 300px at 50% 0%,oklch(0.78 0.18 195/.05),transparent 70%)}
+
+/* ENCHANT CARD PREVIEW */
+.ench-card{
+  width:100%;max-width:480px;
+  background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  border:1px solid var(--line-2);border-radius:var(--r);padding:0;overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.05);
+}
+.ec-top-line{height:1px;background:linear-gradient(to right,transparent,var(--accent),transparent)}
+.ec-body{padding:20px}
+.ec-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.ec-icon{width:52px;height:52px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line-2);
+  display:grid;place-items:center;font-size:26px;flex-shrink:0;
+  transition:all .3s}
+.ec-meta{flex:1}
+.ec-id{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);margin-bottom:3px}
+.ec-name{font-size:20px;font-weight:700;line-height:1.1}
+.ec-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);border-radius:var(--r-sm);overflow:hidden;margin-bottom:14px}
+.ec-stat{background:var(--bg-2);padding:10px 12px}
+.ec-stat-v{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;line-height:1;margin-bottom:2px}
+.ec-stat-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em}
+.ec-formula{background:var(--bg-0);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green-a);line-height:1.7}
+.ec-trigger-badge{display:inline-flex;align-items:center;gap:5px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;
+  padding:3px 9px;border-radius:999px;
+  background:var(--accent-dim);color:var(--accent);border:1px solid oklch(0.78 0.18 195/.25);
+  margin-bottom:12px}
+.ec-trigger-badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* STATS BAR */
+.stats-row{display:flex;gap:8px;margin-top:14px;width:100%;max-width:480px}
+.stat-box{flex:1;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:10px 8px;text-align:center}
+.sv{font-size:22px;font-weight:700;line-height:1;margin-bottom:3px}
+.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── ACTION EDITOR (right panel) ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:260px;text-align:center;gap:12px;color:var(--fg-muted)}
+.empty-icon{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.03);
+  border:1px solid var(--line-2);display:grid;place-items:center;font-size:26px;opacity:.5}
+
+/* ACTION LIST */
+.action-list-wrap{display:flex;flex-direction:column;gap:6px}
+.action-row{
+  background:rgba(255,255,255,.02);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  overflow:hidden;transition:border-color .15s}
+.action-row:hover{border-color:var(--line-3)}
+.action-row.expanded{border-color:var(--accent)}
+.ar-header{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer}
+.ar-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);
+  width:18px;text-align:center;flex-shrink:0}
+.ar-type{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--accent);flex:1}
+.ar-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);
+  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+.ar-chevron{font-size:10px;color:var(--fg-muted);transition:transform .18s;flex-shrink:0}
+.action-row.expanded .ar-chevron{transform:rotate(180deg)}
+.ar-body{padding:10px;border-top:1px solid var(--line);display:none}
+.action-row.expanded .ar-body{display:block}
+.ar-controls{display:flex;gap:5px;flex-shrink:0}
+
+/* ACTION FIELDS */
+.af{margin-bottom:9px}
+.af label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.af input,.af select,.af textarea{
+  width:100%;background:var(--inp);border:1px solid var(--line-2);border-radius:6px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:5px 8px;outline:none;transition:border-color .15s;color-scheme:dark}
+.af input:focus,.af select:focus,.af textarea:focus{border-color:var(--accent)}
+.af select option{background:var(--inp)}
+.af textarea{resize:vertical;min-height:44px;font-size:11px}
+.af-row2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.af-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);margin-top:2px}
+.af-check{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;margin-bottom:7px}
+.af-check input[type=checkbox]{opacity:0;position:absolute;width:0;height:0;pointer-events:none}
+.af-check-box{width:13px;height:13px;flex-shrink:0;background:var(--inp);border:1px solid var(--line-2);
+  border-radius:3px;display:flex;align-items:center;justify-content:center;transition:all .14s}
+.af-check input[type=checkbox]:checked + .af-check-box{background:var(--accent);border-color:var(--accent)}
+.af-check-box::after{content:'';width:7px;height:3.5px;border-left:1.5px solid #020e0e;border-bottom:1.5px solid #020e0e;
+  transform:rotate(-45deg) translateY(-1px);opacity:0;transition:opacity .12s;display:block}
+.af-check input[type=checkbox]:checked + .af-check-box::after{opacity:1}
+.af-check span{font-size:12px;color:var(--fg-dim)}
+
+/* NESTED ACTIONS (loop/conditional) */
+.nested-header{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent-2);
+  text-transform:uppercase;letter-spacing:.1em;
+  display:flex;align-items:center;gap:8px;margin:10px 0 6px}
+.nested-header::before,.nested-header::after{content:'';flex:1;height:1px;background:var(--line)}
+.nested-wrap{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:6px;padding:8px;
+  display:flex;flex-direction:column;gap:5px}
+.nested-action-row{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.nar-header{display:flex;align-items:center;gap:7px;padding:6px 9px;cursor:pointer}
+.nar-num{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--fg-muted);width:14px;flex-shrink:0}
+.nar-type{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-2);flex:1}
+.nar-chevron{font-size:9px;color:var(--fg-muted);transition:transform .15s;flex-shrink:0}
+.nested-action-row.expanded .nar-chevron{transform:rotate(180deg)}
+.nar-body{padding:8px;border-top:1px solid var(--line);display:none;background:rgba(0,0,0,.2)}
+.nested-action-row.expanded .nar-body{display:block}
+
+/* YAML PANEL */
+#yaml-panel{grid-column:1/-1;border-top:1px solid var(--line);
+  background:rgba(255,255,255,.01);display:grid;grid-template-columns:1fr 140px;
+  gap:12px;padding:12px 16px;align-items:start}
+.yaml-ph{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--green-a);
+  letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.yaml-ph::before{content:'';width:14px;height:1px;background:var(--green-a)}
+#yaml-out{background:var(--bg-0);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--green-a);overflow:auto;height:155px;white-space:pre;line-height:1.65}
+.yaml-side{display:flex;flex-direction:column;gap:6px}
+.yaml-fname{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg-1);color:var(--fg);
+  border:1px solid var(--line-2);border-radius:var(--r-sm);
+  box-shadow:0 16px 40px rgba(0,0,0,.5);
+  font-size:14px;font-weight:600;padding:10px 16px;z-index:999;
+  display:flex;align-items:center;gap:8px;
+  animation:tIn .18s ease,tOut .3s ease 2s forwards}
+.toast::before{content:'◆';color:var(--accent);font-size:9px}
+@keyframes tIn{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tOut{to{opacity:0;transform:translateY(8px)}}
+
+/* MC COLOR PREVIEW */
+.mc-preview{font-size:17px;font-weight:600;text-shadow:1px 1px 3px rgba(0,0,0,.7)}
+
+/* SEP */
+.sep{height:1px;background:var(--line);margin:10px 0}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg-0)}
+::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:2px}
+
+/* POSITION HELPER PILLS */
+.pos-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.pos-pill{font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;
+  padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.04);
+  border:1px solid var(--line);color:var(--fg-muted);transition:all .12s}
+.pos-pill:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+/* SECTION BADGE */
+.sbadge{display:inline-flex;align-items:center;gap:5px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:2px 8px;border-radius:4px;
+  background:var(--accent-dim);color:var(--accent);border:1px solid oklch(0.78 0.18 195/.2)}
+.sbadge-warn{background:oklch(0.82 0.15 70/.1);color:var(--warn);border-color:oklch(0.82 0.15 70/.2)}
+.sbadge-purple{background:oklch(0.80 0.16 270/.1);color:var(--accent-2);border-color:oklch(0.80 0.16 270/.2)}
+
+/* UPGRADE TYPE PILLS */
+.type-pills{display:flex;gap:5px;flex-wrap:wrap}
+.tp{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 12px;border-radius:999px;
+  background:var(--inp);border:1px solid var(--line-2);cursor:pointer;transition:all .15s;color:var(--fg-muted)}
+.tp:hover,.tp.on{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+</style>
+</head>
+<body>
+<div class="bg-l"></div>
+<div class="bg-g"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="brand">
+    <div class="brand-mark">PD</div>
+    PhantomDungeons <span style="color:var(--fg-dim);font-weight:400;margin-left:4px">Enchant Builder</span>
+  </a>
+  <div class="nav-r">
+    <button class="btn btn-ghost btn-sm" onclick="resetAll()"><i class="fa-solid fa-plus"></i> Nuevo</button>
+    <button class="btn btn-ghost btn-sm" onclick="copyYAML()"><i class="fa-regular fa-copy"></i> Copiar</button>
+    <button class="btn btn-primary btn-sm" onclick="downloadYAML()"><i class="fa-solid fa-download"></i> Descargar .yml</button>
+  </div>
+</nav>
+
+<div id="app">
+
+<!-- ══ LEFT: ENCHANT CONFIG ══ -->
+<div class="pnl" id="lpanel">
+  <div class="ph">⚡ Config. del Enchant</div>
+
+  <div class="f">
+    <label>Enchant ID</label>
+    <input id="e-id" value="my-enchant" oninput="onConfig()" placeholder="my-enchant">
+    <div class="hint">kebab-case · debe coincidir con el nombre del archivo</div>
+  </div>
+  <div class="f">
+    <label>Display Name</label>
+    <input id="e-name" value="&a&lMy Enchant" oninput="onConfig()">
+    <div class="hint">Soporta &amp;a &amp;c &amp;6 &amp;l y &#RRGGBB</div>
+  </div>
+  <div class="f">
+    <label>Menu Material</label>
+    <input id="e-mat" value="EMERALD" oninput="onConfig()" placeholder="EMERALD" style="text-transform:uppercase">
+    <div class="hint">Bukkit Material enum · UPPERCASE</div>
+  </div>
+
+  <div class="sdiv">📈 Progression</div>
+  <div class="row2">
+    <div class="f"><label>Starting Level</label><input type="number" id="e-start" value="0" oninput="onConfig()"></div>
+    <div class="f"><label>Max Level</label><input type="number" id="e-max" value="100" oninput="onConfig()"></div>
+  </div>
+
+  <div class="sdiv">⚡ Activation</div>
+  <div class="f">
+    <label>Trigger</label>
+    <select id="e-trigger" onchange="onTrigger()">
+      <option value="HIT_MOB">HIT_MOB — Al golpear mob</option>
+      <option value="MOB_DEATH">MOB_DEATH — Al matar mob</option>
+      <option value="ENCHANT_PROC">ENCHANT_PROC — Cuando otro proc</option>
+      <option value="PASSIVE">PASSIVE — Timer pasivo (mientras sostienes)</option>
+    </select>
+  </div>
+
+  <div id="source-enchants-wrap" style="display:none">
+    <div class="f">
+      <label>Source Enchants <span class="sbadge-purple sbadge" style="margin-left:4px">ENCHANT_PROC</span></label>
+      <div class="tags-wrap" id="source-tags" onclick="g('source-inp').focus()">
+        <input class="tag-input" id="source-inp" placeholder="enchant-id..." onkeydown="sourceTagKey(event)">
+      </div>
+      <div class="hint">Intro para añadir · IDs en kebab-case</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="f"><label>Base Chance (%)</label><input type="number" id="e-base-chance" value="5.0" step="0.1" oninput="onConfig()"></div>
+    <div class="f"><label>Chance / Level</label><input type="number" id="e-chance-lvl" value="0.1" step="0.01" oninput="onConfig()"></div>
+  </div>
+
+  <div class="f">
+    <label>Cooldown</label>
+    <div class="row2">
+      <div>
+        <input type="number" id="e-cd-ticks" value="100" oninput="onCooldown('ticks')" placeholder="Ticks">
+        <div class="hint" style="margin-top:2px">ticks (20=1s)</div>
+      </div>
+      <div>
+        <input type="number" id="e-cd-secs" oninput="onCooldown('secs')" placeholder="Segundos">
+        <div class="hint" style="margin-top:2px">cooldown-seconds</div>
+      </div>
+    </div>
+    <div class="hint" style="color:var(--warn)">⚠ Usa solo uno, no ambos</div>
+  </div>
+
+  <label class="ck">
+    <input type="checkbox" id="e-afk" onchange="onConfig()">
+    <span class="ck-box"></span><span>afk-mob-only</span>
+  </label>
+
+  <div class="sdiv">💰 Upgrade</div>
+  <div class="f"><label>Currency (economy ID)</label><input id="e-currency" value="souls" oninput="onConfig()" placeholder="souls / money"></div>
+  <div class="f"><label>Base Cost</label><input type="number" id="e-base-cost" value="1000" oninput="onConfig()"></div>
+  <div class="f">
+    <label>Scaling Type</label>
+    <div class="type-pills" id="scaling-pills">
+      <div class="tp on" data-t="LINEAR" onclick="setScaling('LINEAR')">LINEAR</div>
+      <div class="tp" data-t="EXPONENTIAL" onclick="setScaling('EXPONENTIAL')">EXPONENTIAL</div>
+      <div class="tp" data-t="CUSTOM" onclick="setScaling('CUSTOM')">CUSTOM</div>
+    </div>
+  </div>
+  <div id="scaling-linear" class="f"><label>Increase / Level</label><input type="number" id="e-inc-lvl" value="500" oninput="onConfig()"></div>
+  <div id="scaling-exp" class="f" style="display:none"><label>Multiplier (base * mult^lvl)</label><input type="number" id="e-multiplier" value="1.05" step="0.01" oninput="onConfig()"></div>
+
+  <div class="sdiv">✨ Prestige <span style="font-size:9px;color:var(--fg-muted);text-transform:lowercase;letter-spacing:0">(opcional)</span></div>
+  <label class="ck">
+    <input type="checkbox" id="e-prestige-on" onchange="onPrestige()">
+    <span class="ck-box"></span><span>Habilitar prestige</span>
+  </label>
+  <div id="prestige-fields" style="display:none">
+    <div class="row2">
+      <div class="f"><label>Max Prestige</label><input type="number" id="e-max-prestige" value="10" oninput="onConfig()"></div>
+      <div class="f"><label>Cost Multiplier</label><input type="number" id="e-cost-mult" value="0.5" step="0.01" oninput="onConfig()"></div>
+    </div>
+    <div class="f"><label>Chance Multiplier</label><input type="number" id="e-chance-mult" value="0.2" step="0.01" oninput="onConfig()"></div>
+  </div>
+
+  <div class="sdiv">ℹ Variables disponibles</div>
+  <div style="background:var(--inp);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-dim);line-height:2">
+    <span style="color:var(--accent)">{level}</span> · <span style="color:var(--accent)">{prestige}</span> · <span style="color:var(--accent)">{player}</span> · <span style="color:var(--accent)">{damage}</span><br>
+    <span style="color:var(--accent-2)">{trigger_pos}</span> · <span style="color:var(--accent-2)">{player_pos}</span> · <span style="color:var(--accent-2)">{target_pos}</span><br>
+    <span style="color:var(--fg-muted)">{forward:N} · {backward:N} · {up:N} · {down:N}</span><br>
+    <span style="color:var(--warn)">{iteration}</span> (loop) · <span style="color:var(--warn)">{instakill_count}</span>
+  </div>
+</div>
+
+<!-- ══ CENTER: PREVIEW ══ -->
+<div id="center">
+  <div class="ph" style="max-width:480px;width:100%">🔮 Vista Previa</div>
+
+  <div class="ench-card" style="max-width:480px;width:100%">
+    <div class="ec-top-line"></div>
+    <div class="ec-body">
+      <div class="ec-header">
+        <div class="ec-icon" id="ec-icon">💎</div>
+        <div class="ec-meta">
+          <div class="ec-id" id="ec-id">my-enchant.yml</div>
+          <div class="ec-name mc-preview" id="ec-name"></div>
+        </div>
+      </div>
+      <div id="ec-trigger-badge" class="ec-trigger-badge"><span class="dot"></span> <span id="ec-trigger-txt">HIT_MOB</span></div>
+      <div class="ec-stats">
+        <div class="ec-stat">
+          <div class="ec-stat-v" style="color:var(--accent)" id="ec-maxlvl">100</div>
+          <div class="ec-stat-l">Max Level</div>
+        </div>
+        <div class="ec-stat">
+          <div class="ec-stat-v" style="color:var(--accent-2)" id="ec-basechance">5.0%</div>
+          <div class="ec-stat-l">Base Chance</div>
+        </div>
+        <div class="ec-stat">
+          <div class="ec-stat-v" style="color:var(--warn)" id="ec-currency">souls</div>
+          <div class="ec-stat-l">Currency</div>
+        </div>
+      </div>
+      <div class="ec-formula" id="ec-formula">
+        chance = 5.0 + (0.1 × level)<br>
+        cost = 1000 + (500 × level)
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row" style="max-width:480px">
+    <div class="stat-box">
+      <div class="sv" style="color:var(--accent)" id="st-actions">0</div>
+      <div class="sl">Acciones</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" style="color:var(--accent-2)" id="st-vars">0</div>
+      <div class="sl">Variables</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" style="color:var(--green-a)" id="st-loops">0</div>
+      <div class="sl">Loops</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" style="color:var(--warn)" id="st-cd">100t</div>
+      <div class="sl">Cooldown</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RIGHT: ACTION EDITOR ══ -->
+<div class="pnl" id="rpanel">
+  <div class="ph" id="ap-ph">⚙ Actions</div>
+
+  <div id="action-empty" class="empty-state">
+    <div class="empty-icon">⚡</div>
+    <p style="font-size:14px;line-height:1.7">Añade acciones para definir<br>qué hace el enchant al proc.<br><br>
+    <span style="font-size:12px">Se ejecutan en orden secuencial</span></p>
+  </div>
+
+  <div id="action-list" class="action-list-wrap" style="display:none"></div>
+
+  <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+    <div class="f" style="flex:1;margin-bottom:0">
+      <select id="new-action-type" style="background:var(--inp);border:1px solid var(--line-2);border-radius:var(--r-sm);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 8px;outline:none;width:100%;color-scheme:dark">
+        <optgroup label="── Control ──">
+          <option value="set-variable">set-variable</option>
+          <option value="delay">delay</option>
+          <option value="loop">loop</option>
+          <option value="conditional">conditional</option>
+        </optgroup>
+        <optgroup label="── Damage ──">
+          <option value="damage-area">damage-area</option>
+          <option value="instakill-area">instakill-area</option>
+          <option value="chain-damage">chain-damage</option>
+          <option value="explosion">explosion</option>
+          <option value="lightning-strike">lightning-strike</option>
+          <option value="set-fire">set-fire</option>
+        </optgroup>
+        <optgroup label="── Visual ──">
+          <option value="particle-effect">particle-effect</option>
+          <option value="particle-beam">particle-beam</option>
+          <option value="hologram">hologram</option>
+          <option value="glow">glow</option>
+        </optgroup>
+        <optgroup label="── Entity ──">
+          <option value="select-nearby-mob">select-nearby-mob</option>
+          <option value="spawn-entity">spawn-entity</option>
+          <option value="spawn-display">spawn-display</option>
+          <option value="display-transform">display-transform</option>
+          <option value="entity-teleport">entity-teleport</option>
+          <option value="remove-entity">remove-entity</option>
+        </optgroup>
+        <optgroup label="── Sound ──">
+          <option value="sound-effect">sound-effect</option>
+        </optgroup>
+        <optgroup label="── Player ──">
+          <option value="potion-effect">potion-effect</option>
+          <option value="send-message">send-message</option>
+          <option value="send-title">send-title</option>
+          <option value="send-actionbar">send-actionbar</option>
+          <option value="add-currency">add-currency</option>
+        </optgroup>
+        <optgroup label="── Boosters ──">
+          <option value="grant-booster">grant-booster</option>
+          <option value="grant-permanent-booster">grant-permanent-booster</option>
+          <option value="remove-booster">remove-booster</option>
+        </optgroup>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="addAction()" style="flex-shrink:0">
+      <i class="fa-solid fa-plus"></i> Añadir
+    </button>
+  </div>
+  <div class="sep"></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);line-height:1.9">
+    <span style="color:var(--accent)">Math:</span> rand() sin() cos() abs() sqrt() floor() ceil() round()<br>
+    <span style="color:var(--accent)">Const:</span> pi · e
+  </div>
+</div>
+
+<!-- ══ YAML ══ -->
+<div id="yaml-panel">
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="yaml-ph">YAML Output</div>
+      <span class="yaml-fname" id="yaml-fname">my-enchant.yml</span>
+    </div>
+    <pre id="yaml-out">-- Configura el enchant para ver el YAML aquí --</pre>
+  </div>
+  <div class="yaml-side">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Triggers</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-dim);line-height:2">
+      <span style="color:var(--accent)">HIT_MOB</span><br>
+      <span style="color:var(--accent)">MOB_DEATH</span><br>
+      <span style="color:var(--accent)">ENCHANT_PROC</span><br>
+      <span style="color:var(--accent)">PASSIVE</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let S = {
+  id:'my-enchant', name:'&a&lMy Enchant', mat:'EMERALD',
+  startLvl:0, maxLvl:100,
+  trigger:'HIT_MOB', sourceEnchants:[],
+  baseChance:5.0, chanceLvl:0.1,
+  cdTicks:100, cdSecs:null,
+  afkOnly:false,
+  currency:'souls', baseCost:1000,
+  scalingType:'LINEAR', incPerLvl:500, multiplier:1.05,
+  prestige:{on:false, max:10, costMult:0.5, chanceMult:0.2},
+  actions:[]
+};
+let scalingType = 'LINEAR';
+
+// ════════════════════════════════════════
+// MATERIAL ICONS
+// ════════════════════════════════════════
+const MI={
+  DIAMOND:'💎',DIAMOND_SWORD:'⚔️',DIAMOND_PICKAXE:'⛏️',NETHERITE_SWORD:'⚫',
+  EMERALD:'💚',NETHER_STAR:'⭐',BLAZE_ROD:'🔥',FIRE_CHARGE:'🔥',SKULL:'💀',
+  SKELETON_SKULL:'💀',SLIME_BALL:'🟢',ECHO_SHARD:'🔮',GOLD_NUGGET:'🟡',
+  GOLDEN_APPLE:'🍎',SOUL_SAND:'🟤',GHAST_TEAR:'👁',SPIDER_EYE:'🕷',
+  ENDER_PEARL:'🔵',ENDER_EYE:'🔵',EXPERIENCE_BOTTLE:'🫧',BOOK:'📕',
+  ENCHANTED_BOOK:'📗',FEATHER:'🪶',ARROW:'➡️',BOW:'🏹',TRIDENT:'🔱',
+  BEACON:'💡',CONDUIT:'🌀',TOTEM_OF_UNDYING:'🗿',DRAGON_EGG:'🥚',
+  LIGHTNING_ROD:'⚡',COMPASS:'🧭',CLOCK:'⏰',GLASS:'🔲',
+  LAPIS_LAZULI:'🔵',AMETHYST_SHARD:'💜',
+  DEFAULT:'⚡'
+};
+function mi(m){if(!m)return'⚡';const u=m.toUpperCase().split(':').pop();if(MI[u])return MI[u];for(const k of Object.keys(MI)){if(k!=='DEFAULT'&&u.includes(k))return MI[k];}return MI.DEFAULT;}
+
+// ════════════════════════════════════════
+// MC COLOR
+// ════════════════════════════════════════
+const MC={a:'#55FF55',b:'#55FFFF',c:'#FF5555',d:'#FF55FF',e:'#FFFF55',
+  f:'#FFFFFF','6':'#FFAA00','7':'#AAAAAA','8':'#555555','9':'#5555FF',
+  '0':'#111','1':'#0000AA','2':'#00AA00','3':'#00AAAA','4':'#AA0000','5':'#AA00AA'};
+function mcClr(t){
+  if(!t)return'';
+  // hex &#RRGGBB
+  let out='',i=0,col='#d8eaf0';
+  while(i<t.length){
+    if(t[i]==='&'&&i+1<t.length){
+      const c=t[i+1].toLowerCase();
+      if(MC[c]){col=MC[c];i+=2;continue;}
+      if('lkonmr'.includes(c)){i+=2;continue;}
+    }
+    if(t[i]==='&'&&t[i+1]==='#'&&i+8<=t.length){
+      const hex=t.substring(i+1,i+8);
+      if(/^#[0-9a-fA-F]{6}$/.test(hex)){col=hex;i+=8;continue;}
+    }
+    const ch=t[i]==='<'?'&lt;':t[i]==='>'?'&gt;':t[i];
+    out+=`<span style="color:${col}">${ch}</span>`;
+    i++;
+  }
+  return out;
+}
+
+// ════════════════════════════════════════
+// CONFIG HANDLERS
+// ════════════════════════════════════════
+function onConfig(){
+  S.id=g('e-id').value||'my-enchant';
+  S.name=g('e-name').value;
+  S.mat=g('e-mat').value.toUpperCase();
+  S.startLvl=parseInt(g('e-start').value)||0;
+  S.maxLvl=parseInt(g('e-max').value)||100;
+  S.baseChance=parseFloat(g('e-base-chance').value)||0;
+  S.chanceLvl=parseFloat(g('e-chance-lvl').value)||0;
+  S.currency=g('e-currency').value||'souls';
+  S.baseCost=parseInt(g('e-base-cost').value)||0;
+  if(scalingType==='LINEAR') S.incPerLvl=parseInt(g('e-inc-lvl').value)||0;
+  if(scalingType==='EXPONENTIAL') S.multiplier=parseFloat(g('e-multiplier').value)||1.05;
+  S.afkOnly=g('e-afk').checked;
+  if(S.prestige.on){
+    S.prestige.max=parseInt(g('e-max-prestige').value)||10;
+    S.prestige.costMult=parseFloat(g('e-cost-mult').value)||0.5;
+    S.prestige.chanceMult=parseFloat(g('e-chance-mult').value)||0.2;
+  }
+  updatePreview();
+  g('yaml-fname').textContent=S.id+'.yml';
+  genYAML();
+}
+
+function onTrigger(){
+  S.trigger=g('e-trigger').value;
+  g('source-enchants-wrap').style.display=S.trigger==='ENCHANT_PROC'?'':'none';
+  updatePreview();genYAML();
+}
+
+function onCooldown(which){
+  if(which==='ticks'){
+    S.cdTicks=parseInt(g('e-cd-ticks').value)||null;
+    S.cdSecs=null;
+    if(S.cdTicks) g('e-cd-secs').value='';
+  }else{
+    S.cdSecs=parseInt(g('e-cd-secs').value)||null;
+    S.cdTicks=null;
+    if(S.cdSecs) g('e-cd-ticks').value='';
+  }
+  g('st-cd').textContent=S.cdTicks?(S.cdTicks+'t'):(S.cdSecs?(S.cdSecs+'s'):'0t');
+  genYAML();
+}
+
+function setScaling(t){
+  scalingType=t;S.scalingType=t;
+  document.querySelectorAll('.tp').forEach(p=>p.classList.toggle('on',p.dataset.t===t));
+  g('scaling-linear').style.display=t==='LINEAR'?'':'none';
+  g('scaling-exp').style.display=t==='EXPONENTIAL'?'':'none';
+  genYAML();
+}
+
+function onPrestige(){
+  S.prestige.on=g('e-prestige-on').checked;
+  g('prestige-fields').style.display=S.prestige.on?'':'none';
+  genYAML();
+}
+
+// Source enchants tags
+function sourceTagKey(e){
+  if(e.key==='Enter'||e.key===','||e.key===' '){
+    e.preventDefault();
+    const v=g('source-inp').value.trim().replace(/,$/,'');
+    if(v&&!S.sourceEnchants.includes(v)){
+      S.sourceEnchants.push(v);
+      renderSourceTags();genYAML();
+    }
+    g('source-inp').value='';
+  }else if(e.key==='Backspace'&&g('source-inp').value===''){
+    S.sourceEnchants.pop();renderSourceTags();genYAML();
+  }
+}
+function renderSourceTags(){
+  const c=g('source-tags');
+  // keep the input
+  const inp=g('source-inp');
+  c.innerHTML='';
+  S.sourceEnchants.forEach((s,i)=>{
+    const t=document.createElement('div');t.className='tag';
+    t.innerHTML=`${s}<span class="tag-x" onclick="rmSourceTag(${i})">✕</span>`;
+    c.appendChild(t);
+  });
+  c.appendChild(inp);
+}
+function rmSourceTag(i){S.sourceEnchants.splice(i,1);renderSourceTags();genYAML();}
+
+// ════════════════════════════════════════
+// PREVIEW UPDATE
+// ════════════════════════════════════════
+function updatePreview(){
+  g('ec-icon').textContent=mi(S.mat);
+  g('ec-id').textContent=(S.id||'my-enchant')+'.yml';
+  g('ec-name').innerHTML=mcClr(S.name)||S.name;
+  g('ec-trigger-txt').textContent=S.trigger;
+  g('ec-maxlvl').textContent=S.maxLvl;
+  g('ec-basechance').textContent=S.baseChance+'%';
+  g('ec-currency').textContent=S.currency;
+
+  // Formula
+  let cf=`chance = ${S.baseChance} + (${S.chanceLvl} × level)`;
+  if(S.prestige.on) cf+=`\n       × (1.0 + prestige × ${S.prestige.chanceMult})`;
+  let costf='';
+  if(scalingType==='LINEAR') costf=`cost = ${S.baseCost} + (${S.incPerLvl} × level)`;
+  else if(scalingType==='EXPONENTIAL') costf=`cost = ${S.baseCost} × ${S.multiplier}^level`;
+  else costf=`cost = ${S.baseCost} (CUSTOM — no scaling)`;
+  g('ec-formula').textContent=cf+'\n'+costf;
+
+  // Stats
+  const acts=S.actions.length;
+  const vars=S.actions.filter(a=>a.type==='set-variable').length;
+  const loops=S.actions.filter(a=>a.type==='loop').length;
+  g('st-actions').textContent=acts;
+  g('st-vars').textContent=vars;
+  g('st-loops').textContent=loops;
+  g('st-cd').textContent=S.cdTicks?(S.cdTicks+'t'):(S.cdSecs?(S.cdSecs+'s'):'0t');
+}
+
+// ════════════════════════════════════════
+// ACTIONS
+// ════════════════════════════════════════
+const ACTION_CATS={
+  'set-variable':'control','delay':'control','loop':'control','conditional':'control',
+  'damage-area':'damage','instakill-area':'damage','chain-damage':'damage',
+  'explosion':'damage','lightning-strike':'damage','set-fire':'damage',
+  'particle-effect':'visual','particle-beam':'visual','hologram':'visual','glow':'visual',
+  'select-nearby-mob':'entity','spawn-entity':'entity','spawn-display':'entity',
+  'display-transform':'entity','entity-teleport':'entity','remove-entity':'entity',
+  'sound-effect':'sound',
+  'potion-effect':'player','send-message':'player','send-title':'player',
+  'send-actionbar':'player','add-currency':'player',
+  'grant-booster':'booster','grant-permanent-booster':'booster','remove-booster':'booster'
+};
+const CAT_COLORS={'control':'var(--accent-2)','damage':'var(--red-a)','visual':'var(--accent)',
+  'sound':'var(--warn)','entity':'oklch(0.78 0.18 160)','player':'var(--green-a)','booster':'var(--warn)'};
+
+function defaultFields(type){
+  const d={
+    'set-variable':{variableName:'',value:''},
+    'delay':{ticks:20},
+    'loop':{iterations:10,tickInterval:5,actions:[]},
+    'conditional':{conditionType:'random-chance',parameter:'',threshold:50,then:[],else_:[]},
+    'damage-area':{position:'{trigger_pos}',radius:5.0,damage:'{damage} * 2',showIndicator:false},
+    'instakill-area':{position:'{trigger_pos}',radius:8.0},
+    'chain-damage':{position:'{trigger_pos}',initialDamage:500,chainRadius:5.0,damageMultiplier:0.6,maxChains:4,showIndicator:false},
+    'explosion':{position:'{trigger_pos}',radius:4.0,damage:200,showIndicator:false},
+    'lightning-strike':{position:'{target_pos}',damage:300},
+    'set-fire':{position:'{target_pos}',radius:2.0,fireTicks:100,damagePerTick:'10',tickInterval:10,showIndicator:false},
+    'particle-effect':{position:'{trigger_pos}',particle:'FLAME',count:20,color:'',size:1.0},
+    'particle-beam':{from:'{player_pos}',to:'{target_pos}',particle:'END_ROD',steps:24,count:2,spiral:false},
+    'hologram':{position:'{target_pos}',text:'&a+{damage}',style:'damage',duration:30},
+    'glow':{position:'{target_pos}',radius:2.0,color:'RED',duration:60,remove:false},
+    'select-nearby-mob':{origin:'{trigger_pos}',radius:6.0,mobId:'',excludeCurrent:false,minDistance:0,randomTarget:false},
+    'spawn-entity':{entityType:'BLAZE',reference:'',position:'{up:2}'},
+    'spawn-display':{displayType:'block',reference:'',position:'{trigger_pos}',blockData:'minecraft:magma_block',scale:'1,1,1',billboard:'fixed'},
+    'display-transform':{entity:'',scale:'',translation:'',rotEuler:'',interpDuration:2},
+    'entity-teleport':{entity:'',to:'',onGround:false,lookAt:''},
+    'remove-entity':{entity:''},
+    'sound-effect':{position:'{player_pos}',sound:'ENTITY_EXPERIENCE_ORB_PICKUP',volume:1.0,pitch:1.0},
+    'potion-effect':{effect:'SPEED',amplifier:'{level} - 1',duration:200},
+    'send-message':{message:'&aProc! Lv.{level}'},
+    'send-title':{title:'&c&lCRIT!',subtitle:'',fadeIn:10,stay:70,fadeOut:20},
+    'send-actionbar':{message:'&bEffect activated!'},
+    'add-currency':{currency:'souls',amount:'100 + {level}'},
+    'grant-booster':{boosterType:'souls',multiplier:'1.0 + {level} * 0.01',duration:'60',displayName:''},
+    'grant-permanent-booster':{boosterType:'damage',multiplier:'1.1 + {prestige} * 0.05',displayName:''},
+    'remove-booster':{boosterType:'souls'}
+  };
+  return JSON.parse(JSON.stringify(d[type]||{}));
+}
+
+function addAction(){
+  const type=g('new-action-type').value;
+  S.actions.push({type,...defaultFields(type)});
+  renderActions();updatePreview();genYAML();
+}
+function removeAction(i){S.actions.splice(i,1);renderActions();updatePreview();genYAML();}
+function moveAction(i,dir){
+  const j=i+dir;if(j<0||j>=S.actions.length)return;
+  [S.actions[i],S.actions[j]]=[S.actions[j],S.actions[i]];
+  renderActions();genYAML();
+}
+
+function renderActions(){
+  const list=g('action-list');
+  const empty=g('action-empty');
+  if(!S.actions.length){list.style.display='none';empty.style.display='';return;}
+  empty.style.display='none';list.style.display='';
+  list.innerHTML='';
+  S.actions.forEach((a,i)=>{
+    const cat=ACTION_CATS[a.type]||'control';
+    const col=CAT_COLORS[cat]||'var(--accent)';
+    const row=document.createElement('div');
+    row.className='action-row';row.id=`ar-${i}`;
+    row.innerHTML=`
+      <div class="ar-header" onclick="toggleAR(${i})">
+        <span class="ar-num">${i+1}</span>
+        <span class="ar-type" style="color:${col}">${a.type}</span>
+        <span class="ar-tag">${cat}</span>
+        <div class="ar-controls" onclick="event.stopPropagation()">
+          ${i>0?`<div class="icon-btn" style="color:var(--fg-muted);background:rgba(255,255,255,.04);border-color:var(--line)" onclick="moveAction(${i},-1)"><i class="fa-solid fa-chevron-up"></i></div>`:''}
+          ${i<S.actions.length-1?`<div class="icon-btn" style="color:var(--fg-muted);background:rgba(255,255,255,.04);border-color:var(--line)" onclick="moveAction(${i},1)"><i class="fa-solid fa-chevron-down"></i></div>`:''}
+          <div class="icon-btn" onclick="removeAction(${i})"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <i class="ar-chevron fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="ar-body">${buildActionForm(a,i)}</div>`;
+    list.appendChild(row);
+  });
+}
+
+function toggleAR(i){
+  const row=g(`ar-${i}`);row.classList.toggle('expanded');
+}
+
+// ════════════════════════════════════════
+// ACTION FORM BUILDER
+// ════════════════════════════════════════
+function af(lbl,val,key,idx,ph='',type='text'){
+  const id=`af-${idx}-${key.replace(/[^a-z0-9]/gi,'_')}`;
+  return`<div class="af">
+    <label>${lbl}</label>
+    <input type="${type}" id="${id}" value="${esc(String(val??''))}" placeholder="${ph}"
+      oninput="updAF(${idx},'${key}',this.value)" ${type==='number'?'step="any"':''}>
+  </div>`;
+}
+function afSel(lbl,val,key,idx,opts){
+  const id=`af-${idx}-${key}`;
+  const os=opts.map(o=>`<option value="${o.v}" ${val===o.v?'selected':''}>${o.l}</option>`).join('');
+  return`<div class="af"><label>${lbl}</label><select id="${id}" onchange="updAF(${idx},'${key}',this.value)">${os}</select></div>`;
+}
+function afCheck(lbl,val,key,idx){
+  const id=`afc-${idx}-${key}`;
+  return`<label class="af-check">
+    <input type="checkbox" id="${id}" ${val?'checked':''} onchange="updAF(${idx},'${key}',this.checked)">
+    <span class="af-check-box"></span><span>${lbl}</span>
+  </label>`;
+}
+function afPos(lbl,val,key,idx){
+  return`<div class="af"><label>${lbl}</label>
+    <input type="text" value="${esc(String(val??''))}" placeholder="{trigger_pos}"
+      oninput="updAF(${idx},'${key}',this.value)">
+    <div class="pos-pills">
+      ${['{trigger_pos}','{player_pos}','{target_pos}','{up:2}','{forward:3}'].map(p=>`<div class="pos-pill" onclick="setPos(${idx},'${key}','${p}')">${p}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function buildActionForm(a,i){
+  const t=a.type;let h='';
+  if(t==='set-variable'){
+    h+=af('Variable Name',a.variableName,'variableName',i,'my_dmg');
+    h+=af('Value (expression)',a.value,'value',i,'{damage} * 3');
+    h+=`<div class="af-hint" style="font-size:9px">Ej: {damage} * 3 + {level} · rand() · floor(rand() * 4)</div>`;
+  }else if(t==='delay'){
+    h+=af('Ticks',a.ticks,'ticks',i,'20','number');
+    h+=`<div class="af-hint">20 ticks = 1 segundo</div>`;
+  }else if(t==='loop'){
+    h+=`<div class="af-row2">`;
+    h+=af('Iterations',a.iterations,'iterations',i,'10','number');
+    h+=af('Tick Interval',a.tickInterval,'tickInterval',i,'5','number');
+    h+=`</div>`;
+    h+=`<div class="af-hint" style="margin-bottom:8px">{iteration} disponible dentro del loop (0-based)</div>`;
+    h+=`<div class="nested-header">Loop Actions</div>`;
+    h+=buildNestedActions(a.actions||[],i,'loop');
+    h+=`<button class="btn btn-ghost btn-xs" style="margin-top:6px" onclick="addNestedAction(${i},'loop')"><i class="fa-solid fa-plus"></i> Acción de loop</button>`;
+  }else if(t==='conditional'){
+    h+=afSel('Condition Type',a.conditionType,'conditionType',i,[
+      {v:'random-chance',l:'random-chance (0-100%)'},
+      {v:'mob-health-below',l:'mob-health-below'},
+      {v:'mob-in-radius',l:'mob-in-radius'},
+      {v:'permission',l:'permission'},
+      {v:'variable-above',l:'variable-above'},
+      {v:'variable-below',l:'variable-below'},
+      {v:'variable-equals',l:'variable-equals'},
+    ]);
+    h+=`<div class="af-row2">`;
+    h+=af('Parameter',a.parameter,'parameter',i,'variable name');
+    h+=af('Threshold',a.threshold,'threshold',i,'50.0','number');
+    h+=`</div>`;
+    h+=`<div class="nested-header" style="color:var(--green-a)">Then</div>`;
+    h+=buildNestedActions(a.then||[],i,'then');
+    h+=`<button class="btn btn-ghost btn-xs" style="margin-top:4px" onclick="addNestedAction(${i},'then')"><i class="fa-solid fa-plus"></i> Acción then</button>`;
+    h+=`<div class="nested-header" style="color:var(--red-a)">Else</div>`;
+    h+=buildNestedActions(a.else_||[],i,'else_');
+    h+=`<button class="btn btn-ghost btn-xs" style="margin-top:4px" onclick="addNestedAction(${i},'else_')"><i class="fa-solid fa-plus"></i> Acción else</button>`;
+  }else if(t==='damage-area'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Radius',a.radius,'radius',i,'5.0','number');
+    h+=af('Damage (expr)',a.damage,'damage',i,'{damage} * 2');
+    h+=`</div>`;
+    h+=afCheck('show-indicator (⚠ false en AoE)',a.showIndicator,'showIndicator',i);
+  }else if(t==='instakill-area'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=af('Radius',a.radius,'radius',i,'8.0','number');
+    h+=`<div class="af-hint">{instakill_count} disponible después</div>`;
+  }else if(t==='chain-damage'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Initial Damage',a.initialDamage,'initialDamage',i,'500','number');
+    h+=af('Chain Radius',a.chainRadius,'chainRadius',i,'5.0','number');
+    h+=`</div><div class="af-row2">`;
+    h+=af('Dmg Multiplier',a.damageMultiplier,'damageMultiplier',i,'0.6','number');
+    h+=af('Max Chains',a.maxChains,'maxChains',i,'4','number');
+    h+=`</div>`;
+    h+=afCheck('show-indicator (⚠ false si max-chains ≥ 3)',a.showIndicator,'showIndicator',i);
+  }else if(t==='explosion'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Radius',a.radius,'radius',i,'4.0','number');
+    h+=af('Damage (0=visual)',a.damage,'damage',i,'200','number');
+    h+=`</div>`;
+    h+=afCheck('show-indicator',a.showIndicator,'showIndicator',i);
+  }else if(t==='lightning-strike'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=af('Damage (0=visual)',a.damage,'damage',i,'300','number');
+  }else if(t==='set-fire'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Radius',a.radius,'radius',i,'2.0','number');
+    h+=af('Fire Ticks',a.fireTicks,'fireTicks',i,'100','number');
+    h+=`</div><div class="af-row2">`;
+    h+=af('Damage/tick (expr)',a.damagePerTick,'damagePerTick',i,'10 + {level}');
+    h+=af('Tick Interval',a.tickInterval,'tickInterval',i,'10','number');
+    h+=`</div>`;
+    h+=afCheck('show-indicator',a.showIndicator,'showIndicator',i);
+  }else if(t==='particle-effect'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Particle (UPPERCASE)',a.particle,'particle',i,'FLAME');
+    h+=af('Count',a.count,'count',i,'20','number');
+    h+=`</div><div class="af-row2">`;
+    h+=af('Color (R,G,B o #hex)',a.color,'color',i,'255,0,0');
+    h+=af('Size (DUST only)',a.size,'size',i,'1.0','number');
+    h+=`</div>`;
+  }else if(t==='particle-beam'){
+    h+=afPos('From',a.from,'from',i);
+    h+=afPos('To',a.to,'to',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Particle',a.particle,'particle',i,'END_ROD');
+    h+=af('Steps',a.steps,'steps',i,'24','number');
+    h+=`</div>`;
+    h+=afCheck('Spiral',a.spiral,'spiral',i);
+  }else if(t==='hologram'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=af('Text',a.text,'text',i,'&a+{damage}');
+    h+=`<div class="af-row2">`;
+    h+=afSel('Style',a.style,'style',i,[{v:'damage',l:'damage'},{v:'reward',l:'reward'},{v:'phantom',l:'phantom'}]);
+    h+=af('Duration (ticks)',a.duration,'duration',i,'30','number');
+    h+=`</div>`;
+  }else if(t==='glow'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Radius',a.radius,'radius',i,'2.0','number');
+    h+=afSel('Color',a.color,'color',i,['RED','BLUE','GREEN','GOLD','YELLOW','AQUA','LIGHT_PURPLE','WHITE','DARK_RED','DARK_BLUE','DARK_GREEN','DARK_AQUA','DARK_PURPLE','DARK_GRAY','GRAY','BLACK'].map(c=>({v:c,l:c})));
+    h+=`</div>`;
+    h+=af('Duration (ticks, 0=permanente)',a.duration,'duration',i,'60','number');
+    h+=afCheck('Remove glow',a.remove,'remove',i);
+  }else if(t==='select-nearby-mob'){
+    h+=afPos('Origin',a.origin,'origin',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Radius',a.radius,'radius',i,'6.0','number');
+    h+=af('Mob ID (opcional)',a.mobId,'mobId',i,'zombie-miner');
+    h+=`</div>`;
+    h+=afCheck('Exclude Current Target',a.excludeCurrent,'excludeCurrent',i);
+    h+=`<div class="af-row2">`;
+    h+=af('Min Distance',a.minDistance,'minDistance',i,'0.0','number');
+    h+=`</div>`;
+    h+=afCheck('Random Target',a.randomTarget,'randomTarget',i);
+  }else if(t==='spawn-entity'){
+    h+=af('Entity Type',a.entityType,'entityType',i,'BLAZE');
+    h+=`<div class="af-row2">`;
+    h+=af('Reference',a.reference,'reference',i,'myBlaze');
+    h+=`</div>`;
+    h+=afPos('Position',a.position,'position',i);
+    h+=`<div class="af-hint" style="color:var(--warn)">⚠ Siempre usa remove-entity al terminar</div>`;
+  }else if(t==='spawn-display'){
+    h+=`<div class="af-row2">`;
+    h+=afSel('Display Type',a.displayType,'displayType',i,[{v:'block',l:'block'},{v:'item',l:'item'}]);
+    h+=af('Reference',a.reference,'reference',i,'meteor_core');
+    h+=`</div>`;
+    h+=afPos('Position',a.position,'position',i);
+    h+=af('Block Data / Item',a.blockData,'blockData',i,'minecraft:magma_block');
+    h+=`<div class="af-row2">`;
+    h+=af('Scale',a.scale,'scale',i,'1,1,1');
+    h+=afSel('Billboard',a.billboard,'billboard',i,[{v:'fixed',l:'fixed'},{v:'vertical',l:'vertical'},{v:'horizontal',l:'horizontal'},{v:'center',l:'center'}]);
+    h+=`</div>`;
+  }else if(t==='display-transform'){
+    h+=af('Entity Reference',a.entity,'entity',i,'meteor_core');
+    h+=`<div class="af-row2">`;
+    h+=af('Scale',a.scale,'scale',i,'1,1,1');
+    h+=af('Translation',a.translation,'translation',i,'0,0.5,0');
+    h+=`</div>`;
+    h+=af('Right Rotation Euler (x,y,z)',a.rotEuler,'rotEuler',i,'0,{iteration}*24,0');
+    h+=af('Interpolation Duration (ticks)',a.interpDuration,'interpDuration',i,'2','number');
+  }else if(t==='entity-teleport'){
+    h+=af('Entity Reference',a.entity,'entity',i,'myBlaze');
+    h+=af('To (expression)',a.to,'to',i,'{player_x}+3, {player_y}+1, {player_z}');
+    h+=`<div class="af-row2">`;
+    h+=afCheck('On Ground',a.onGround,'onGround',i);
+    h+=`</div>`;
+    h+=af('Look At (opcional)',a.lookAt,'lookAt',i,'{player_pos}');
+  }else if(t==='remove-entity'){
+    h+=af('Entity Reference',a.entity,'entity',i,'myBlaze');
+  }else if(t==='sound-effect'){
+    h+=afPos('Position',a.position,'position',i);
+    h+=af('Sound (UPPERCASE)',a.sound,'sound',i,'ENTITY_LIGHTNING_BOLT_THUNDER');
+    h+=`<div class="af-row2">`;
+    h+=af('Volume',a.volume,'volume',i,'1.0','number');
+    h+=af('Pitch (0.5-2.0)',a.pitch,'pitch',i,'1.0','number');
+    h+=`</div>`;
+  }else if(t==='potion-effect'){
+    h+=af('Effect (UPPERCASE)',a.effect,'effect',i,'SPEED');
+    h+=`<div class="af-row2">`;
+    h+=af('Amplifier (expr)',a.amplifier,'amplifier',i,'{level} - 1');
+    h+=af('Duration (ticks)',a.duration,'duration',i,'200','number');
+    h+=`</div>`;
+  }else if(t==='send-message'){
+    h+=af('Message',a.message,'message',i,'&aProc! Lv.{level}');
+  }else if(t==='send-title'){
+    h+=af('Title',a.title,'title',i,'&c&lCRIT!');
+    h+=af('Subtitle',a.subtitle,'subtitle',i,'');
+    h+=`<div class="af-row2">`;
+    h+=af('Fade In',a.fadeIn,'fadeIn',i,'10','number');
+    h+=af('Stay',a.stay,'stay',i,'70','number');
+    h+=`</div>`;
+  }else if(t==='send-actionbar'){
+    h+=af('Message',a.message,'message',i,'&bEffect activated!');
+  }else if(t==='add-currency'){
+    h+=`<div class="af-row2">`;
+    h+=af('Currency ID',a.currency,'currency',i,'souls');
+    h+=af('Amount (expr)',a.amount,'amount',i,'100 + {level}');
+    h+=`</div>`;
+  }else if(t==='grant-booster'){
+    h+=`<div class="af-row2">`;
+    h+=af('Booster Type',a.boosterType,'boosterType',i,'souls');
+    h+=af('Multiplier',a.multiplier,'multiplier',i,'1.0 + {level} * 0.01');
+    h+=`</div>`;
+    h+=`<div class="af-row2">`;
+    h+=af('Duration (seg, expr)',a.duration,'duration',i,'60 + {level}');
+    h+=af('Display Name',a.displayName,'displayName',i,'&5Booster');
+    h+=`</div>`;
+  }else if(t==='grant-permanent-booster'){
+    h+=`<div class="af-row2">`;
+    h+=af('Booster Type',a.boosterType,'boosterType',i,'damage');
+    h+=af('Multiplier',a.multiplier,'multiplier',i,'1.1 + {prestige} * 0.05');
+    h+=`</div>`;
+    h+=af('Display Name',a.displayName,'displayName',i,'&cPrestige Bonus');
+  }else if(t==='remove-booster'){
+    h+=af('Booster Type',a.boosterType,'boosterType',i,'souls');
+  }
+  return h;
+}
+
+// Nested actions builder
+function buildNestedActions(actions,parentIdx,branch){
+  let h=`<div class="nested-wrap" id="nw-${parentIdx}-${branch}">`;
+  if(!actions.length){h+=`<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted)">Sin acciones</span>`;}
+  actions.forEach((a,j)=>{
+    const cat=ACTION_CATS[a.type]||'control';
+    const col=CAT_COLORS[cat]||'var(--accent-2)';
+    h+=`<div class="nested-action-row" id="nar-${parentIdx}-${branch}-${j}">
+      <div class="nar-header" onclick="toggleNAR(${parentIdx},'${branch}',${j})">
+        <span class="nar-num">${j+1}</span>
+        <span class="nar-type" style="color:${col}">${a.type}</span>
+        <div onclick="event.stopPropagation()" style="display:flex;gap:4px;margin-left:auto">
+          <div class="icon-btn" onclick="rmNestedAction(${parentIdx},'${branch}',${j})"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <i class="nar-chevron fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="nar-body">${buildNestedForm(a,parentIdx,branch,j)}</div>
+    </div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+
+function toggleNAR(pi,branch,j){const row=g(`nar-${pi}-${branch}-${j}`);row.classList.toggle('expanded');}
+
+function buildNestedForm(a,pi,branch,j){
+  // Simplified form for nested actions (most common fields)
+  const t=a.type;let h='';
+  const id=(key)=>`naf-${pi}-${branch}-${j}-${key}`;
+  const naf=(lbl,val,key,ph='',type='text')=>`<div class="af"><label>${lbl}</label>
+    <input type="${type}" id="${id(key)}" value="${esc(String(val??''))}" placeholder="${ph}"
+      oninput="updNAF(${pi},'${branch}',${j},'${key}',this.value)" ${type==='number'?'step="any"':''}>
+  </div>`;
+  const nafSel=(lbl,val,key,opts)=>{
+    const os=opts.map(o=>`<option value="${o.v}" ${val===o.v?'selected':''}>${o.l}</option>`).join('');
+    return`<div class="af"><label>${lbl}</label><select id="${id(key)}" onchange="updNAF(${pi},'${branch}',${j},'${key}',this.value)">${os}</select></div>`;
+  };
+
+  if(t==='set-variable'){
+    h+=naf('Variable Name',a.variableName,'variableName','angle');
+    h+=naf('Value',a.value,'value','{iteration} * 0.10472');
+  }else if(t==='delay') h+=naf('Ticks',a.ticks,'ticks','20','number');
+  else if(t==='damage-area'){
+    h+=naf('Position',a.position,'position','{trigger_pos}');
+    h+=`<div class="af-row2">`;
+    h+=naf('Radius',a.radius,'radius','2.0','number');
+    h+=naf('Damage',a.damage,'damage','{damage}*2');
+    h+=`</div>`;
+  }else if(t==='entity-teleport'){
+    h+=naf('Entity',a.entity,'entity','myBlaze');
+    h+=naf('To',a.to,'to','{player_pos}');
+  }else if(t==='particle-effect'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Particle',a.particle,'particle','FLAME');
+    h+=naf('Count',a.count,'count','10','number');
+    h+=`</div>`;
+    h+=naf('Position',a.position,'position','{player_pos}');
+  }else if(t==='sound-effect'){
+    h+=naf('Sound',a.sound,'sound','ENTITY_EXPERIENCE_ORB_PICKUP');
+    h+=`<div class="af-row2">`;
+    h+=naf('Volume',a.volume,'volume','1.0','number');
+    h+=naf('Pitch',a.pitch,'pitch','1.0','number');
+    h+=`</div>`;
+  }else if(t==='hologram'){
+    h+=naf('Text',a.text,'text','&a+{damage}');
+    h+=`<div class="af-row2">`;
+    h+=nafSel('Style',a.style,'style',[{v:'damage',l:'damage'},{v:'reward',l:'reward'},{v:'phantom',l:'phantom'}]);
+    h+=naf('Duration',a.duration,'duration','30','number');
+    h+=`</div>`;
+  }else if(t==='send-message') h+=naf('Message',a.message,'message','&aProc!');
+  else if(t==='send-actionbar') h+=naf('Message',a.message,'message','&bActivated!');
+  else if(t==='add-currency'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Currency',a.currency,'currency','souls');
+    h+=naf('Amount',a.amount,'amount','100');
+    h+=`</div>`;
+  }else if(t==='select-nearby-mob'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Origin',a.origin,'origin','{target_pos}');
+    h+=naf('Radius',a.radius,'radius','10.0','number');
+    h+=`</div>`;
+  }else if(t==='grant-booster'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Type',a.boosterType,'boosterType','souls');
+    h+=naf('Multiplier',a.multiplier,'multiplier','1.5');
+    h+=`</div>`;
+  }else if(t==='remove-entity') h+=naf('Entity',a.entity,'entity','myBlaze');
+  else if(t==='spawn-entity'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Entity Type',a.entityType,'entityType','BLAZE');
+    h+=naf('Reference',a.reference,'reference','myBlaze');
+    h+=`</div>`;
+    h+=naf('Position',a.position,'position','{up:2}');
+  }else if(t==='potion-effect'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Effect',a.effect,'effect','SPEED');
+    h+=naf('Duration',a.duration,'duration','200','number');
+    h+=`</div>`;
+  }else if(t==='glow'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Radius',a.radius,'radius','2.0','number');
+    h+=naf('Color',a.color,'color','RED');
+    h+=`</div>`;
+  }else if(t==='explosion'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Radius',a.radius,'radius','4.0','number');
+    h+=naf('Damage',a.damage,'damage','200','number');
+    h+=`</div>`;
+  }else if(t==='lightning-strike'){
+    h+=naf('Position',a.position,'position','{target_pos}');
+    h+=naf('Damage',a.damage,'damage','300','number');
+  }else if(t==='instakill-area'){
+    h+=`<div class="af-row2">`;
+    h+=naf('Position',a.position,'position','{trigger_pos}');
+    h+=naf('Radius',a.radius,'radius','6.0','number');
+    h+=`</div>`;
+  }else if(t==='conditional'){
+    h+=nafSel('Condition',a.conditionType,'conditionType',[
+      {v:'random-chance',l:'random-chance'},{v:'variable-above',l:'variable-above'},
+      {v:'variable-below',l:'variable-below'},{v:'variable-equals',l:'variable-equals'},
+      {v:'mob-in-radius',l:'mob-in-radius'},{v:'permission',l:'permission'}
+    ]);
+    h+=`<div class="af-row2">`;
+    h+=naf('Parameter',a.parameter,'parameter','my_var');
+    h+=naf('Threshold',a.threshold,'threshold','50','number');
+    h+=`</div>`;
+  }else{
+    h+=`<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted)">Tipo: ${t}</span>`;
+  }
+  return h;
+}
+
+// ════════════════════════════════════════
+// ACTION FIELD UPDATES
+// ════════════════════════════════════════
+function updAF(i,key,val){
+  const a=S.actions[i];if(!a)return;
+  if(typeof a[key]==='boolean') a[key]=val;
+  else if(typeof a[key]==='number'&&val!=='') a[key]=isNaN(parseFloat(val))?val:parseFloat(val);
+  else a[key]=val;
+  genYAML();updatePreview();
+}
+function updNAF(pi,branch,j,key,val){
+  const a=S.actions[pi];if(!a)return;
+  const arr=a[branch]||[];if(!arr[j])return;
+  if(typeof arr[j][key]==='number'&&val!=='') arr[j][key]=parseFloat(val)||0;
+  else arr[j][key]=val;
+  genYAML();
+}
+function setPos(i,key,val){
+  S.actions[i][key]=val;
+  // re-render just that input
+  const el=document.getElementById(`af-${i}-${key.replace(/[^a-z0-9]/gi,'_')}`);
+  if(el)el.value=val;
+  genYAML();
+}
+
+// NESTED ACTION ADD/REMOVE
+const NESTED_DEFAULT_TYPES=['particle-effect','sound-effect','hologram','send-message','damage-area','entity-teleport','set-variable','add-currency'];
+function addNestedAction(pi,branch){
+  const a=S.actions[pi];if(!a)return;
+  if(!a[branch])a[branch]=[];
+  // show a mini type selector
+  const type=prompt('Tipo de acción:\n'+NESTED_DEFAULT_TYPES.join(', ')+'\n\nEscribe el tipo:','send-message');
+  if(!type)return;
+  const t=type.trim().toLowerCase();
+  a[branch].push({type:t,...defaultFields(t)});
+  renderActions();genYAML();
+}
+function rmNestedAction(pi,branch,j){
+  const a=S.actions[pi];if(!a||!a[branch])return;
+  a[branch].splice(j,1);
+  renderActions();genYAML();
+}
+
+// ════════════════════════════════════════
+// YAML GENERATION
+// ════════════════════════════════════════
+function ys(v){
+  if(v===undefined||v===null||v==='')return"''";
+  const s=String(v);
+  if(/[:#&{}'%\[\]]/.test(s)||s.startsWith(' ')||s.endsWith(' '))return`'${s.replace(/'/g,"''")}'`;
+  return s;
+}
+
+function genActions(actions,indent){
+  if(!actions||!actions.length)return indent+`  # (vacío)\n`;
+  let out='';
+  actions.forEach((a,idx)=>{
+    const n=idx+1;const p=indent+'  ';
+    out+=`${indent}${n}:\n`;
+    out+=`${p}type: "${a.type}"\n`;
+    out+=genActionFields(a,p);
+  });
+  return out;
+}
+
+function genActionFields(a,p){
+  const t=a.type;let o='';
+  if(t==='set-variable'){
+    o+=`${p}variable-name: ${ys(a.variableName)}\n`;
+    o+=`${p}value: ${ys(a.value)}\n`;
+  }else if(t==='delay'){
+    o+=`${p}ticks: ${a.ticks||20}\n`;
+  }else if(t==='loop'){
+    o+=`${p}iterations: ${a.iterations||10}\n`;
+    o+=`${p}tick-interval: ${a.tickInterval||5}\n`;
+    if(a.actions&&a.actions.length){o+=`${p}actions:\n`;o+=genActions(a.actions,p);}
+  }else if(t==='conditional'){
+    o+=`${p}condition-type: "${a.conditionType}"\n`;
+    if(a.parameter) o+=`${p}parameter: ${ys(a.parameter)}\n`;
+    o+=`${p}threshold: ${a.threshold||0}\n`;
+    if(a.then&&a.then.length){o+=`${p}then:\n`;o+=genActions(a.then,p);}
+    if(a.else_&&a.else_.length){o+=`${p}else:\n`;o+=genActions(a.else_,p);}
+  }else if(t==='damage-area'){
+    if(a.position&&a.position!=='{trigger_pos}') o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}radius: ${a.radius||1}\n`;
+    o+=`${p}damage: ${ys(a.damage)}\n`;
+    o+=`${p}show-indicator: ${!!a.showIndicator}\n`;
+  }else if(t==='instakill-area'){
+    if(a.position&&a.position!=='{trigger_pos}') o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}radius: ${a.radius||1}\n`;
+  }else if(t==='chain-damage'){
+    if(a.position&&a.position!=='{trigger_pos}') o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}initial-damage: ${a.initialDamage||100}\n`;
+    o+=`${p}chain-radius: ${a.chainRadius||5}\n`;
+    if(a.damageMultiplier!=null) o+=`${p}damage-multiplier: ${a.damageMultiplier}\n`;
+    if(a.maxChains!=null) o+=`${p}max-chains: ${a.maxChains}\n`;
+    o+=`${p}show-indicator: ${!!a.showIndicator}\n`;
+  }else if(t==='explosion'){
+    if(a.position&&a.position!=='{trigger_pos}') o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}radius: ${a.radius||1}\n`;
+    if(a.damage) o+=`${p}damage: ${a.damage}\n`;
+    o+=`${p}show-indicator: ${!!a.showIndicator}\n`;
+  }else if(t==='lightning-strike'){
+    if(a.position) o+=`${p}position: ${ys(a.position)}\n`;
+    if(a.damage) o+=`${p}damage: ${a.damage}\n`;
+  }else if(t==='set-fire'){
+    if(a.position) o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}radius: ${a.radius||1}\n`;
+    o+=`${p}fire-ticks: ${a.fireTicks||100}\n`;
+    o+=`${p}damage-per-tick: ${ys(a.damagePerTick)}\n`;
+    o+=`${p}tick-interval: ${a.tickInterval||10}\n`;
+    o+=`${p}show-indicator: ${!!a.showIndicator}\n`;
+  }else if(t==='particle-effect'){
+    if(a.position&&a.position!=='{trigger_pos}') o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}particle: "${a.particle||'FLAME'}"\n`;
+    if(a.count!=null) o+=`${p}count: ${a.count}\n`;
+    if(a.color) o+=`${p}color: "${a.color}"\n`;
+    if(a.size&&a.size!==1) o+=`${p}size: ${a.size}\n`;
+  }else if(t==='particle-beam'){
+    if(a.from) o+=`${p}from: ${ys(a.from)}\n`;
+    if(a.to) o+=`${p}to: ${ys(a.to)}\n`;
+    o+=`${p}particle: "${a.particle||'END_ROD'}"\n`;
+    if(a.steps) o+=`${p}steps: ${a.steps}\n`;
+    if(a.count) o+=`${p}count: ${a.count}\n`;
+    if(a.spiral) o+=`${p}spiral: true\n`;
+  }else if(t==='hologram'){
+    if(a.position&&a.position!=='{trigger_pos}') o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}text: ${ys(a.text)}\n`;
+    if(a.style&&a.style!=='phantom') o+=`${p}style: "${a.style}"\n`;
+    if(a.duration) o+=`${p}duration: ${a.duration}\n`;
+  }else if(t==='glow'){
+    if(a.position) o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}radius: ${a.radius||1}\n`;
+    if(!a.remove) o+=`${p}color: "${a.color||'RED'}"\n`;
+    if(a.duration) o+=`${p}duration: ${a.duration}\n`;
+    if(a.remove) o+=`${p}remove: true\n`;
+  }else if(t==='select-nearby-mob'){
+    if(a.origin&&a.origin!=='{trigger_pos}') o+=`${p}origin: ${ys(a.origin)}\n`;
+    o+=`${p}radius: ${a.radius||6}\n`;
+    if(a.mobId) o+=`${p}mob-id: "${a.mobId}"\n`;
+    if(a.excludeCurrent) o+=`${p}exclude-current-target: true\n`;
+    if(a.minDistance) o+=`${p}min-distance: ${a.minDistance}\n`;
+    if(a.randomTarget) o+=`${p}random-target: true\n`;
+  }else if(t==='spawn-entity'){
+    o+=`${p}entity-type: "${a.entityType||'BLAZE'}"\n`;
+    o+=`${p}reference: ${ys(a.reference)}\n`;
+    o+=`${p}position: ${ys(a.position)}\n`;
+  }else if(t==='spawn-display'){
+    o+=`${p}display-type: "${a.displayType||'block'}"\n`;
+    o+=`${p}reference: ${ys(a.reference)}\n`;
+    if(a.position) o+=`${p}position: ${ys(a.position)}\n`;
+    if(a.displayType==='block'&&a.blockData) o+=`${p}block-data: "${a.blockData}"\n`;
+    if(a.scale) o+=`${p}scale: "${a.scale}"\n`;
+    if(a.billboard) o+=`${p}billboard: "${a.billboard}"\n`;
+  }else if(t==='display-transform'){
+    o+=`${p}entity: ${ys(a.entity)}\n`;
+    if(a.scale) o+=`${p}scale: "${a.scale}"\n`;
+    if(a.translation) o+=`${p}translation: "${a.translation}"\n`;
+    if(a.rotEuler) o+=`${p}right-rotation-euler: "${a.rotEuler}"\n`;
+    if(a.interpDuration) o+=`${p}interpolation-duration: ${a.interpDuration}\n`;
+  }else if(t==='entity-teleport'){
+    o+=`${p}entity: ${ys(a.entity)}\n`;
+    o+=`${p}to: ${ys(a.to)}\n`;
+    if(!a.onGround) o+=`${p}on-ground: false\n`;
+    if(a.lookAt) o+=`${p}look-at: ${ys(a.lookAt)}\n`;
+  }else if(t==='remove-entity'){
+    o+=`${p}entity: ${ys(a.entity)}\n`;
+  }else if(t==='sound-effect'){
+    if(a.position&&a.position!=='{trigger_pos}') o+=`${p}position: ${ys(a.position)}\n`;
+    o+=`${p}sound: "${a.sound||'ENTITY_EXPERIENCE_ORB_PICKUP'}"\n`;
+    if(a.volume!=null) o+=`${p}volume: ${a.volume}\n`;
+    if(a.pitch!=null) o+=`${p}pitch: ${a.pitch}\n`;
+  }else if(t==='potion-effect'){
+    o+=`${p}effect: "${a.effect||'SPEED'}"\n`;
+    if(a.amplifier!=null) o+=`${p}amplifier: ${ys(String(a.amplifier))}\n`;
+    if(a.duration) o+=`${p}duration: ${a.duration}\n`;
+  }else if(t==='send-message'){
+    o+=`${p}message: ${ys(a.message)}\n`;
+  }else if(t==='send-title'){
+    o+=`${p}title: ${ys(a.title)}\n`;
+    if(a.subtitle) o+=`${p}subtitle: ${ys(a.subtitle)}\n`;
+    o+=`${p}fade-in: ${a.fadeIn||10}\n`;
+    o+=`${p}stay: ${a.stay||70}\n`;
+    o+=`${p}fade-out: ${a.fadeOut||20}\n`;
+  }else if(t==='send-actionbar'){
+    o+=`${p}message: ${ys(a.message)}\n`;
+  }else if(t==='add-currency'){
+    o+=`${p}currency: "${a.currency||'souls'}"\n`;
+    o+=`${p}amount: ${ys(a.amount)}\n`;
+  }else if(t==='grant-booster'){
+    o+=`${p}booster-type: "${a.boosterType||'souls'}"\n`;
+    if(a.multiplier) o+=`${p}multiplier: ${ys(a.multiplier)}\n`;
+    if(a.duration) o+=`${p}duration: ${ys(a.duration)}\n`;
+    if(a.displayName) o+=`${p}display-name: ${ys(a.displayName)}\n`;
+  }else if(t==='grant-permanent-booster'){
+    o+=`${p}booster-type: "${a.boosterType||'damage'}"\n`;
+    if(a.multiplier) o+=`${p}multiplier: ${ys(a.multiplier)}\n`;
+    if(a.displayName) o+=`${p}display-name: ${ys(a.displayName)}\n`;
+  }else if(t==='remove-booster'){
+    o+=`${p}booster-type: "${a.boosterType||'souls'}"\n`;
+  }
+  return o;
+}
+
+function genYAML(){
+  const id=S.id||'my-enchant';
+  let L=[];
+  L.push(`enchant-id: "${id}"`);
+  L.push(`display-name: ${ys(S.name)}`);
+  L.push(`menu-material: ${S.mat||'EMERALD'}`);
+  L.push(``);
+  L.push(`progression:`);
+  L.push(`  starting-level: ${S.startLvl}`);
+  L.push(`  max-level: ${S.maxLvl}`);
+  L.push(``);
+  L.push(`activation:`);
+  L.push(`  trigger: "${S.trigger}"`);
+  if(S.trigger==='ENCHANT_PROC'&&S.sourceEnchants.length){
+    L.push(`  source-enchants:`);
+    S.sourceEnchants.forEach(e=>L.push(`    - "${e}"`));
+  }
+  L.push(`  base-chance: ${S.baseChance}`);
+  L.push(`  chance-per-level: ${S.chanceLvl}`);
+  if(S.cdSecs) L.push(`  cooldown-seconds: ${S.cdSecs}`);
+  else L.push(`  cooldown-ticks: ${S.cdTicks||0}`);
+  if(S.afkOnly) L.push(`  afk-mob-only: true`);
+  L.push(``);
+  L.push(`upgrade:`);
+  L.push(`  currency: "${S.currency}"`);
+  L.push(`  base-cost: ${S.baseCost}`);
+  L.push(`  cost-scaling:`);
+  L.push(`    type: "${scalingType}"`);
+  if(scalingType==='LINEAR') L.push(`    increase-per-level: ${S.incPerLvl}`);
+  else if(scalingType==='EXPONENTIAL') L.push(`    multiplier: ${S.multiplier}`);
+  if(S.prestige.on){
+    L.push(``);
+    L.push(`prestige:`);
+    L.push(`  enabled: true`);
+    L.push(`  max-prestige: ${S.prestige.max}`);
+    L.push(`  cost-multiplier: ${S.prestige.costMult}`);
+    L.push(`  chance-multiplier: ${S.prestige.chanceMult}`);
+  }
+  L.push(``);
+  if(!S.actions.length){L.push(`actions:`);L.push(`  # Añade acciones`);
+  }else{
+    L.push(`actions:`);
+    L.push(genActions(S.actions,'').trimEnd());
+  }
+  g('yaml-out').textContent=L.join('\n');
+}
+
+// ════════════════════════════════════════
+// EXPORT / RESET
+// ════════════════════════════════════════
+function copyYAML(){navigator.clipboard.writeText(g('yaml-out').textContent).then(()=>toast('YAML copiado ✓'));}
+function downloadYAML(){
+  const fn=(S.id||'my-enchant')+'.yml';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([g('yaml-out').textContent],{type:'text/yaml'}));
+  a.download=fn;a.click();toast('Descargado: '+fn);
+}
+function resetAll(){
+  if(!confirm('¿Nuevo enchant? Se perderán los cambios.'))return;
+  S={id:'my-enchant',name:'&a&lMy Enchant',mat:'EMERALD',startLvl:0,maxLvl:100,
+    trigger:'HIT_MOB',sourceEnchants:[],baseChance:5.0,chanceLvl:0.1,
+    cdTicks:100,cdSecs:null,afkOnly:false,currency:'souls',baseCost:1000,
+    scalingType:'LINEAR',incPerLvl:500,multiplier:1.05,
+    prestige:{on:false,max:10,costMult:0.5,chanceMult:0.2},actions:[]};
+  g('e-id').value='my-enchant';g('e-name').value='&a&lMy Enchant';
+  g('e-mat').value='EMERALD';g('e-start').value=0;g('e-max').value=100;
+  g('e-trigger').value='HIT_MOB';g('e-base-chance').value=5.0;
+  g('e-chance-lvl').value=0.1;g('e-cd-ticks').value=100;g('e-cd-secs').value='';
+  g('e-afk').checked=false;g('e-currency').value='souls';g('e-base-cost').value=1000;
+  g('e-inc-lvl').value=500;g('e-prestige-on').checked=false;
+  setScaling('LINEAR');renderActions();renderSourceTags();
+  g('source-enchants-wrap').style.display='none';
+  g('prestige-fields').style.display='none';
+  updatePreview();genYAML();toast('Nuevo enchant creado');
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function g(id){return document.getElementById(id)}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2400);
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+(function(){
+  updatePreview();
+  genYAML();
+  g('ec-name').innerHTML=mcClr('&a&lMy Enchant');
+})();
+</script>
+</body>
+</html>
