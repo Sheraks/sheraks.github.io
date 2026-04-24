@@ -6,6 +6,7 @@
 <title>PhantomDungeons Enchant Builder</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 <style>
 :root{
   --bg-0:#070a0d;--bg-1:#0b1018;--bg-2:#101820;--bg-3:#141e2a;
@@ -255,6 +256,36 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg-0);color:var(--f
 /* SEP */
 .sep{height:1px;background:var(--line);margin:10px 0}
 
+/* IMPORT MODAL */
+#import-overlay{display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center}
+#import-overlay.show{display:flex}
+#import-modal{
+  background:linear-gradient(180deg,var(--bg-2),var(--bg-0));
+  border:1px solid var(--line-2);border-radius:var(--r);
+  width:500px;max-width:94vw;
+  box-shadow:0 40px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.05);overflow:hidden}
+.im-hdr{padding:18px 22px 14px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:space-between}
+.im-title{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:10px}
+.im-title::before{content:'';width:14px;height:1px;background:var(--accent)}
+.im-body{padding:18px 22px}
+.im-drop{border:1.5px dashed var(--line-2);border-radius:var(--r-sm);
+  padding:28px 20px;text-align:center;cursor:pointer;transition:all .18s;
+  color:var(--fg-muted);position:relative;background:rgba(255,255,255,.01)}
+.im-drop:hover,.im-drop.drag{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.im-drop-icon{font-size:32px;margin-bottom:8px;opacity:.5}
+.im-drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.im-log{margin-top:12px;background:var(--bg-0);border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:10px 12px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--green-a);max-height:140px;overflow-y:auto;display:none;line-height:1.7}
+.im-log.show{display:block}
+.im-log::-webkit-scrollbar{width:3px}
+.im-log::-webkit-scrollbar-thumb{background:var(--line-2)}
+.iw{color:var(--warn)}.ie{color:var(--red-a)}.io{color:var(--green-a)}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--bg-0)}
@@ -289,15 +320,19 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg-0);color:var(--f
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#" class="brand">
+  <a href="index.html" class="brand">
     <div class="brand-mark">PD</div>
     PhantomDungeons <span style="color:var(--fg-dim);font-weight:400;margin-left:4px">Enchant Builder</span>
   </a>
   <div class="nav-r">
-    <button class="btn btn-ghost btn-sm" onclick="resetAll()"><i class="fa-solid fa-plus"></i> Nuevo</button>
-    <button class="btn btn-ghost btn-sm" onclick="copyYAML()"><i class="fa-regular fa-copy"></i> Copiar</button>
-    <button class="btn btn-primary btn-sm" onclick="downloadYAML()"><i class="fa-solid fa-download"></i> Descargar .yml</button>
+    <a href="index.html" class="btn btn-ghost btn-sm" style="transition:all .2s" onmouseenter="this.style.color='var(--accent)';this.style.borderColor='var(--accent)';this.style.background='var(--accent-dim)'" onmouseleave="this.style.color='';this.style.borderColor='';this.style.background=''" data-i18n="btnHome">Inicio</a>
+    <button class="btn btn-ghost btn-sm" onclick="toggleLang()" id="lang-btn" style="font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.05em">ES</button>
+    <button class="btn btn-ghost btn-sm" onclick="resetAll()" data-i18n="btnNew"><i class="fa-solid fa-plus"></i> Nuevo</button>
+    <button class="btn btn-ghost btn-sm" onclick="triggerImport()" data-i18n="btnImport"><i class="fa-solid fa-upload"></i> Importar .yml</button>
+    <button class="btn btn-ghost btn-sm" onclick="copyYAML()" data-i18n="btnCopy"><i class="fa-regular fa-copy"></i> Copiar</button>
+    <button class="btn btn-primary btn-sm" onclick="downloadYAML()" data-i18n="btnDownload"><i class="fa-solid fa-download"></i> Descargar .yml</button>
   </div>
+  <input type="file" id="import-file" accept=".yml,.yaml" style="display:none" onchange="importFileSelected(this)">
 </nav>
 
 <div id="app">
@@ -558,6 +593,33 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg-0);color:var(--f
 </div>
 
 </div><!-- #app -->
+
+<!-- IMPORT MODAL -->
+<div id="import-overlay" onclick="closeImportIf(event)">
+  <div id="import-modal">
+    <div class="im-hdr">
+      <span class="im-title" data-i18n="imTitle">Importar Enchant .yml</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeImport()">✕</button>
+    </div>
+    <div class="im-body">
+      <div class="im-drop" id="im-drop"
+        ondragover="event.preventDefault();g('im-drop').classList.add('drag')"
+        ondragleave="g('im-drop').classList.remove('drag')"
+        ondrop="dropImport(event)">
+        <div class="im-drop-icon"><i class="fa-solid fa-folder-open"></i></div>
+        <p id="im-drop-text">Arrastra tu archivo .yml aquí<br>o haz clic para seleccionar</p>
+        <input type="file" accept=".yml,.yaml" onchange="importFileSelected(this)">
+      </div>
+      <div id="im-log" class="im-log"></div>
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="closeImport()" data-i18n="imCancel">Cancelar</button>
+        <button class="btn btn-primary btn-sm" id="im-confirm" style="display:none" onclick="confirmImport()">
+          <i class="fa-solid fa-check"></i> <span data-i18n="imLoad">Cargar enchant</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ════════════════════════════════════════
@@ -1463,15 +1525,15 @@ function genYAML(){
 // ════════════════════════════════════════
 // EXPORT / RESET
 // ════════════════════════════════════════
-function copyYAML(){navigator.clipboard.writeText(g('yaml-out').textContent).then(()=>toast('YAML copiado ✓'));}
+function copyYAML(){navigator.clipboard.writeText(g('yaml-out').textContent).then(()=>toast(T('toastCopied')));}
 function downloadYAML(){
   const fn=(S.id||'my-enchant')+'.yml';
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([g('yaml-out').textContent],{type:'text/yaml'}));
-  a.download=fn;a.click();toast('Descargado: '+fn);
+  a.download=fn;a.click();toast(T('btnDownload').replace(/<[^>]*>/g,'')+' '+fn);
 }
 function resetAll(){
-  if(!confirm('¿Nuevo enchant? Se perderán los cambios.'))return;
+  if(!confirm(T('confirmReset')))return;
   S={id:'my-enchant',name:'&a&lMy Enchant',mat:'EMERALD',startLvl:0,maxLvl:100,
     trigger:'HIT_MOB',sourceEnchants:[],baseChance:5.0,chanceLvl:0.1,
     cdTicks:100,cdSecs:null,afkOnly:false,currency:'souls',baseCost:1000,
@@ -1486,12 +1548,275 @@ function resetAll(){
   setScaling('LINEAR');renderActions();renderSourceTags();
   g('source-enchants-wrap').style.display='none';
   g('prestige-fields').style.display='none';
-  updatePreview();genYAML();toast('Nuevo enchant creado');
+  updatePreview();genYAML();toast(T('toastNew'));
 }
 
 // ════════════════════════════════════════
-// UTILS
+// I18N
 // ════════════════════════════════════════
+let LANG = localStorage.getItem('pd-lang')||'es';
+const LANGS = {
+  es:{
+    btnHome:'Inicio',
+    btnNew:'<i class="fa-solid fa-plus"></i> Nuevo',
+    btnImport:'<i class="fa-solid fa-upload"></i> Importar .yml',
+    btnCopy:'<i class="fa-regular fa-copy"></i> Copiar',
+    btnDownload:'<i class="fa-solid fa-download"></i> Descargar .yml',
+    phConfig:'⚡ Config. del Enchant',
+    lblId:'Enchant ID', hintId:'kebab-case · debe coincidir con el nombre del archivo',
+    lblName:'Display Name', hintName:'Soporta &amp;a &amp;c &amp;6 &amp;l y &amp;#RRGGBB',
+    lblMat:'Menu Material', hintMat:'Bukkit Material enum · UPPERCASE',
+    sdivProgression:'📈 Progression',
+    lblStartLvl:'Starting Level', lblMaxLvl:'Max Level',
+    sdivActivation:'⚡ Activation',
+    lblTrigger:'Trigger',
+    optHit:'HIT_MOB — Al golpear mob', optDeath:'MOB_DEATH — Al matar mob',
+    optProc:'ENCHANT_PROC — Cuando otro proc', optPassive:'PASSIVE — Timer pasivo',
+    lblSourceEnchants:'Source Enchants', hintSource:'Intro para añadir · IDs en kebab-case',
+    lblBaseChance:'Base Chance (%)', lblChanceLvl:'Chance / Level',
+    lblCooldown:'Cooldown', hintCdTicks:'ticks (20=1s)', hintCdSecs:'cooldown-seconds',
+    warnCd:'⚠ Usa solo uno, no ambos',
+    ckAfk:'afk-mob-only',
+    sdivUpgrade:'💰 Upgrade',
+    lblCurrency:'Currency (economy ID)', lblBaseCost:'Base Cost', lblScaling:'Scaling Type',
+    sdivPrestige:'✨ Prestige', lblPrestigeOptional:'(opcional)',
+    ckPrestige:'Habilitar prestige',
+    lblMaxPrestige:'Max Prestige', lblCostMult:'Cost Multiplier', lblChanceMult:'Chance Multiplier',
+    sdivVars:'ℹ Variables disponibles',
+    phPreview:'🔮 Vista Previa',
+    slActions:'Acciones', slVars:'Variables', slLoops:'Loops', slCd:'Cooldown',
+    phActions:'⚙ Actions',
+    emptyTitle:'Añade acciones para definir', emptySubtitle:'qué hace el enchant al proc.',
+    emptyHint:'Se ejecutan en orden secuencial',
+    toastCopied:'YAML copiado ✓', toastNew:'Nuevo enchant creado', toastImported:'Enchant importado ✓',
+    confirmReset:'¿Nuevo enchant? Se perderán los cambios.',
+    confirmClearPart:'¿Limpiar slot ',
+    imTitle:'Importar Enchant .yml',
+    imDropText:'Arrastra tu archivo .yml aquí<br>o haz clic para seleccionar',
+    imCancel:'Cancelar', imLoad:'Cargar enchant',
+    imParsed:'✓ YAML parseado: ', imLoaded:'✓ Enchant cargado: ',
+    imActions:' acciones', imNoActions:'Sin acciones',
+    imErrSyntax:'✕ Error de sintaxis: ', imErrEmpty:'✕ Archivo vacío o inválido',
+    imReady:'Listo → haz clic en ', imReadyBtn:'Cargar enchant',
+  },
+  en:{
+    btnHome:'Home',
+    btnNew:'<i class="fa-solid fa-plus"></i> New',
+    btnImport:'<i class="fa-solid fa-upload"></i> Import .yml',
+    btnCopy:'<i class="fa-regular fa-copy"></i> Copy',
+    btnDownload:'<i class="fa-solid fa-download"></i> Download .yml',
+    phConfig:'⚡ Enchant Config',
+    lblId:'Enchant ID', hintId:'kebab-case · must match the filename',
+    lblName:'Display Name', hintName:'Supports &amp;a &amp;c &amp;6 &amp;l and &amp;#RRGGBB',
+    lblMat:'Menu Material', hintMat:'Bukkit Material enum · UPPERCASE',
+    sdivProgression:'📈 Progression',
+    lblStartLvl:'Starting Level', lblMaxLvl:'Max Level',
+    sdivActivation:'⚡ Activation',
+    lblTrigger:'Trigger',
+    optHit:'HIT_MOB — On mob hit', optDeath:'MOB_DEATH — On mob kill',
+    optProc:'ENCHANT_PROC — When another procs', optPassive:'PASSIVE — Passive timer',
+    lblSourceEnchants:'Source Enchants', hintSource:'Enter to add · kebab-case IDs',
+    lblBaseChance:'Base Chance (%)', lblChanceLvl:'Chance / Level',
+    lblCooldown:'Cooldown', hintCdTicks:'ticks (20=1s)', hintCdSecs:'cooldown-seconds',
+    warnCd:'⚠ Use only one, not both',
+    ckAfk:'afk-mob-only',
+    sdivUpgrade:'💰 Upgrade',
+    lblCurrency:'Currency (economy ID)', lblBaseCost:'Base Cost', lblScaling:'Scaling Type',
+    sdivPrestige:'✨ Prestige', lblPrestigeOptional:'(optional)',
+    ckPrestige:'Enable prestige',
+    lblMaxPrestige:'Max Prestige', lblCostMult:'Cost Multiplier', lblChanceMult:'Chance Multiplier',
+    sdivVars:'ℹ Available Variables',
+    phPreview:'🔮 Preview',
+    slActions:'Actions', slVars:'Variables', slLoops:'Loops', slCd:'Cooldown',
+    phActions:'⚙ Actions',
+    emptyTitle:'Add actions to define', emptySubtitle:'what the enchant does on proc.',
+    emptyHint:'Executed sequentially',
+    toastCopied:'YAML copied ✓', toastNew:'New enchant created', toastImported:'Enchant imported ✓',
+    confirmReset:'New enchant? Changes will be lost.',
+    confirmClearPart:'Clear slot ',
+    imTitle:'Import Enchant .yml',
+    imDropText:'Drag your .yml file here<br>or click to select',
+    imCancel:'Cancel', imLoad:'Load enchant',
+    imParsed:'✓ YAML parsed: ', imLoaded:'✓ Enchant loaded: ',
+    imActions:' actions', imNoActions:'No actions',
+    imErrSyntax:'✕ Syntax error: ', imErrEmpty:'✕ Empty or invalid file',
+    imReady:'Ready → click ', imReadyBtn:'Load enchant',
+  }
+};
+function T(k){return LANGS[LANG][k]||LANGS.es[k]||k;}
+function applyLang(lang){
+  LANG=lang;localStorage.setItem('pd-lang',lang);
+  const lb=g('lang-btn');if(lb)lb.textContent=lang==='es'?'ES':'EN';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=T(el.dataset.i18n);if(v!==undefined)el.innerHTML=v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const v=T(el.dataset.i18nPh);if(v)el.placeholder=v;
+  });
+  // Special: trigger options
+  const tr=g('e-trigger');
+  if(tr){
+    tr.options[0].text=T('optHit');tr.options[1].text=T('optDeath');
+    tr.options[2].text=T('optProc');tr.options[3].text=T('optPassive');
+  }
+  const idt=g('im-drop-text');if(idt)idt.innerHTML=T('imDropText');
+}
+function toggleLang(){applyLang(LANG==='es'?'en':'es');}
+
+// ════════════════════════════════════════
+// IMPORT YAML
+// ════════════════════════════════════════
+let pendingImport = null;
+
+function triggerImport(){
+  g('import-overlay').classList.add('show');
+  g('im-log').innerHTML='';g('im-log').classList.remove('show');
+  g('im-confirm').style.display='none';pendingImport=null;
+}
+function closeImport(){g('import-overlay').classList.remove('show');}
+function closeImportIf(e){if(e.target===g('import-overlay'))closeImport();}
+function dropImport(e){
+  e.preventDefault();g('im-drop').classList.remove('drag');
+  const f=e.dataTransfer.files[0];if(f)readImportFile(f);
+}
+function importFileSelected(inp){const f=inp.files[0];if(f)readImportFile(f);inp.value='';}
+function readImportFile(file){
+  const r=new FileReader();
+  r.onload=ev=>parseEnchantYAML(ev.target.result,file.name);
+  r.readAsText(file,'UTF-8');
+}
+
+function ilog(msg,cls='io'){
+  const el=g('im-log');el.classList.add('show');
+  el.innerHTML+=`<div class="${cls}">${msg}</div>`;
+  el.scrollTop=el.scrollHeight;
+}
+
+function parseActionsFromYAML(raw){
+  if(!raw||typeof raw!=='object')return[];
+  return Object.entries(raw)
+    .filter(([k])=>!isNaN(parseInt(k)))
+    .sort(([a],[b])=>parseInt(a)-parseInt(b))
+    .map(([,v])=>parseOneAction(v));
+}
+function parseOneAction(v){
+  if(!v||typeof v!=='object')return{type:'send-message',message:''};
+  const t=(v.type||'send-message').toLowerCase();
+  const a={type:t,...defaultFields(t)};
+  // Map YAML keys to JS camelCase
+  const map={
+    'variable-name':'variableName','tick-interval':'tickInterval',
+    'initial-damage':'initialDamage','chain-radius':'chainRadius',
+    'damage-multiplier':'damageMultiplier','max-chains':'maxChains',
+    'show-indicator':'showIndicator','fire-ticks':'fireTicks',
+    'damage-per-tick':'damagePerTick','float-speed':'floatSpeed',
+    'float-distance':'floatDistance','exclude-current-target':'excludeCurrent',
+    'min-distance':'minDistance','random-target':'randomTarget',
+    'entity-type':'entityType','display-type':'displayType',
+    'block-data':'blockData','right-rotation-euler':'rotEuler',
+    'interpolation-duration':'interpDuration','on-ground':'onGround',
+    'look-at':'lookAt','mob-id':'mobId','base-chance':'baseChance',
+    'condition-type':'conditionType','booster-type':'boosterType',
+    'display-name':'displayName','fade-in':'fadeIn','fade-out':'fadeOut',
+  };
+  for(const[yk,jk]of Object.entries(map)){if(v[yk]!==undefined)a[jk]=v[yk];}
+  // Direct keys
+  ['position','radius','damage','particle','count','color','size','from','to','steps',
+   'spiral','text','style','duration','sound','volume','pitch','effect','amplifier',
+   'ticks','iterations','message','title','subtitle','parameter','threshold','reference',
+   'entity','currency','amount','multiplier','stay','origin','scale','translation',
+   'billboard','item'].forEach(k=>{if(v[k]!==undefined)a[k]=v[k];});
+  // Nested
+  if(t==='loop'&&v.actions)a.actions=parseActionsFromYAML(v.actions);
+  if(t==='conditional'){
+    if(v.then)a.then=parseActionsFromYAML(v.then);
+    if(v.else)a.else_=parseActionsFromYAML(v.else);
+    a.conditionType=v['condition-type']||a.conditionType||'random-chance';
+  }
+  return a;
+}
+
+function parseEnchantYAML(text, filename){
+  g('im-log').innerHTML='';g('im-log').classList.add('show');
+  g('im-confirm').style.display='none';pendingImport=null;
+  let data;
+  try{data=jsyaml.load(text);ilog(`✓ ${T('imParsed')}${filename}`);}
+  catch(e){ilog(`${T('imErrSyntax')}${e.message}`,'ie');return;}
+  if(!data||typeof data!=='object'){ilog(T('imErrEmpty'),'ie');return;}
+
+  const res={
+    id:data['enchant-id']||'my-enchant',
+    name:data['display-name']||'&aMy Enchant',
+    mat:(data['menu-material']||'EMERALD').toString().toUpperCase(),
+    startLvl:data.progression?.['starting-level']??0,
+    maxLvl:data.progression?.['max-level']??100,
+    trigger:(data.activation?.trigger||'HIT_MOB').toString().toUpperCase(),
+    sourceEnchants:data.activation?.['source-enchants']||[],
+    baseChance:parseFloat(data.activation?.['base-chance'])||5,
+    chanceLvl:parseFloat(data.activation?.['chance-per-level'])||0.1,
+    cdTicks:data.activation?.['cooldown-ticks']??null,
+    cdSecs:data.activation?.['cooldown-seconds']??null,
+    afkOnly:!!data.activation?.['afk-mob-only'],
+    currency:data.upgrade?.currency||'souls',
+    baseCost:parseInt(data.upgrade?.['base-cost'])||1000,
+    scalingType:(data.upgrade?.['cost-scaling']?.type||'LINEAR').toUpperCase(),
+    incPerLvl:parseInt(data.upgrade?.['cost-scaling']?.['increase-per-level'])||500,
+    multiplier:parseFloat(data.upgrade?.['cost-scaling']?.multiplier)||1.05,
+    prestige:{
+      on:!!data.prestige?.enabled,
+      max:parseInt(data.prestige?.['max-prestige'])||10,
+      costMult:parseFloat(data.prestige?.['cost-multiplier'])||0.5,
+      chanceMult:parseFloat(data.prestige?.['chance-multiplier'])||0.2,
+    },
+    actions:parseActionsFromYAML(data.actions),
+  };
+  // If cdTicks is 0 and cdSecs is null keep cdTicks
+  if(res.cdTicks===null&&res.cdSecs===null)res.cdTicks=0;
+
+  ilog(`  enchant-id: <span class="io">${res.id}</span>`);
+  ilog(`  trigger: <span class="io">${res.trigger}</span>`);
+  ilog(`  max-level: <span class="io">${res.maxLvl}</span>`);
+  ilog(`  actions: <span class="io">${res.actions.length}${T('imActions')}</span>`);
+  if(res.prestige.on)ilog(`  prestige: <span class="io">enabled · max ${res.prestige.max}</span>`);
+
+  pendingImport=res;
+  g('im-confirm').style.display='';
+  ilog(`<br>${T('imReady')}<span class="io">${T('imReadyBtn')}</span>`);
+}
+
+function confirmImport(){
+  if(!pendingImport)return;
+  Object.assign(S,pendingImport);
+  // Sync all form fields
+  g('e-id').value=S.id;g('e-name').value=S.name;g('e-mat').value=S.mat;
+  g('e-start').value=S.startLvl;g('e-max').value=S.maxLvl;
+  g('e-trigger').value=S.trigger;
+  g('source-enchants-wrap').style.display=S.trigger==='ENCHANT_PROC'?'':'none';
+  renderSourceTags();
+  g('e-base-chance').value=S.baseChance;g('e-chance-lvl').value=S.chanceLvl;
+  g('e-cd-ticks').value=S.cdTicks??'';g('e-cd-secs').value=S.cdSecs??'';
+  g('e-afk').checked=S.afkOnly;
+  g('e-currency').value=S.currency;g('e-base-cost').value=S.baseCost;
+  scalingType=S.scalingType;
+  document.querySelectorAll('.tp').forEach(p=>p.classList.toggle('on',p.dataset.t===scalingType));
+  g('scaling-linear').style.display=scalingType==='LINEAR'?'':'none';
+  g('scaling-exp').style.display=scalingType==='EXPONENTIAL'?'':'none';
+  if(scalingType==='LINEAR')g('e-inc-lvl').value=S.incPerLvl;
+  if(scalingType==='EXPONENTIAL')g('e-multiplier').value=S.multiplier;
+  g('e-prestige-on').checked=S.prestige.on;
+  g('prestige-fields').style.display=S.prestige.on?'':'none';
+  if(S.prestige.on){
+    g('e-max-prestige').value=S.prestige.max;
+    g('e-cost-mult').value=S.prestige.costMult;
+    g('e-chance-mult').value=S.prestige.chanceMult;
+  }
+  renderActions();updatePreview();genYAML();
+  g('ec-name').innerHTML=mcClr(S.name);
+  g('yaml-fname').textContent=S.id+'.yml';
+  closeImport();
+  toast(T('toastImported')+' · '+S.actions.length+T('imActions'));
+}
+
 function g(id){return document.getElementById(id)}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function toast(msg){
@@ -1506,6 +1831,7 @@ function toast(msg){
   updatePreview();
   genYAML();
   g('ec-name').innerHTML=mcClr('&a&lMy Enchant');
+  applyLang(LANG);
 })();
 </script>
 </body>

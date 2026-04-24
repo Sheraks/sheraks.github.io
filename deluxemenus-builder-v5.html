@@ -780,6 +780,7 @@ body{
     DeluxeMenus <span style="color:var(--fg-dim);font-weight:400">Builder</span>
   </a>
   <div class="nav-right">
+    <a href="index.html" class="btn btn-ghost btn-sm" style="transition:all .2s" onmouseenter="this.style.color='var(--accent)';this.style.borderColor='var(--accent)';this.style.background='var(--accent-dim)'" onmouseleave="this.style.color='';this.style.borderColor='';this.style.background=''" data-i18n="btnHome">Inicio</a>
     <button class="btn btn-ghost btn-sm" onclick="toggleLang()" id="lang-btn" title="Switch language" style="font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.05em">ES</button>
     <button class="btn btn-ghost btn-sm" onclick="resetAll()" data-i18n="btnNew">
       <i class="fa-solid fa-plus"></i> Nuevo
@@ -973,7 +974,7 @@ body{
 
     <div class="sdiv" data-i18n="sdivOptions">Opciones</div>
     <label class="ck"><input type="checkbox" id="i-upd" onchange="onItem()"><span class="ck-box"></span><span data-i18n="ckUpdate">Update dinámico</span></label>
-    <label class="ck"><input type="checkbox" id="i-ubr" onchange="onItem()"><span class="ck-box"></span><span data-i18n="ckUnbreak">Inrompible</span></label>
+    <label class="ck"><input type="checkbox" id="i-ubr" onchange="onItem()"><span class="ck-box"></span><span data-i18n="ckUnbreak">Irrompible</span></label>
 
     <div class="sdiv">Item Flags</div>
     <div class="f">
@@ -988,7 +989,7 @@ body{
           <optgroup data-i18n-grp="grpUniversal" label="Universales (todas las versiones)">
             <option value="HIDE_ENCHANTS">HIDE_ENCHANTS — Encantamientos</option>
             <option value="HIDE_ATTRIBUTES">HIDE_ATTRIBUTES — Atributos (daño, velocidad...)</option>
-            <option value="HIDE_UNBREAKABLE">HIDE_UNBREAKABLE — Estado inrompible</option>
+            <option value="HIDE_UNBREAKABLE">HIDE_UNBREAKABLE — Estado irrompible</option>
             <option value="HIDE_DESTROYS">HIDE_DESTROYS — Bloques que puede romper</option>
             <option value="HIDE_PLACED_ON">HIDE_PLACED_ON — Bloques donde se puede colocar</option>
             <option value="HIDE_POTION_EFFECTS">HIDE_POTION_EFFECTS — Efectos de poción</option>
@@ -1295,6 +1296,7 @@ let LANG = localStorage.getItem('dm-lang')||'es';
 const LANGS = {
   es:{
     // NAV
+    btnHome:'Inicio',
     btnNew:'<i class="fa-solid fa-plus"></i> Nuevo',
     btnImport:'<i class="fa-solid fa-upload"></i> Importar .yml',
     btnGrad:'<i class="fa-solid fa-palette"></i> Degradado',
@@ -1456,6 +1458,7 @@ const LANGS = {
   },
   en:{
     // NAV
+    btnHome:'Home',
     btnNew:'<i class="fa-solid fa-plus"></i> New',
     btnImport:'<i class="fa-solid fa-upload"></i> Import .yml',
     btnGrad:'<i class="fa-solid fa-palette"></i> Gradient',
