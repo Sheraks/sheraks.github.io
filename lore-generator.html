@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lore Generator — Sheraks Tools</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg-0:#07090d;--bg-1:#0b0f17;--bg-2:#101520;
+  --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.12);--line-3:rgba(255,255,255,.18);
+  --fg:#dce8f2;--fg-dim:rgba(220,232,242,.65);--fg-muted:rgba(220,232,242,.38);
+  --accent:oklch(0.80 0.18 55);--accent-dim:oklch(0.80 0.18 55/.12);
+  --accent-2:oklch(0.82 0.14 155);--purple:oklch(0.78 0.16 300);
+  --red-a:oklch(0.72 0.18 22);--green-a:oklch(0.82 0.14 155);--warn:oklch(0.82 0.15 70);
+  --r:14px;--r-sm:8px;--inp:#090d14;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg-0);color:var(--fg);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.bg-l{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(700px 450px at 20% -10%,oklch(0.80 0.18 55/.10),transparent 55%),
+             radial-gradient(600px at 90% 110%,oklch(0.82 0.14 155/.07),transparent 55%),
+             linear-gradient(180deg,var(--bg-0),var(--bg-1))}
+.bg-g{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.22;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:52px 52px;mask-image:radial-gradient(900px 600px at 50% 0%,black 15%,transparent 75%)}
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;height:50px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  background:linear-gradient(180deg,rgba(7,9,13,.85),rgba(7,9,13,.4));
+  border-bottom:1px solid transparent;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--fg);text-decoration:none}
+.brand-mark{width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:grid;place-items:center;color:#0a0700;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 6px 20px -6px var(--accent)}
+.nav-r{display:flex;gap:7px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:999px;
+  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;border:1px solid transparent;
+  cursor:pointer;transition:all .2s;white-space:nowrap;text-decoration:none}
+.btn-primary{background:var(--accent);color:#0a0700;border-color:var(--accent)}
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.btn-ghost{color:var(--fg-dim);border-color:var(--line-2);background:rgba(255,255,255,.02)}
+.btn-ghost:hover{color:var(--fg);border-color:var(--line-3);background:rgba(255,255,255,.05)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:4px 9px;font-size:11px}
+.icon-btn{width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  background:oklch(0.72 0.18 22/.08);color:var(--red-a);border:1px solid oklch(0.72 0.18 22/.2);
+  border-radius:6px;cursor:pointer;transition:all .15s;font-size:11px;flex-shrink:0}
+.icon-btn:hover{background:oklch(0.72 0.18 22/.2)}
+#app{display:grid;grid-template-columns:290px 1fr 340px;grid-template-rows:1fr 200px;
+  height:calc(100vh - 50px);margin-top:50px}
+.pnl{overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--line);padding:16px}
+.pnl::-webkit-scrollbar{width:3px}
+.pnl::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:2px}
+.ph{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);
+  letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;
+  margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.ph::before{content:'';width:18px;height:1px;background:var(--accent)}
+.f{margin-bottom:12px}
+.f label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.f input,.f select,.f textarea{
+  width:100%;background:var(--inp);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:13px;
+  padding:7px 10px;outline:none;transition:border-color .18s;color-scheme:dark}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim)}
+.f select option{background:var(--inp);color:var(--fg)}
+.f textarea{resize:vertical;min-height:52px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);margin-top:3px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sdiv{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.12em;margin:14px 0 10px;display:flex;align-items:center;gap:8px}
+.sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--line)}
+.ck{display:flex;align-items:center;gap:9px;margin-bottom:8px;cursor:pointer;user-select:none}
+.ck input[type=checkbox]{opacity:0;position:absolute;width:0;height:0;pointer-events:none}
+.ck-box{width:15px;height:15px;flex-shrink:0;background:var(--inp);border:1px solid var(--line-2);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .14px}
+.ck input[type=checkbox]:checked + .ck-box{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim)}
+.ck-box::after{content:'';width:8px;height:4px;border-left:2px solid #0a0700;border-bottom:2px solid #0a0700;
+  transform:rotate(-45deg) translateY(-1px);opacity:0;transition:opacity .12s;display:block}
+.ck input[type=checkbox]:checked + .ck-box::after{opacity:1}
+.ck span:last-child{font-size:13px;color:var(--fg-dim)}
+/* Symbol grid */
+.sym-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-height:170px;overflow-y:auto}
+.sym-grid::-webkit-scrollbar{width:3px}
+.sym-grid::-webkit-scrollbar-thumb{background:var(--line-2)}
+.sym{display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-size:15px;cursor:pointer;
+  border-radius:5px;background:rgba(255,255,255,.03);border:1px solid var(--line);transition:all .12s}
+.sym:hover,.sym.on{border-color:var(--accent);background:var(--accent-dim);transform:scale(1.08)}
+/* Color picker */
+.cpicker{background:rgba(255,255,255,.02);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:9px;margin-top:4px}
+.cp-tabs{display:flex;gap:4px;margin-bottom:7px}
+.cpt{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;border-radius:999px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);cursor:pointer;color:var(--fg-muted);transition:all .12s}
+.cpt:hover,.cpt.on{color:var(--accent);border-color:var(--accent);background:var(--accent-dim)}
+.cp-mc-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.cpm{width:100%;aspect-ratio:1;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all .12s}
+.cpm:hover,.cpm.on{border-color:rgba(255,255,255,.5);transform:scale(1.08)}
+.cp-hex-row{display:flex;gap:6px;align-items:center}
+.cp-hex-inp{flex:1;background:var(--bg-0);border:1px solid var(--line-2);border-radius:6px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 8px;outline:none;color-scheme:dark}
+.cp-hex-inp:focus{border-color:var(--accent)}
+.cp-swatch{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.2);flex-shrink:0}
+.cp-grad-row{display:flex;gap:5px;align-items:center;margin-bottom:4px}
+.cp-grad-swatch{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid rgba(255,255,255,.2);
+  position:relative;overflow:hidden;flex-shrink:0}
+.cp-grad-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100%+8px);height:calc(100%+8px);border:none;padding:0;cursor:pointer;opacity:0}
+.cp-grad-hex{flex:1;background:var(--bg-0);border:1px solid var(--line-2);border-radius:5px;
+  color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 6px;outline:none;color-scheme:dark}
+.cp-grad-preview{height:8px;border-radius:4px;margin-top:5px}
+/* Center */
+#center{display:flex;flex-direction:column;align-items:center;padding:16px;overflow-y:auto;
+  border-right:1px solid var(--line);
+  background:radial-gradient(400px 300px at 50% 0%,oklch(0.80 0.18 55/.04),transparent 70%)}
+.lore-card{width:100%;max-width:480px;background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.lc-topline{height:1px;background:linear-gradient(to right,transparent,var(--accent),transparent)}
+.lc-header{padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02);
+  display:flex;align-items:center;gap:6px}
+.lc-dot{width:8px;height:8px;border-radius:50%}
+.lc-fname{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-muted);margin-left:auto}
+.lc-body{padding:14px 18px}
+.mc-item{background:var(--bg-0);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:14px}
+.mc-item-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.mc-item-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.04);
+  border:1px solid var(--line-2);display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.mc-item-name{font-size:16px;font-weight:700;line-height:1.1}
+.mc-lore-list{display:flex;flex-direction:column;gap:2px}
+.mc-lore-line{font-size:14px;line-height:1.45;white-space:pre-wrap;font-family:'Space Grotesk',sans-serif}
+.stats-row{display:flex;gap:8px;margin-top:14px;width:100%;max-width:480px}
+.stat-box{flex:1;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 8px;text-align:center}
+.sv{font-size:22px;font-weight:700;line-height:1;margin-bottom:3px}
+.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em}
+/* Enchant list */
+.ench-list-wrap{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.ench-entry{background:rgba(255,255,255,.025);border:1px solid var(--line-2);border-radius:var(--r-sm);overflow:hidden}
+.ench-entry-hdr{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;transition:background .15s}
+.ench-entry-hdr:hover,.ench-entry.open .ench-entry-hdr{background:rgba(255,255,255,.04)}
+.ench-entry.open .ench-entry-hdr{border-bottom:1px solid var(--line)}
+.ee-sym{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.ee-name{font-size:13px;font-weight:600;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ee-lvl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);
+  background:var(--accent-dim);border:1px solid oklch(0.80 0.18 55/.25);border-radius:4px;padding:1px 6px;flex-shrink:0}
+.ench-entry-body{padding:10px;display:none;background:rgba(0,0,0,.2)}
+.ench-entry.open .ench-entry-body{display:block}
+.lvl-row{display:flex;align-items:center;gap:6px}
+.lvl-btn{width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--line-2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--fg-dim);transition:all .15s;flex-shrink:0}
+.lvl-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.lvl-display{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--accent);min-width:28px;text-align:center}
+.mini-f{margin-bottom:8px}
+.mini-f label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:3px}
+.mini-inp{width:100%;background:var(--inp);border:1px solid var(--line-2);border-radius:6px;color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 8px;outline:none;color-scheme:dark;transition:border-color .15s}
+.mini-inp:focus{border-color:var(--accent)}
+.mini-sel{background:var(--inp);border:1px solid var(--line-2);border-radius:6px;color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 7px;outline:none;color-scheme:dark;width:100%}
+.mini-sel option{background:var(--inp)}
+.mini-row2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.add-area{background:rgba(255,255,255,.015);border:1px dashed var(--line-2);border-radius:var(--r-sm);padding:12px;display:flex;flex-direction:column;gap:9px;margin-top:4px}
+/* YAML */
+#yaml-panel{grid-column:1/-1;border-top:1px solid var(--line);background:rgba(255,255,255,.01);
+  display:grid;grid-template-columns:1fr 150px;gap:12px;padding:12px 16px;align-items:start}
+.yaml-ph{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--green-a);
+  letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.yaml-ph::before{content:'';width:14px;height:1px;background:var(--green-a)}
+#yaml-out{background:var(--bg-0);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--green-a);overflow:auto;height:155px;white-space:pre;line-height:1.65}
+.yaml-side{display:flex;flex-direction:column;gap:6px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg-1);color:var(--fg);
+  border:1px solid var(--line-2);border-radius:var(--r-sm);box-shadow:0 16px 40px rgba(0,0,0,.5);
+  font-size:14px;font-weight:600;padding:10px 16px;z-index:999;display:flex;align-items:center;gap:8px;
+  animation:tIn .18s ease,tOut .3s ease 2s forwards}
+.toast::before{content:'◆';color:var(--accent);font-size:9px}
+@keyframes tIn{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tOut{to{opacity:0;transform:translateY(8px)}}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg-0)}
+::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:2px}
+.sep{height:1px;background:var(--line);margin:10px 0}
+.sec-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="bg-l"></div><div class="bg-g"></div>
+
+<nav id="nav">
+  <a href="index.html" class="brand"><div class="brand-mark">LG</div>Lore <span style="color:var(--fg-dim);font-weight:400;margin-left:4px" data-i18n="brandSub">Generator</span></a>
+  <div class="nav-r">
+    <a href="index.html" class="btn btn-ghost btn-sm" onmouseenter="this.style.color='var(--accent)';this.style.borderColor='var(--accent)';this.style.background='var(--accent-dim)'" onmouseleave="this.style.color='';this.style.borderColor='';this.style.background=''" data-i18n="btnHome">Inicio</a>
+    <button class="btn btn-ghost btn-sm" onclick="toggleLang()" id="lang-btn" style="font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.05em">ES</button>
+    <button class="btn btn-ghost btn-sm" onclick="copyYAML()"><i class="fa-regular fa-copy"></i> <span data-i18n="btnCopy">Copiar</span></button>
+    <button class="btn btn-primary btn-sm" onclick="downloadYAML()"><i class="fa-solid fa-download"></i> <span data-i18n="btnDl">Descargar .yml</span></button>
+  </div>
+</nav>
+
+<div id="app">
+<!-- LEFT -->
+<div class="pnl">
+  <div class="ph" data-i18n="phLeft">📦 Config. del Item</div>
+  <div class="f"><label data-i18n="lblName">Nombre del item</label><input id="i-name" value="&6&lEspada de Campeón" oninput="render()"><div class="hint" data-i18n="hintName">Soporta &amp;6 &amp;l y &amp;#RRGGBB</div></div>
+  <div class="f">
+    <label data-i18n="lblMat">Material</label>
+    <select id="i-mat" onchange="render()">
+      <optgroup label="Espadas" data-i18n-grp="grpSwords"><option value="⚔️">⚔️ WOODEN_SWORD</option><option value="⚔️">⚔️ STONE_SWORD</option><option value="⚔️">⚔️ IRON_SWORD</option><option value="⚔️">⚔️ GOLDEN_SWORD</option><option value="⚔️" selected>⚔️ DIAMOND_SWORD</option><option value="⚔️">⚔️ NETHERITE_SWORD</option></optgroup>
+      <optgroup label="Picos" data-i18n-grp="grpPickaxes"><option value="⛏️">⛏️ WOODEN_PICKAXE</option><option value="⛏️">⛏️ STONE_PICKAXE</option><option value="⛏️">⛏️ IRON_PICKAXE</option><option value="⛏️">⛏️ GOLDEN_PICKAXE</option><option value="⛏️">⛏️ DIAMOND_PICKAXE</option><option value="⛏️">⛏️ NETHERITE_PICKAXE</option></optgroup>
+      <optgroup label="Hachas" data-i18n-grp="grpAxes"><option value="🪓">🪓 WOODEN_AXE</option><option value="🪓">🪓 STONE_AXE</option><option value="🪓">🪓 IRON_AXE</option><option value="🪓">🪓 GOLDEN_AXE</option><option value="🪓">🪓 DIAMOND_AXE</option><option value="🪓">🪓 NETHERITE_AXE</option></optgroup>
+      <optgroup label="Palas" data-i18n-grp="grpShovels"><option value="🌾">🌾 WOODEN_SHOVEL</option><option value="🌾">🌾 STONE_SHOVEL</option><option value="🌾">🌾 IRON_SHOVEL</option><option value="🌾">🌾 GOLDEN_SHOVEL</option><option value="🌾">🌾 DIAMOND_SHOVEL</option><option value="🌾">🌾 NETHERITE_SHOVEL</option></optgroup>
+      <optgroup label="Azadas" data-i18n-grp="grpHoes"><option value="🌿">🌿 WOODEN_HOE</option><option value="🌿">🌿 STONE_HOE</option><option value="🌿">🌿 IRON_HOE</option><option value="🌿">🌿 GOLDEN_HOE</option><option value="🌿">🌿 DIAMOND_HOE</option><option value="🌿">🌿 NETHERITE_HOE</option></optgroup>
+      <optgroup label="Cascos" data-i18n-grp="grpHelmets"><option value="⛑️">⛑️ LEATHER_HELMET</option><option value="⛑️">⛑️ CHAINMAIL_HELMET</option><option value="⛑️">⛑️ IRON_HELMET</option><option value="⛑️">⛑️ GOLDEN_HELMET</option><option value="⛑️">⛑️ DIAMOND_HELMET</option><option value="⛑️">⛑️ NETHERITE_HELMET</option><option value="🐢">🐢 TURTLE_HELMET</option></optgroup>
+      <optgroup label="Petos" data-i18n-grp="grpChests"><option value="🦺">🦺 LEATHER_CHESTPLATE</option><option value="🦺">🦺 CHAINMAIL_CHESTPLATE</option><option value="🦺">🦺 IRON_CHESTPLATE</option><option value="🦺">🦺 GOLDEN_CHESTPLATE</option><option value="🦺">🦺 DIAMOND_CHESTPLATE</option><option value="🦺">🦺 NETHERITE_CHESTPLATE</option></optgroup>
+      <optgroup label="Pantalones" data-i18n-grp="grpLegs"><option value="👖">👖 LEATHER_LEGGINGS</option><option value="👖">👖 CHAINMAIL_LEGGINGS</option><option value="👖">👖 IRON_LEGGINGS</option><option value="👖">👖 GOLDEN_LEGGINGS</option><option value="👖">👖 DIAMOND_LEGGINGS</option><option value="👖">👖 NETHERITE_LEGGINGS</option></optgroup>
+      <optgroup label="Botas" data-i18n-grp="grpBoots"><option value="👟">👟 LEATHER_BOOTS</option><option value="👟">👟 CHAINMAIL_BOOTS</option><option value="👟">👟 IRON_BOOTS</option><option value="👟">👟 GOLDEN_BOOTS</option><option value="👟">👟 DIAMOND_BOOTS</option><option value="👟">👟 NETHERITE_BOOTS</option></optgroup>
+      <optgroup label="A distancia" data-i18n-grp="grpRanged"><option value="🏹">🏹 BOW</option><option value="🏹">🏹 CROSSBOW</option><option value="🔱">🔱 TRIDENT</option><option value="🎣">🎣 FISHING_ROD</option></optgroup>
+      <optgroup label="Otros" data-i18n-grp="grpOthers"><option value="🛡️">🛡️ SHIELD</option><option value="🦋">🦋 ELYTRA</option><option value="📕">📕 BOOK</option><option value="📗">📗 ENCHANTED_BOOK</option><option value="💎">💎 DIAMOND</option><option value="⭐">⭐ NETHER_STAR</option><option value="🔮">🔮 ENDER_PEARL</option><option value="🏺">🏺 TOTEM_OF_UNDYING</option></optgroup>
+    </select>
+  </div>
+  <div class="sdiv" data-i18n="sdivFree">Texto libre</div>
+  <div class="f"><label data-i18n="lblFree">Líneas adicionales</label><textarea id="i-free" rows="3" oninput="render()"></textarea><div class="hint" data-i18n="hintFree">Cada línea = una línea de lore</div></div>
+  <div class="sdiv" data-i18n="sdivFmt">Formato</div>
+  <div class="f"><label data-i18n="lblPlugin">Plugin</label>
+    <select id="fmt-plugin" onchange="render()">
+      <option value="deluxemenus">DeluxeMenus (lore:)</option>
+      <option value="executableitems">ExecutableItems (lore:)</option>
+      <option value="itemedit">ItemEdit (server item)</option>
+      <option value="plain" data-i18n-opt="optPlain">Solo líneas (genérico)</option>
+    </select>
+  </div>
+  <div class="f"><label data-i18n="lblFile">Nombre del archivo</label><input id="i-fname" value="sword" oninput="render()"></div>
+  <div class="sdiv" data-i18n="sdivOpts">Opciones</div>
+  <label class="ck"><input type="checkbox" id="opt-sep-top" onchange="render()"><span class="ck-box"></span><span data-i18n="ckSepTop">Línea vacía al inicio</span></label>
+  <label class="ck"><input type="checkbox" id="opt-sep-ench" checked onchange="render()"><span class="ck-box"></span><span data-i18n="ckSepEnch">Separador entre enchants</span></label>
+  <label class="ck"><input type="checkbox" id="opt-sep-bot" onchange="render()"><span class="ck-box"></span><span data-i18n="ckSepBot">Línea vacía al final</span></label>
+  <label class="ck"><input type="checkbox" id="opt-roman" checked onchange="romanToggle()"><span class="ck-box"></span><span data-i18n="ckRoman">Niveles en romano (I II III…)</span></label>
+</div>
+
+<!-- CENTER -->
+<div id="center">
+  <div class="ph" style="max-width:480px;width:100%" data-i18n="phPrev">✨ Vista Previa</div>
+  <div class="lore-card" style="max-width:480px;width:100%">
+    <div class="lc-topline"></div>
+    <div class="lc-header"><div class="lc-dot" style="background:#ff5f57"></div><div class="lc-dot" style="background:#febc2e"></div><div class="lc-dot" style="background:#28c840"></div><span class="lc-fname" id="prev-fname">sword.yml</span></div>
+    <div class="lc-body">
+      <div class="mc-item">
+        <div class="mc-item-top"><div class="mc-item-icon" id="prev-icon">⚔️</div><div><div class="mc-item-name" id="prev-name"></div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted);margin-top:2px" id="prev-ec">0 enchants</div></div></div>
+        <div class="mc-lore-list" id="prev-lore"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stats-row" style="max-width:480px">
+    <div class="stat-box"><div class="sv" style="color:var(--accent)" id="st-e">0</div><div class="sl" data-i18n="slEnchs">Enchants</div></div>
+    <div class="stat-box"><div class="sv" style="color:var(--accent-2)" id="st-l">0</div><div class="sl" data-i18n="slLines">Líneas</div></div>
+    <div class="stat-box"><div class="sv" style="color:var(--purple)" id="st-c">0</div><div class="sl" data-i18n="slChars">Chars</div></div>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="pnl" id="rpanel">
+  <div class="ph" data-i18n="phEnch">⚡ Enchants</div>
+  <div class="add-area">
+    <div class="mini-f"><label data-i18n="lblEnchSel">Encantamiento</label><select id="new-ench-sel" class="mini-sel"></select></div>
+    <div id="custom-name-wrap" style="display:none"><div class="mini-f"><label data-i18n="lblCustomName">Nombre personalizado</label><input id="custom-ench-name" class="mini-inp"></div></div>
+    <div class="mini-f"><label data-i18n="lblLevel">Nivel</label><div class="lvl-row"><div class="lvl-btn" onclick="adjNewLvl(-1)">−</div><div class="lvl-display" id="new-lvl-disp">I</div><div class="lvl-btn" onclick="adjNewLvl(1)">+</div></div></div>
+    <div class="mini-f">
+      <label data-i18n="lblSymbol">Símbolo Unicode</label>
+      <div class="sym-grid" id="sym-grid"></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:5px">
+        <input id="new-sym-custom" class="mini-inp" style="width:70px" placeholder="…" maxlength="3" oninput="if(this.value.trim()){selectedSym=this.value.trim();g('sym-sel-disp').textContent=selectedSym;}">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-muted)" data-i18n="lblSymSel">Sel.:</span>
+        <span id="sym-sel-disp" style="font-size:18px">⚡</span>
+      </div>
+    </div>
+    <div class="mini-f"><label data-i18n="lblSymColor">Color del símbolo</label><div id="new-sym-picker" class="cpicker"></div></div>
+    <div class="mini-f"><label data-i18n="lblNameColor">Color del nombre</label><div id="new-name-picker" class="cpicker"></div></div>
+    <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center" onclick="addEnchant()"><i class="fa-solid fa-plus"></i> <span data-i18n="btnAddEnch">Añadir enchant</span></button>
+  </div>
+  <div class="sep"></div>
+  <div id="ench-list-wrap" class="ench-list-wrap"></div>
+  <div id="empty-enchs" style="text-align:center;font-size:13px;color:var(--fg-muted);padding:20px 0;font-family:'JetBrains Mono',monospace" data-i18n="emptyEnch">Sin enchants · Añade el primero</div>
+</div>
+
+<!-- YAML -->
+<div id="yaml-panel">
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between"><div class="yaml-ph">YAML Output</div><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-muted)" id="yaml-fname-disp">sword.yml</span></div>
+    <pre id="yaml-out">-- Añade enchants para ver el YAML --</pre>
+  </div>
+  <div class="yaml-side">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px" data-i18n="yamlFmts">Formatos</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-dim);line-height:2.1">
+      <span style="color:var(--accent)">DM</span> lore:<br>
+      <span style="color:var(--accent-2)">EI</span> lore: + id:<br>
+      <span style="color:var(--warn)">IE</span> server item<br>
+      <span style="color:var(--purple)">GN</span> genérico
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── I18N ──
+let LANG=localStorage.getItem('lg-lang')||'es';
+const LT={
+  es:{brandSub:'Generator',btnHome:'Inicio',btnCopy:'Copiar',btnDl:'Descargar .yml',
+    phLeft:'📦 Config. del Item',lblName:'Nombre del item',hintName:'Soporta &amp;6 &amp;l y &amp;#RRGGBB',
+    lblMat:'Material',grpSwords:'Espadas',grpPickaxes:'Picos',grpAxes:'Hachas',grpShovels:'Palas',
+    grpHoes:'Azadas',grpHelmets:'Cascos',grpChests:'Petos',grpLegs:'Pantalones',grpBoots:'Botas',
+    grpRanged:'A distancia',grpOthers:'Otros',
+    sdivFree:'Texto libre',lblFree:'Líneas adicionales',hintFree:'Cada línea = una línea de lore',
+    sdivFmt:'Formato',lblPlugin:'Plugin',lblFile:'Nombre del archivo',optPlain:'Solo líneas (genérico)',
+    sdivOpts:'Opciones',ckSepTop:'Línea vacía al inicio',ckSepEnch:'Separador entre enchants',
+    ckSepBot:'Línea vacía al final',ckRoman:'Niveles en romano (I II III…)',
+    phPrev:'✨ Vista Previa',slEnchs:'Enchants',slLines:'Líneas',slChars:'Chars',
+    phEnch:'⚡ Enchants',lblEnchSel:'Encantamiento',lblCustomName:'Nombre personalizado',
+    lblLevel:'Nivel',lblSymbol:'Símbolo Unicode',lblSymSel:'Sel.:',
+    lblSymColor:'Color del símbolo',lblNameColor:'Color del nombre',
+    btnAddEnch:'Añadir enchant',emptyEnch:'Sin enchants · Añade el primero',
+    yamlFmts:'Formatos',tabMC:'MC',tabHex:'HEX',tabGrad:'Degradado',
+    toastCopied:'YAML copiado ✓',toastAdded:'Enchant añadido ✓',enchCnt:' enchants'},
+  en:{brandSub:'Generator',btnHome:'Home',btnCopy:'Copy',btnDl:'Download .yml',
+    phLeft:'📦 Item Config',lblName:'Item name',hintName:'Supports &amp;6 &amp;l and &amp;#RRGGBB',
+    lblMat:'Material',grpSwords:'Swords',grpPickaxes:'Pickaxes',grpAxes:'Axes',grpShovels:'Shovels',
+    grpHoes:'Hoes',grpHelmets:'Helmets',grpChests:'Chestplates',grpLegs:'Leggings',grpBoots:'Boots',
+    grpRanged:'Ranged',grpOthers:'Others',
+    sdivFree:'Free text',lblFree:'Extra lore lines',hintFree:'Each line = one lore line',
+    sdivFmt:'Format',lblPlugin:'Plugin',lblFile:'File name',optPlain:'Lines only (generic)',
+    sdivOpts:'Options',ckSepTop:'Empty line at top',ckSepEnch:'Separator between enchants',
+    ckSepBot:'Empty line at bottom',ckRoman:'Roman numerals (I II III…)',
+    phPrev:'✨ Preview',slEnchs:'Enchants',slLines:'Lines',slChars:'Chars',
+    phEnch:'⚡ Enchants',lblEnchSel:'Enchantment',lblCustomName:'Custom name',
+    lblLevel:'Level',lblSymbol:'Unicode symbol',lblSymSel:'Sel.:',
+    lblSymColor:'Symbol color',lblNameColor:'Name color',
+    btnAddEnch:'Add enchant',emptyEnch:'No enchants · Add the first one',
+    yamlFmts:'Formats',tabMC:'MC',tabHex:'HEX',tabGrad:'Gradient',
+    toastCopied:'YAML copied ✓',toastAdded:'Enchant added ✓',enchCnt:' enchants'}
+};
+function T(k){return LT[LANG][k]||LT.es[k]||k;}
+function applyLang(lang){
+  LANG=lang;localStorage.setItem('lg-lang',lang);
+  const lb=g('lang-btn');if(lb)lb.textContent=lang==='es'?'ES':'EN';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const v=T(el.dataset.i18n);if(v!==undefined)el.innerHTML=v;});
+  document.querySelectorAll('[data-i18n-grp]').forEach(el=>{const v=T(el.dataset.i18nGrp);if(v)el.label=v;});
+  document.querySelectorAll('[data-i18n-opt]').forEach(el=>{const v=T(el.dataset.i18nOpt);if(v)el.innerHTML=v;});
+  buildEnchSelector();
+}
+function toggleLang(){applyLang(LANG==='es'?'en':'es');}
+
+// ── ENCHANTMENTS ──
+const ENCHS=[
+  {id:'SHARPNESS',es:'Filo',en:'Sharpness'},
+  {id:'SMITE',es:'Castigo',en:'Smite'},
+  {id:'BANE_OF_ARTHROPODS',es:'Perdición de Artrópodos',en:'Bane of Arthropods'},
+  {id:'KNOCKBACK',es:'Retroceso',en:'Knockback'},
+  {id:'FIRE_ASPECT',es:'Filo Ardiente',en:'Fire Aspect'},
+  {id:'LOOTING',es:'Botín',en:'Looting'},
+  {id:'SWEEPING_EDGE',es:'Barrido',en:'Sweeping Edge'},
+  {id:'EFFICIENCY',es:'Eficiencia',en:'Efficiency'},
+  {id:'SILK_TOUCH',es:'Toque de Seda',en:'Silk Touch'},
+  {id:'UNBREAKING',es:'Irrompibilidad',en:'Unbreaking'},
+  {id:'FORTUNE',es:'Fortuna',en:'Fortune'},
+  {id:'POWER',es:'Poder',en:'Power'},
+  {id:'PUNCH',es:'Empuje',en:'Punch'},
+  {id:'FLAME',es:'Llama',en:'Flame'},
+  {id:'INFINITY',es:'Infinidad',en:'Infinity'},
+  {id:'PROTECTION',es:'Protección',en:'Protection'},
+  {id:'FIRE_PROTECTION',es:'Prot. contra Fuego',en:'Fire Protection'},
+  {id:'BLAST_PROTECTION',es:'Prot. contra Explosiones',en:'Blast Protection'},
+  {id:'PROJECTILE_PROTECTION',es:'Prot. contra Proyectiles',en:'Projectile Protection'},
+  {id:'FEATHER_FALLING',es:'Caída de Pluma',en:'Feather Falling'},
+  {id:'RESPIRATION',es:'Respiración',en:'Respiration'},
+  {id:'AQUA_AFFINITY',es:'Afinidad Acuática',en:'Aqua Affinity'},
+  {id:'DEPTH_STRIDER',es:'Paso Acuático',en:'Depth Strider'},
+  {id:'FROST_WALKER',es:'Paso Helado',en:'Frost Walker'},
+  {id:'THORNS',es:'Espinas',en:'Thorns'},
+  {id:'SWIFT_SNEAK',es:'Sigilo Veloz',en:'Swift Sneak'},
+  {id:'SOUL_SPEED',es:'Velocidad del Alma',en:'Soul Speed'},
+  {id:'MENDING',es:'Reparación',en:'Mending'},
+  {id:'CURSE_OF_BINDING',es:'Maldición de Atadura',en:'Curse of Binding'},
+  {id:'CURSE_OF_VANISHING',es:'Maldición de Desvanecimiento',en:'Curse of Vanishing'},
+  {id:'LOYALTY',es:'Lealtad',en:'Loyalty'},
+  {id:'IMPALING',es:'Empalamiento',en:'Impaling'},
+  {id:'RIPTIDE',es:'Resaca',en:'Riptide'},
+  {id:'CHANNELING',es:'Canalización',en:'Channeling'},
+  {id:'MULTISHOT',es:'Multidisparo',en:'Multishot'},
+  {id:'QUICK_CHARGE',es:'Carga Rápida',en:'Quick Charge'},
+  {id:'PIERCING',es:'Perforación',en:'Piercing'},
+  {id:'WIND_BURST',es:'Ráfaga de Viento',en:'Wind Burst'},
+  {id:'BREACH',es:'Brecha',en:'Breach'},
+  {id:'DENSITY',es:'Densidad',en:'Density'},
+  {id:'__custom__',es:'✎ Personalizado...',en:'✎ Custom...'},
+];
+function buildEnchSelector(){
+  const sel=g('new-ench-sel');sel.innerHTML='';
+  ENCHS.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.textContent=e[LANG]||e.es;sel.appendChild(o);});
+  sel.onchange=()=>{g('custom-name-wrap').style.display=sel.value==='__custom__'?'':'none';};
+}
+
+// ── SYMBOLS (from mcutils.com) ──
+const SYMS=['⚡','🔥','❄','💀','⚔','🌀','☄','💥','🌊','⭐','⚓','⛏','🗡','🏹','🪓','🔱','🎣','🧪',
+  '✂','🔔','⏳','🪣','☠','⸸','♥','❤','♦','♠','♣','♪','♫','♬','♭','♮','♯','☀','☁','☽','☔',
+  '⛄','☃','⌛','⌚','✎','❣','⛈','⚐','☂','✉','☺','☻','☹','⚜','☮','☯','☐','☑','☒','★','☆',
+  '◆','◇','○','◎','●','◦','◘','□','△','▷','▽','◁','⏩','⏪','▲','▶','▼','◀','⭘','←','↑','→',
+  '↓','↔','⇒','⇔','⇄','⇵','⇏','∞','∴','∵','·','•','‹','›','«','»','™','⧈','ⁱ','※','░','▒',
+  '▓','∙','■','ℹ','⚠','☞','☜','♀','♂','⚥','⚀','⚁','⚂','⚃','⚄','⚅','✔','✘','⌂','⌘','⚕',
+  '⚖','⚘','⚛','⚗','⓪','①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮',
+  '⑯','⑰','⑱','⑲','⑳','Ⓐ','Ⓑ','Ⓒ','Ⓓ','Ⓔ','Ⓕ','Ⓖ','Ⓗ','Ⓘ','Ⓙ','Ⓚ','Ⓛ','Ⓜ','Ⓝ','Ⓞ',
+  'Ⓟ','Ⓠ','Ⓡ','Ⓢ','Ⓣ','Ⓤ','Ⓥ','Ⓦ','Ⓧ','Ⓨ','Ⓩ','🍖','🌧'];
+let selectedSym='⚡';
+
+// ── MC COLORS ──
+const MC_COLS=[
+  {c:'&6',h:'#FFAA00'},{c:'&e',h:'#FFFF55'},{c:'&a',h:'#55FF55'},{c:'&b',h:'#55FFFF'},
+  {c:'&d',h:'#FF55FF'},{c:'&c',h:'#FF5555'},{c:'&f',h:'#FFFFFF'},{c:'&7',h:'#AAAAAA'},
+  {c:'&9',h:'#5555FF'},{c:'&5',h:'#AA00AA'},{c:'&2',h:'#00AA00'},{c:'&3',h:'#00AAAA'},
+  {c:'&4',h:'#AA0000'},{c:'&8',h:'#555555'},{c:'&1',h:'#0000AA'},{c:'&0',h:'#111111'},
+];
+const MC_MAP={a:'#55FF55',b:'#55FFFF',c:'#FF5555',d:'#FF55FF',e:'#FFFF55',f:'#FFFFFF',
+  '6':'#FFAA00','7':'#AAAAAA','8':'#555555','9':'#5555FF','0':'#111','1':'#0000AA',
+  '2':'#00AA00','3':'#00AAAA','4':'#AA0000','5':'#AA00AA'};
+
+// ── COLOR OBJECT: {type:'mc'|'hex'|'grad', mc, hex, grad:[]} ──
+let newSymC={type:'mc',mc:'&6',hex:'#FFAA00',grad:['#FF4D00','#FFCC00']};
+let newNameC={type:'mc',mc:'&7',hex:'#AAAAAA',grad:['#AAAAAA','#FFFFFF']};
+
+function buildCP(cid, cs, onChange){
+  const el=g(cid);el.innerHTML='';
+  const tabs=document.createElement('div');tabs.className='cp-tabs';
+  [['mc',T('tabMC')],['hex',T('tabHex')],['grad',T('tabGrad')]].forEach(([tp,lb])=>{
+    const t=document.createElement('div');t.className='cpt'+(cs.type===tp?' on':'');t.textContent=lb;
+    t.onclick=()=>{cs.type=tp;buildCP(cid,cs,onChange);onChange();};tabs.appendChild(t);
+  });
+  el.appendChild(tabs);
+  const body=document.createElement('div');
+  if(cs.type==='mc'){
+    const grid=document.createElement('div');grid.className='cp-mc-grid';
+    MC_COLS.forEach(col=>{
+      const d=document.createElement('div');d.className='cpm';
+      d.style.background=col.h;d.style.border=`2px solid ${cs.mc===col.c?'rgba(255,255,255,.55)':'transparent'}`;
+      d.title=col.c;d.onclick=()=>{cs.mc=col.c;cs.hex=col.h;buildCP(cid,cs,onChange);onChange();};
+      grid.appendChild(d);
+    });
+    body.appendChild(grid);
+  }else if(cs.type==='hex'){
+    const row=document.createElement('div');row.className='cp-hex-row';
+    const sw=document.createElement('div');sw.className='cp-swatch';sw.style.background=cs.hex;
+    const inp=document.createElement('input');inp.className='cp-hex-inp';inp.maxLength=7;inp.value=cs.hex.toUpperCase();inp.placeholder='#FF4400';
+    inp.oninput=()=>{const v=inp.value.startsWith('#')?inp.value:'#'+inp.value;if(/^#[0-9a-fA-F]{6}$/i.test(v)){cs.hex=v;sw.style.background=v;onChange();}};
+    row.appendChild(sw);row.appendChild(inp);body.appendChild(row);
+  }else{
+    if(!cs.grad||cs.grad.length<2)cs.grad=['#FF4D00','#FFCC00'];
+    const wrap=document.createElement('div');
+    const prev=document.createElement('div');prev.className='cp-grad-preview';
+    function updPrev(){const s=cs.grad.map((h,i)=>`${h} ${(i/(cs.grad.length-1)*100).toFixed(0)}%`).join(',');prev.style.background=`linear-gradient(to right,${s})`;}
+    cs.grad.forEach((hex,i)=>{
+      const row=document.createElement('div');row.className='cp-grad-row';
+      const sw=document.createElement('div');sw.className='cp-grad-swatch';sw.style.background=hex;
+      const ni=document.createElement('input');ni.type='color';ni.value=hex;
+      ni.oninput=()=>{cs.grad[i]=ni.value;sw.style.background=ni.value;hi.value=ni.value.toUpperCase();updPrev();onChange();};
+      sw.appendChild(ni);
+      const hi=document.createElement('input');hi.className='cp-grad-hex';hi.maxLength=7;hi.value=hex.toUpperCase();
+      hi.oninput=()=>{const v=hi.value.startsWith('#')?hi.value:'#'+hi.value;if(/^#[0-9a-fA-F]{6}$/i.test(v)){cs.grad[i]=v;sw.style.background=v;ni.value=v;updPrev();onChange();}};
+      row.appendChild(sw);row.appendChild(hi);
+      if(i>1){const rm=document.createElement('div');rm.className='icon-btn';rm.style.cssText='width:20px;height:20px;font-size:9px;flex-shrink:0';rm.innerHTML='✕';rm.onclick=()=>{cs.grad.splice(i,1);buildCP(cid,cs,onChange);onChange();};row.appendChild(rm);}
+      wrap.appendChild(row);
+    });
+    const ab=document.createElement('button');ab.className='btn btn-ghost btn-xs';ab.style.marginTop='4px';ab.innerHTML='+ Color';
+    ab.onclick=()=>{cs.grad.push('#ffffff');buildCP(cid,cs,onChange);onChange();};
+    wrap.appendChild(ab);updPrev();wrap.appendChild(prev);body.appendChild(wrap);
+  }
+  el.appendChild(body);
+}
+
+// ── COLOR RENDERING ──
+function applyColor(cs,text){
+  if(!text)return'';
+  if(cs.type==='mc')return cs.mc+text;
+  if(cs.type==='hex')return'&#'+cs.hex.replace('#','')+text;
+  if(cs.type==='grad'&&cs.grad&&cs.grad.length>=2){
+    const chars=[...text];
+    return chars.map((ch,i)=>'&#'+gradAt(cs.grad,chars.length<=1?0:i/(chars.length-1)).replace('#','')+ch).join('');
+  }
+  return text;
+}
+function gradAt(stops,t){
+  const seg=stops.length-1,pos=t*seg,lo=Math.floor(pos),hi=Math.min(lo+1,seg),lt=pos-lo;
+  const a=h2r(stops[lo]),b=h2r(stops[hi]);
+  return r2h(Math.round(a[0]+(b[0]-a[0])*lt),Math.round(a[1]+(b[1]-a[1])*lt),Math.round(a[2]+(b[2]-a[2])*lt));
+}
+function h2r(h){const x=h.replace('#','');return[parseInt(x.slice(0,2),16),parseInt(x.slice(2,4),16),parseInt(x.slice(4,6),16)];}
+function r2h(r,g,b){return'#'+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');}
+
+// ── MC COLOR → HTML ──
+function mcClr(t){
+  if(!t)return'';let out='',i=0,col='#dce8f2';
+  while(i<t.length){
+    if(t[i]==='&'&&i+1<t.length){const c=t[i+1].toLowerCase();if(MC_MAP[c]){col=MC_MAP[c];i+=2;continue;}if('lkonmr'.includes(c)){i+=2;continue;}}
+    if(t[i]==='&'&&t[i+1]==='#'&&i+8<=t.length){const hex=t.substring(i+1,i+8);if(/^#[0-9a-fA-F]{6}$/.test(hex)){col=hex;i+=8;continue;}}
+    out+=`<span style="color:${col}">${t[i]==='<'?'&lt;':t[i]==='>'?'&gt;':t[i]}</span>`;i++;
+  }return out;
+}
+function mcStrip(t){return(t||'').replace(/&[a-fklmnor0-9]/gi,'').replace(/&#[0-9a-fA-F]{6}/gi,'');}
+
+// ── ROMAN NUMERALS ──
+function toRoman(n){const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],s=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';for(let i=0;i<v.length;i++){while(n>=v[i]){r+=s[i];n-=v[i];}}return r;}
+function romanToggle(){g('new-lvl-disp').textContent=g('opt-roman').checked?toRoman(newLvl):newLvl;render();}
+
+// ── STATE ──
+let enchants=[];let newLvl=1;
+
+// ── SYMBOL GRID ──
+function buildSymGrid(){
+  const grid=g('sym-grid');grid.innerHTML='';
+  SYMS.forEach(s=>{
+    const d=document.createElement('div');d.className='sym'+(s===selectedSym?' on':'');d.textContent=s;d.title=s;
+    d.onclick=()=>{selectedSym=s;g('sym-sel-disp').textContent=s;document.querySelectorAll('.sym').forEach(x=>x.classList.remove('on'));d.classList.add('on');};
+    grid.appendChild(d);
+  });
+}
+
+// ── LEVEL ──
+function adjNewLvl(d){newLvl=Math.max(1,Math.min(20,newLvl+d));g('new-lvl-disp').textContent=g('opt-roman').checked?toRoman(newLvl):newLvl;}
+
+// ── ADD ENCHANT ──
+function addEnchant(){
+  const sel=g('new-ench-sel');let id=sel.value;let name=sel.options[sel.selectedIndex]?.textContent||id;
+  if(id==='__custom__'){const cn=g('custom-ench-name').value.trim();if(!cn){toast(T('lblEnchSel')+'...');return;}id='CUSTOM';name=cn;}
+  enchants.push({id,name,level:newLvl,symbol:selectedSym,
+    symC:JSON.parse(JSON.stringify(newSymC)),nameC:JSON.parse(JSON.stringify(newNameC))});
+  renderEnchList();render();toast(T('toastAdded'));
+}
+function removeEnchant(i){enchants.splice(i,1);renderEnchList();render();}
+function moveEnchant(i,d){const j=i+d;if(j<0||j>=enchants.length)return;[enchants[i],enchants[j]]=[enchants[j],enchants[i]];renderEnchList();render();}
+function changeELvl(i,d){enchants[i].level=Math.max(1,Math.min(20,enchants[i].level+d));renderEnchList();render();}
+
+function renderEnchList(){
+  const list=g('ench-list-wrap'),empty=g('empty-enchs'),roman=g('opt-roman').checked;
+  if(!enchants.length){list.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';list.innerHTML='';
+  enchants.forEach((e,i)=>{
+    const lvl=roman?toRoman(e.level):e.level;
+    const symH=colHex(e.symC),nameH=colHex(e.nameC);
+    const row=document.createElement('div');row.className='ench-entry';row.id='ee-'+i;
+    row.innerHTML=`<div class="ench-entry-hdr" onclick="toggleEE(${i})">
+        <span class="ee-sym" style="color:${symH}">${e.symbol}</span>
+        <span class="ee-name" style="color:${nameH}">${esc(e.name)}</span>
+        <span class="ee-lvl">${lvl}</span>
+        <div style="display:flex;gap:3px;margin-left:4px" onclick="event.stopPropagation()">
+          ${i>0?`<div class="icon-btn" style="color:var(--fg-muted);background:rgba(255,255,255,.04);border-color:var(--line)" onclick="moveEnchant(${i},-1)"><i class="fa-solid fa-chevron-up"></i></div>`:''}
+          ${i<enchants.length-1?`<div class="icon-btn" style="color:var(--fg-muted);background:rgba(255,255,255,.04);border-color:var(--line)" onclick="moveEnchant(${i},1)"><i class="fa-solid fa-chevron-down"></i></div>`:''}
+          <div class="icon-btn" onclick="removeEnchant(${i})"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <i style="font-size:9px;color:var(--fg-muted);transition:transform .15s" class="fa-solid fa-chevron-down" id="ee-chev-${i}"></i>
+      </div>
+      <div class="ench-entry-body" id="ee-body-${i}" style="display:none">
+        <div class="mini-row2" style="margin-bottom:8px">
+          <div class="mini-f"><label>${T('lblSymbol')}</label><input class="mini-inp" value="${e.symbol}" oninput="enchants[${i}].symbol=this.value;renderEnchList();render()"></div>
+          <div class="mini-f"><label>${T('lblLevel')}</label>
+            <div class="lvl-row"><div class="lvl-btn" onclick="changeELvl(${i},-1)">−</div><div class="lvl-display" id="ee-lvl-${i}">${lvl}</div><div class="lvl-btn" onclick="changeELvl(${i},1)">+</div></div>
+          </div>
+        </div>
+        <div class="mini-f"><label>${T('lblEnchSel')}</label><input class="mini-inp" value="${esc(e.name)}" oninput="enchants[${i}].name=this.value;renderEnchList();render()"></div>
+        <div style="margin-top:8px"><label class="sec-lbl">${T('lblSymColor')}</label><div id="ee-sc-${i}" class="cpicker"></div></div>
+        <div style="margin-top:8px"><label class="sec-lbl">${T('lblNameColor')}</label><div id="ee-nc-${i}" class="cpicker"></div></div>
+      </div>`;
+    list.appendChild(row);
+  });
+}
+function toggleEE(i){
+  const body=g('ee-body-'+i),chev=g('ee-chev-'+i);
+  const open=body.style.display==='block';body.style.display=open?'none':'block';
+  if(chev)chev.style.transform=open?'':'rotate(180deg)';
+  if(!open){buildCP('ee-sc-'+i,enchants[i].symC,()=>{renderEnchList();render();});buildCP('ee-nc-'+i,enchants[i].nameC,()=>{renderEnchList();render();});}
+}
+function colHex(cs){
+  if(cs.type==='mc')return MC_MAP[cs.mc.replace('&','')]||'#AAAAAA';
+  if(cs.type==='hex')return cs.hex;
+  if(cs.type==='grad'&&cs.grad&&cs.grad.length)return cs.grad[0];
+  return'#AAAAAA';
+}
+
+// ── BUILD LORE LINES ──
+function buildLines(){
+  const roman=g('opt-roman').checked,st=g('opt-sep-top').checked,
+    se=g('opt-sep-ench').checked,sb=g('opt-sep-bot').checked,lines=[];
+  if(st)lines.push('');
+  const free=g('i-free').value;
+  if(free.trim()){free.split('\n').forEach(l=>lines.push(l));if(enchants.length)lines.push('');}
+  enchants.forEach((e,i)=>{
+    const lvl=roman?toRoman(e.level):e.level;
+    lines.push(applyColor(e.symC,e.symbol)+' '+applyColor(e.nameC,e.name+' '+lvl));
+    if(se&&i<enchants.length-1)lines.push('');
+  });
+  if(sb)lines.push('');return lines;
+}
+
+// ── RENDER ──
+function render(){
+  const name=g('i-name').value,matSel=g('i-mat'),fname=g('i-fname').value||'sword';
+  const mat=matSel.value;
+  const matName=matSel.options[matSel.selectedIndex]?.text?.replace(/^[^\s]+\s/,'').trim()||'DIAMOND_SWORD';
+  g('prev-icon').textContent=mat;g('prev-name').innerHTML=mcClr(name);
+  g('prev-fname').textContent=fname+'.yml';g('yaml-fname-disp').textContent=fname+'.yml';
+  const lines=buildLines();const loreEl=g('prev-lore');loreEl.innerHTML='';
+  lines.forEach(l=>{const d=document.createElement('div');d.className='mc-lore-line';d.innerHTML=l===''?'&nbsp;':mcClr(l);loreEl.appendChild(d);});
+  g('prev-ec').textContent=enchants.length+T('enchCnt');
+  g('st-e').textContent=enchants.length;g('st-l').textContent=lines.length;
+  g('st-c').textContent=lines.reduce((a,l)=>a+mcStrip(l).length,0);
+  genYAML(lines,fname,name,matName);
+}
+
+// ── YAML GEN ──
+function ys(v){const s=String(v||'');if(!s)return"''";if(/[:#&{}'%\[\]]/.test(s)||s.startsWith(' ')||s.endsWith(' '))return`'${s.replace(/'/g,"''")}'`;return s;}
+function genYAML(lines,fname,itemName,matName){
+  const p=g('fmt-plugin').value,L=[];
+  if(p==='deluxemenus'){L.push(`'${fname}':`);L.push(`  material: ${matName}`);L.push(`  display_name: ${ys(itemName)}`);if(lines.length){L.push(`  lore:`);lines.forEach(l=>L.push(`    - ${ys(l)}`))};}
+  else if(p==='executableitems'){L.push(`id: ${fname}`);L.push(`displayName: ${ys(itemName)}`);L.push(`material: ${matName}`);if(lines.length){L.push(`lore:`);lines.forEach(l=>L.push(`  - ${l===''?"''":ys(l)}`))}L.push(`enchants: {}`);L.push(`usage: -1`);L.push(`keepItemOnDeath: false`);L.push(`activators: {}`);}
+  else if(p==='itemedit'){L.push(`name: "${fname}"`);L.push(`displayName: ${ys(itemName)}`);L.push(`material: ${matName}`);L.push(`amount: 1`);L.push(`unbreakable: false`);if(lines.length){L.push(`lore:`);lines.forEach(l=>L.push(`  - ${l===''?"''":ys(l)}`))}L.push(`enchants: {}`);L.push(`hideEnchants: false`);}
+  else{L.push(`lore:`);lines.forEach(l=>L.push(`  - ${ys(l)}`));}
+  g('yaml-out').textContent=L.join('\n');
+}
+function copyYAML(){navigator.clipboard.writeText(g('yaml-out').textContent).then(()=>toast(T('toastCopied')));}
+function downloadYAML(){const fn=(g('i-fname').value||'sword')+'.yml';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([g('yaml-out').textContent],{type:'text/yaml'}));a.download=fn;a.click();}
+
+// ── UTILS ──
+function g(id){return document.getElementById(id)}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2400);}
+
+// ── INIT ──
+(function(){
+  buildEnchSelector();buildSymGrid();
+  buildCP('new-sym-picker',newSymC,()=>{});
+  buildCP('new-name-picker',newNameC,()=>{});
+  enchants=[
+    {id:'SHARPNESS',name:ENCHS.find(e=>e.id==='SHARPNESS')[LANG],level:5,symbol:'⚔',symC:{type:'mc',mc:'&6',hex:'#FFAA00',grad:['#FF4D00','#FFCC00']},nameC:{type:'mc',mc:'&7',hex:'#AAAAAA',grad:['#aaa','#fff']}},
+    {id:'UNBREAKING',name:ENCHS.find(e=>e.id==='UNBREAKING')[LANG],level:3,symbol:'🛡',symC:{type:'mc',mc:'&7',hex:'#AAAAAA',grad:['#888','#fff']},nameC:{type:'mc',mc:'&7',hex:'#AAAAAA',grad:['#aaa','#fff']}},
+    {id:'MENDING',name:ENCHS.find(e=>e.id==='MENDING')[LANG],level:1,symbol:'💎',symC:{type:'mc',mc:'&b',hex:'#55FFFF',grad:['#55FFFF','#FFFFFF']},nameC:{type:'mc',mc:'&b',hex:'#55FFFF',grad:['#55FFFF','#fff']}},
+  ];
+  applyLang(LANG);
+  renderEnchList();render();
+})();
+</script>
+</body>
+</html>

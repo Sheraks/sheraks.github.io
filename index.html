@@ -634,6 +634,56 @@ footer{
         </div>
       </div>
 
+      <!-- LORE GENERATOR -->
+      <div class="tool-card reveal" style="transition-delay:.15s;grid-column:1/-1;
+           --card-accent:oklch(0.80 0.18 55);--card-accent-dim:oklch(0.80 0.18 55/.12);--card-accent-border:oklch(0.80 0.18 55/.22);
+           display:grid;grid-template-columns:1fr 280px;padding:0;overflow:hidden"
+           onclick="window.location='lore-generator.html'">
+        <div class="card-top-line"></div>
+        <div class="featured-left">
+          <div class="card-icon-wrap" style="font-size:26px">✨</div>
+          <div class="card-tag" style="background:oklch(0.80 0.18 55/.12);color:oklch(0.80 0.18 55);border-color:oklch(0.80 0.18 55/.25)">
+            <span class="dot"></span> Activo · v1
+          </div>
+          <div class="card-name">Lore Generator</div>
+          <div class="card-desc">
+            Genera lores de items con enchants formateados visualmente. Elige enchantment, nivel en romano o arábigo, símbolo Unicode y color. Compatible con DeluxeMenus, PhantomDungeons e ItemsAdder.
+          </div>
+          <div class="card-features">
+            <span class="card-feat">Vanilla + PD enchants</span>
+            <span class="card-feat">56+ símbolos Unicode</span>
+            <span class="card-feat">Números romanos / arábigos</span>
+            <span class="card-feat">4 formatos YAML</span>
+            <span class="card-feat">Vista previa MC live</span>
+          </div>
+          <div class="card-footer" style="margin-top:0">
+            <a href="lore-generator.html" class="card-cta" style="color:oklch(0.80 0.18 55)" onclick="event.stopPropagation()">
+              Abrir Generator <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <span class="card-version">Multi-plugin</span>
+          </div>
+        </div>
+        <div class="featured-right" style="background:linear-gradient(135deg,#0d0a05,#14110a)">
+          <div class="featured-mockup">
+            <div class="fm-bar">
+              <div class="fm-dot" style="background:#ff5f57"></div>
+              <div class="fm-dot" style="background:#febc2e"></div>
+              <div class="fm-dot" style="background:#28c840"></div>
+              <div style="flex:1;height:1px;background:var(--line);margin:0 8px"></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg-muted)">sword.yml</div>
+            </div>
+            <div style="flex:1;padding:12px;display:flex;flex-direction:column;gap:5px;overflow:hidden">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:oklch(0.80 0.18 55/.6);margin-bottom:4px">lore:</div>
+              <div id="lore-demo-lines" style="display:flex;flex-direction:column;gap:4px"></div>
+            </div>
+            <div class="fm-yaml">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:oklch(0.80 0.18 55);flex-shrink:0">▶</div>
+              <div class="fm-yaml-text" style="color:oklch(0.82 0.14 155)">  - '&6⚔ Sharpness V' · '&7🛡 Unbreaking III'...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -663,6 +713,32 @@ const observer=new IntersectionObserver((entries)=>{
   });
 },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// ── LORE DEMO ANIMATION ──
+(function(){
+  const c=document.getElementById('lore-demo-lines');
+  if(!c)return;
+  const lines=[
+    {color:'#FFAA00',text:"⚔ Sharpness V"},
+    {color:'#AAAAAA',text:"🛡 Unbreaking III"},
+    {color:'#55FFFF',text:"💎 Mending I"},
+    {color:'#55FF55',text:"🔥 Fire Aspect II"},
+    {color:'#FF55FF',text:"⭐ Looting III"},
+    {color:'#5555FF',text:"💀 Smite IV"},
+  ];
+  let vi=0;
+  function showNext(){
+    if(vi<lines.length){
+      const d=document.createElement('div');
+      d.style.cssText=`font-family:'JetBrains Mono',monospace;font-size:10px;color:${lines[vi].color};opacity:0;transition:opacity .4s,transform .4s;transform:translateX(-6px)`;
+      d.textContent=`  - '${lines[vi].text}'`;
+      c.appendChild(d);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{d.style.opacity='1';d.style.transform='none';}));
+      vi++;setTimeout(showNext,450);
+    }else{setTimeout(()=>{c.innerHTML='';vi=0;setTimeout(showNext,400);},3000);}
+  }
+  setTimeout(showNext,1000);
+})();
 
 // ── ENCHANT BUILDER MOCKUP ANIMATION ──
 (function(){
